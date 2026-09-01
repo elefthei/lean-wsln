@@ -1,0 +1,6 @@
+# Lake build output
+/.lake/
+
+# Reference material, not part of the port (see README.md)
+/agda-code/
+/agda-paper/
