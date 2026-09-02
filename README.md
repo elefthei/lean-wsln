@@ -179,5 +179,5 @@ to bring it into scope.
 
 ## License
 
-This work is released under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
-(public domain).
+Released into the public domain under
+[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
