@@ -34,10 +34,13 @@ inductive Fset : Type where
   | single : Atom → Fset
   /-- Agda: `_∪_`. -/
   | union : Fset → Fset → Fset
-  deriving DecidableEq  -- Agda: `decEqFset𝔸`
+  deriving DecidableEq, Repr  -- Agda: `decEqFset𝔸`
 
 instance : EmptyCollection Fset := ⟨Fset.empty⟩
 instance : Union Fset := ⟨Fset.union⟩
+instance : Singleton Atom Fset := ⟨Fset.single⟩
+instance : Insert Atom Fset := ⟨fun x s => Fset.union (Fset.single x) s⟩
+instance : Inhabited Fset := ⟨Fset.empty⟩
 
 @[inherit_doc Fset.single]
 scoped notation "｛" x "｝" => Fset.single x

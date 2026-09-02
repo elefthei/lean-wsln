@@ -263,7 +263,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))).2)
       · intro x y hfr2
-        obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+        obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C := notMem_union_right (notMem_union_right hxx)
@@ -278,7 +278,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
           (show ((σ ∘/ x ≔ (𝐯x : Tm0)) ∘/ y ≔ (𝐯y : Tm0)) * (C[x][y]) = (σ * C)[x][y]
             from sbUpdate_conc₂ σ x y (𝐯x) (𝐯y) C hxC
               (NotMem.union hyC (fresh_symm hxy)))
-          (ih₀ x y (fresh₂Intro hyS hxS hxy) pl)
+          (ih₀ x y (Fresh₂.intro hyS hxS hxy) pl)
       · exact castTm rfl
           (show σ * (C[a][𝐫𝐞𝐟𝐥 a]) = (σ * C)[σ * a][𝐫𝐞𝐟𝐥 (σ * a)] from
             sb_conc₂ σ C a (𝐫𝐞𝐟𝐥 a))
@@ -312,7 +312,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
           (show σ * (C[(𝐳𝐞𝐫𝐨 : Tm0)]) = (σ * C)[(𝐳𝐞𝐫𝐨 : Tm0)] from sb_conc σ C 𝐳𝐞𝐫𝐨)
           (ih₀ p)
       · intro x y hfr2
-        obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+        obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C :=
@@ -326,7 +326,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         have hycs : y # cs :=
           notMem_union_right (notMem_union_right (notMem_union_right hy))
         obtain ⟨hxΓ, hC⟩ := key x hxS hxΔ hxC
-        have hfrS : x # y # S := fresh₂Intro hyS hxS hxy
+        have hfrS : x # y # S := Fresh₂.intro hyS hxS hxy
         have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
           (snocOkInv (derivOk (q₁ x y hfrS))).1
         have hyx : y ≠ x := (Fset.ne_of_notMem_single hxy).symm
@@ -459,7 +459,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))).2)
       · intro x y hfr2
-        obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+        obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C :=
@@ -483,7 +483,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
           (show ((σ ∘/ x ≔ (𝐯x : Tm0)) ∘/ y ≔ (𝐯y : Tm0)) * (C'[x][y])
             = (σ * C')[x][y] from sbUpdate_conc₂ σ x y (𝐯x) (𝐯y) C' hxC'
               (NotMem.union hyC' (fresh_symm hxy)))
-          (ih₀ x y (fresh₂Intro hyS hxS hxy) pl)
+          (ih₀ x y (Fresh₂.intro hyS hxS hxy) pl)
       · exact castEq rfl rfl
           (show σ * (C[a][𝐫𝐞𝐟𝐥 a]) = (σ * C)[σ * a][𝐫𝐞𝐟𝐥 (σ * a)] from
             sb_conc₂ σ C a (𝐫𝐞𝐟𝐥 a))
@@ -526,7 +526,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
       · exact castEq rfl rfl
           (show σ * (C[(𝐳𝐞𝐫𝐨 : Tm0)]) = (σ * C)[(𝐳𝐞𝐫𝐨 : Tm0)] from sb_conc σ C 𝐳𝐞𝐫𝐨)
           (ih₁ p)
-      · obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+      · obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C :=
@@ -548,7 +548,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
           notMem_union_right (notMem_union_right (notMem_union_right
             (notMem_union_right (notMem_union_right hy))))
         obtain ⟨hxΓ, hC⟩ := key x hxS hxΔ hxC
-        have hfrS : x # y # S := fresh₂Intro hyS hxS hxy
+        have hfrS : x # y # S := Fresh₂.intro hyS hxS hxy
         have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
           (snocOkInv (derivOk (q₂ x y hfrS))).1
         have hyx : y ≠ x := (Fset.ne_of_notMem_single hxy).symm
@@ -619,7 +619,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))).2)
       intro x y hfr2
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
       have hxC : x # C := notMem_union_right (notMem_union_right hxx)
@@ -634,7 +634,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (show ((σ ∘/ x ≔ (𝐯x : Tm0)) ∘/ y ≔ (𝐯y : Tm0)) * (C[x][y]) = (σ * C)[x][y]
           from sbUpdate_conc₂ σ x y (𝐯x) (𝐯y) C hxC
             (NotMem.union hyC (fresh_symm hxy)))
-        (ih₀ x y (fresh₂Intro hyS hxS hxy) pl)
+        (ih₀ x y (Fresh₂.intro hyS hxS hxy) pl)
   | @natBeta₀ Γ l C c₀ cs S q₀ q₁ h ih₀ ih₁ ih₂ =>
       intro σ Δ p
       have eqz : σ * (C[(𝐳𝐞𝐫𝐨 : Tm0)]) = (σ * C)[(𝐳𝐞𝐫𝐨 : Tm0)] := sb_conc σ C 𝐳𝐞𝐫𝐨
@@ -653,7 +653,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))
           (notMem_union_left (notMem_union_right (notMem_union_right hx)))).2)
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
       have hxC : x # C :=
@@ -667,7 +667,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
       have hycs : y # cs :=
         notMem_union_right (notMem_union_right (notMem_union_right hy))
       obtain ⟨hxΓ, hC⟩ := key x hxS hxΔ hxC
-      have hfrS : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfrS : x # y # S := Fresh₂.intro hyS hxS hxy
       have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
         (snocOkInv (derivOk (q₁ x y hfrS))).1
       have hyx : y ≠ x := (Fset.ne_of_notMem_single hxy).symm
@@ -709,7 +709,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))
           (notMem_union_left (notMem_union_right (notMem_union_right hx)))).2)
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
       have hxC : x # C :=
@@ -723,7 +723,7 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
       have hycs : y # cs :=
         notMem_union_right (notMem_union_right (notMem_union_right hy))
       obtain ⟨hxΓ, hC⟩ := key x hxS hxΔ hxC
-      have hfrS : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfrS : x # y # S := Fresh₂.intro hyS hxS hxy
       have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
         (snocOkInv (derivOk (q₁ x y hfrS))).1
       have hyx : y ≠ x := (Fset.ne_of_notMem_single hxy).symm
@@ -978,7 +978,7 @@ private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {�
         (fun x hx => (key x (notMem_union_left hx)
           (notMem_union_left (notMem_union_right hx))).2)
       · intro x y hfr2
-        obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+        obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C := notMem_union_right (notMem_union_right hxx)
@@ -999,7 +999,7 @@ private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {�
           (show ((σ' ∘/ x ≔ (𝐯x : Tm0)) ∘/ y ≔ (𝐯y : Tm0)) * (C[x][y])
             = (σ' * C)[x][y] from sbUpdate_conc₂ σ' x y (𝐯x) (𝐯y) C hxC
               (NotMem.union hyC (fresh_symm hxy)))
-          (ih₀ x y (fresh₂Intro hyS hxS hxy) pe pl)
+          (ih₀ x y (Fresh₂.intro hyS hxS hxy) pe pl)
       · exact castEq rfl rfl
           (show σ * (C[a][𝐫𝐞𝐟𝐥 a]) = (σ * C)[σ * a][𝐫𝐞𝐟𝐥 (σ * a)] from
             sb_conc₂ σ C a (𝐫𝐞𝐟𝐥 a))
@@ -1046,7 +1046,7 @@ private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {�
       · exact castEq rfl rfl
           (show σ * (C[(𝐳𝐞𝐫𝐨 : Tm0)]) = (σ * C)[(𝐳𝐞𝐫𝐨 : Tm0)] from sb_conc σ C 𝐳𝐞𝐫𝐨)
           (ih₀ p hs)
-      · obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr2
+      · obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr2
         have hxS : x # S := notMem_union_left hxx
         have hxΔ : x # Δ := notMem_union_left (notMem_union_right hxx)
         have hxC : x # C :=
@@ -1060,7 +1060,7 @@ private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {�
         have hycs : y # cs :=
           notMem_union_right (notMem_union_right (notMem_union_right hy))
         obtain ⟨hxΓ, hC⟩ := key x hxS hxΔ hxC
-        have hfrS : x # y # S := fresh₂Intro hyS hxS hxy
+        have hfrS : x # y # S := Fresh₂.intro hyS hxS hxy
         have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
           (snocOkInv (derivOk (q₁ x y hfrS))).1
         have hyx : y ≠ x := (Fset.ne_of_notMem_single hxy).symm

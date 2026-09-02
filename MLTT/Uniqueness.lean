@@ -305,7 +305,9 @@ theorem svTy {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {a : Tm0} (q : Γ ⊢ a ∶ A �
 
 These `example`s and `#print axioms` commands gate the build: they exercise that the
 cofinite rules, the exists-fresh rules and uniqueness of types are usable on concrete
-derivations, and that nothing in the development depends on `sorryAx`. -/
+derivations, and that nothing in the development depends on `sorryAx`. Each axiom
+report is pinned with `#guard_msgs`, so any drift — an extra axiom, or a `sorryAx`
+creeping in through an unfinished proof — is a compile error, not just an info line. -/
 
 section Checks
 
@@ -336,12 +338,32 @@ example : ◇ ⊢ 𝚷 0 0 (𝐍𝐚𝐭 : Ty0) (𝐍𝐚𝐭 : Ty 1) ⦂ max 0 
 example : (0 : Lvl) = 0 ∧ (◇ ⊢ (𝐍𝐚𝐭 : Ty0) ＝ 𝐍𝐚𝐭 ⦂ 0) :=
   svTy (Deriv.zero .nil) (Deriv.zero .nil)
 
+/-- info: 'MLTT.derivSupp' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms derivSupp
+
+/-- info: 'MLTT.wkDeriv' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms wkDeriv
+
+/-- info: 'MLTT.sbDeriv' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms sbDeriv
+
+/-- info: 'MLTT.eqSbTm' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms eqSbTm
+
+/-- info: 'MLTT.derivTy₁' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms derivTy₁
+
+/-- info: 'MLTT.piEtaEF' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms piEtaEF
+
+/-- info: 'MLTT.svTy' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms svTy
 
 end Checks

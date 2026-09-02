@@ -152,13 +152,13 @@ scoped notation:50 x:51 " # " y:51 " # " a:51 => WSLN.Fresh₂ x y a
 
 /-- Introduce the two-atom freshness evidence `x # y # a`.  The Agda development
 builds the `Distinct` telescope `##:: … (##:: … ##◇)` inline. -/
-theorem fresh₂Intro {a : A} {x y : Atom} (hy : y # a) (hx : x # a) (hxy : x # y) :
+theorem Fresh₂.intro {a : A} {x y : Atom} (hy : y # a) (hx : x # a) (hxy : x # y) :
     x # y # a :=
   .cons hy (.cons (.union hxy hx) .nil)
 
 /-- Destructure the two-atom freshness evidence `x # y # a`.  The Agda development
 pattern matches on the `Distinct` telescope. -/
-theorem fresh₂Inv {a : A} {x y : Atom} (h : x # y # a) : (y # a) ∧ (x # a) ∧ (x # y) :=
+theorem Fresh₂.inv {a : A} {x y : Atom} (h : x # y # a) : (y # a) ∧ (x # a) ∧ (x # y) :=
   ⟨distinct_cons₂ h, distinct_cons₂ (distinct_cons₁ h),
     fresh_symm (Fset.notMem_union_left (distinct_cons₃ h))⟩
 

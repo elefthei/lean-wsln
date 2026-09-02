@@ -74,6 +74,11 @@ def Arg.weaken {Sg : Sig} {m : Nat} {ms : List Nat} (ts : Arg Sg m ms) (n : Nat)
 
 end
 
+/-! ### Defining equations of `weaken`
+
+Lean-only, no Agda counterpart: Agda's clausal definitions reduce definitionally at
+each constructor, so these `rfl` lemmas only restore that convenience to `simp`. -/
+
 @[simp] theorem Trm.weaken_var {Sg : Sig} {m n : Nat} (i : Fin m) (h : m ≤ n) :
     (Trm.var i : Trm Sg m).weaken n h = .var (Fin.castLE h i) := rfl
 
@@ -182,15 +187,15 @@ def Trm.decEq {Sg : Sig} [DecidableEq Sg.Op] {n : Nat} :
   | .var i, .var j =>
       if h : i = j then isTrue (by subst h; rfl)
       else isFalse (by rw [Trm.var.injEq]; exact h)
-  | .var _, .atom _ => isFalse (by intro e; cases e)
-  | .var _, .op _ _ => isFalse (by intro e; cases e)
-  | .atom _, .var _ => isFalse (by intro e; cases e)
+  | .var _, .atom _ => isFalse nofun
+  | .var _, .op _ _ => isFalse nofun
+  | .atom _, .var _ => isFalse nofun
   | .atom x, .atom y =>
       if h : x = y then isTrue (by subst h; rfl)
       else isFalse (by rw [Trm.atom.injEq]; exact h)
-  | .atom _, .op _ _ => isFalse (by intro e; cases e)
-  | .op _ _, .var _ => isFalse (by intro e; cases e)
-  | .op _ _, .atom _ => isFalse (by intro e; cases e)
+  | .atom _, .op _ _ => isFalse nofun
+  | .op _ _, .var _ => isFalse nofun
+  | .op _ _, .atom _ => isFalse nofun
   | .op o ts, .op o' ts' =>
       if h : o = o' then by
         subst h

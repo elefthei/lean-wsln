@@ -1,4 +1,6 @@
-/-
+/-!
+# Prelude
+
 Port of Andrew Pitts' Agda library *Well-Scoped Locally Nameless* (`agda-code/agda`)
 to Lean 4.
 
@@ -6,13 +8,18 @@ This file holds the few `Prelude/*.agda` items that have no ergonomic Lean-core
 counterpart.  Everything else in the Agda prelude maps directly onto core:
 `_≡_`/`refl`/`symm`/`trans`/`cong` → `Eq`/`rfl`/`Eq.symm`/`Eq.trans`/`congrArg`,
 equality chains → `calc`, `Ø`/`Øelim` → `False`/`absurd`, `∑`/`∃` → `Sigma`/`Subtype`/
-`Exists`, `_∧_` → `And`, `Dec`/`hasDecEq` → `Decidable`/`DecidableEq`, `List`/`Fin` →
-core `List`/`Fin`, `isProp`/`isSet`/`hedberg` → Lean's proof irrelevance (deleted).
+`Exists`, `_∧_` → `And`, `hasDecEq` → `DecidableEq`, `List`/`Fin` → core `List`/`Fin`,
+`isProp`/`isSet`/`hedberg` → Lean's proof irrelevance (deleted).  Agda's `Dec` maps
+onto core `Decidable` for propositions, but GST's typing and conversion judgements
+are `Type`-valued — the normalization-by-evaluation semantics eliminates a derivation
+into data — so the `Sort`-polymorphic original is kept below.
+
+Agda: `Prelude` (Prelude.agda).
 -/
 
 namespace WSLN
 
-universe u v w
+universe u v w w'
 
 /-! ## Vectors -/
 
@@ -23,6 +30,47 @@ Lean core's `Vector` is `Array`-backed; the structural version is kept because
 inductive Vec (A : Type u) : Nat → Type u where
   | nil : Vec A 0
   | cons {n : Nat} (a : A) (as : Vec A n) : Vec A (n + 1)
+
+/-! ## Decidable inhabitation -/
+
+/-- Agda: `Dec` (Prelude/Decidable.agda).
+
+Core's `Decidable` is the `Prop`-valued special case; this is the `Sort`-polymorphic
+form, needed because `GST`'s judgements live in `Type`. -/
+inductive Dec (α : Sort u) where
+  /-- Agda: `no`. -/
+  | no (h : α → False)
+  /-- Agda: `yes`. -/
+  | yes (h : α)
+
+/-- Core `Decidable` is the `Prop`-valued case of `Dec`. -/
+def Dec.ofDecidable {p : Prop} (inst : Decidable p) : Dec p :=
+  match inst with
+  | isTrue h => .yes h
+  | isFalse h => .no h
+
+/-- Whether the decision was positive; `#guard`-friendly. -/
+def Dec.isYes {α : Sort u} : Dec α → Bool
+  | .yes _ => true
+  | .no _ => false
+
+/-- Agda: `Dec∧` (Prelude/Decidable.agda). -/
+def Dec.and {α : Sort u} {β : Sort v} : Dec α → Dec β → Dec (PProd α β)
+  | .no h, _ => .no fun p => h p.1
+  | .yes _, .no h => .no fun p => h p.2
+  | .yes a, .yes b => .yes ⟨a, b⟩
+
+/-- Agda: `condDec` (Prelude/Decidable.agda): if `α` implies `β`, `β` is decidable
+and `α` is decidable given `β`, then `α` is decidable. -/
+def condDec {α : Sort u} {β : Sort v} (f : α → β) : Dec β → (β → Dec α) → Dec α
+  | .no h, _ => .no fun a => h (f a)
+  | .yes b, g => g b
+
+/-- Agda: `Dec↔` (Prelude/Decidable.agda): decidability transports along a
+bi-implication. -/
+def Dec.ofIff {α : Sort u} {β : Sort v} (f : α → β) (g : β → α) : Dec α → Dec β
+  | .no h => .no fun b => h (g b)
+  | .yes a => .yes (f a)
 
 /-! ## Update of functions -/
 

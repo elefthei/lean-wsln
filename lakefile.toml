@@ -4,7 +4,7 @@
 # Toolchain: Lean 4.33.1 (see lean-toolchain).  No external dependencies: the port
 # uses Lean core only.
 name = "wsln"
-defaultTargets = ["WSLN", "Adequacy", "MLTT", "Examples"]
+defaultTargets = ["WSLN", "Adequacy", "MLTT", "GST", "Examples"]
 
 [[lean_lib]]
 name = "WSLN"
@@ -14,6 +14,9 @@ name = "Adequacy"
 
 [[lean_lib]]
 name = "MLTT"
+
+[[lean_lib]]
+name = "GST"
 
 [[lean_lib]]
 name = "Examples"

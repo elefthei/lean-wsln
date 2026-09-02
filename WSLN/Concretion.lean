@@ -110,7 +110,7 @@ instance instGetElemTrmAtom {Sg : Sig} {n : Nat} :
 @[simp] theorem conc_atom {Sg : Sig} {n : Nat} (t : Trm Sg (n + 1)) (x : Atom) :
     t[x] = t.conc (.atom x) := rfl
 
-/-- Concretion of the outermost index: `i0 [ u ] = u ‿ n`. -/
+/-- Concretion of the outermost index: `i0 [ u ] = u.weaken n`. -/
 @[simp] theorem conc_var_zero {Sg : Sig} {n : Nat} {j : Fin (n + 1)} (u : Trm Sg 0)
     (h : j.val = 0) :
     (Trm.var j : Trm Sg (n + 1)).conc u = u.weaken n (Nat.zero_le n) :=
@@ -123,7 +123,7 @@ instance instGetElemTrmAtom {Sg : Sig} {n : Nat} :
   have hne : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) ≠ j := fun e => h (congrArg Fin.val e).symm
   rw [Trm.conc, opn_var_ne u rfl hne]
   refine congrArg Trm.var (Fin.ext ?_)
-  simp only [remove_val, val_cast]
+  simp only [remove_val, Fin.val_cast]
   rw [if_neg (by omega : ¬ (j.val < 0))]
 
 /-! ## Finite support properties of opening and concretion -/
@@ -214,8 +214,8 @@ theorem supp_conc₂ {Sg : Sig} {n : Nat} (t : Trm Sg (n + 2)) (u v : Trm Sg 0) 
 theorem opnFin_lt {m n : Nat} (i : Fin m) (j : Fin n) (q : m ≤ j.val) (h : m ≤ n) :
     Fin.castLE h i ≠ j := by
   intro he
-  have hv := congrArg (fun (k : Fin n) => k.val) he
-  simp only [val_castLE] at hv
+  have hv := congrArg Fin.val he
+  simp only [Fin.val_castLE] at hv
   have := i.isLt
   omega
 
@@ -231,11 +231,11 @@ theorem opn_lt {Sg : Sig} {k m n : Nat} (i : Fin n) (u : Trm Sg 0) (e : n = m + 
       have hne : i ≠ Fin.castLE h₂ j := by
         intro he
         have hv := congrArg (fun (l : Fin n) => l.val) he
-        simp only [val_castLE] at hv
+        simp only [Fin.val_castLE] at hv
         omega
       rw [Trm.weaken_var, opn_var_ne u e hne, Trm.weaken_var]
       refine congrArg Trm.var (Fin.ext ?_)
-      simp only [remove_val, val_cast, val_castLE]
+      simp only [remove_val, Fin.val_cast, Fin.val_castLE]
       rw [if_pos (by omega : j.val < i.val)]
   | .atom x => simp
   | .op o ts => simpa using opnArg_lt i u e q h₁ h₂ ts

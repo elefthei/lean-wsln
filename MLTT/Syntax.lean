@@ -33,11 +33,11 @@ inductive Op where
   /-- Agda: `′app′`. Function application. -/
   | app : Op
   /-- Agda: `′Id′`. Identity type. -/
-  | Id : Op
+  | id : Op
   /-- Agda: `′refl′`. Reflexivity proof. -/
   | refl : Op
   /-- Agda: `′J′`. Identity elimination. -/
-  | J : Op
+  | j : Op
   /-- Agda: `′Nat′`. Natural number type. -/
   | nat : Op
   /-- Agda: `′zero′`. Zero. -/
@@ -54,9 +54,9 @@ def ar : Op → List Nat
   | .pi _ _ => [0, 1]
   | .lam => [0, 1]
   | .app => [0, 0, 1, 0]
-  | .Id => [0, 0, 0]
+  | .id => [0, 0, 0]
   | .refl => [0]
-  | .J => [2, 0, 0, 0, 0]
+  | .j => [2, 0, 0, 0, 0]
   | .nat => []
   | .zero => []
   | .succ => [0]
@@ -101,16 +101,17 @@ abbrev Ty0 := Ty 0
 @[match_pattern] def app {n : Nat} (b : Tm n) (A : Ty n) (B : Ty (n + 1)) (a : Tm n) :
     Tm n := .op .app (.cons b (.cons A (.cons B (.cons a .nil))))
 
-/-- Agda: `pattern 𝐈𝐝 A a a'` (MLTT/Syntax.agda). -/
-@[match_pattern] def Id {n : Nat} (A : Ty n) (a a' : Tm n) : Ty n :=
-  .op .Id (.cons A (.cons a (.cons a' .nil)))
+/-- Agda: `pattern 𝐈𝐝 A a a'` (MLTT/Syntax.agda).  Named `Id'` so that it does not
+shadow core's `Id` under `open MLTT`, matching `Nat'`/`Pi'`/`refl'`. -/
+@[match_pattern] def Id' {n : Nat} (A : Ty n) (a a' : Tm n) : Ty n :=
+  .op .id (.cons A (.cons a (.cons a' .nil)))
 
 /-- Agda: `pattern 𝐫𝐞𝐟𝐥 a` (MLTT/Syntax.agda). -/
 @[match_pattern] def refl' {n : Nat} (a : Tm n) : Tm n := .op .refl (.cons a .nil)
 
 /-- Agda: `pattern 𝐉 C a b c e` (MLTT/Syntax.agda). -/
 @[match_pattern] def J {n : Nat} (C : Ty (n + 2)) (a b c e : Tm n) : Tm n :=
-  .op .J (.cons C (.cons a (.cons b (.cons c (.cons e .nil)))))
+  .op .j (.cons C (.cons a (.cons b (.cons c (.cons e .nil)))))
 
 /-- Agda: `pattern 𝐍𝐚𝐭` (MLTT/Syntax.agda). -/
 @[match_pattern] def Nat' {n : Nat} : Ty n := .op .nat .nil
@@ -132,7 +133,7 @@ abbrev Ty0 := Ty 0
 @[inherit_doc lam] scoped notation:max "𝛌 " A:max f:max => MLTT.lam A f
 @[inherit_doc app] scoped notation:70 b:71 " ∙[ " A ", " B " ] " a:71 =>
   MLTT.app b A B a
-@[inherit_doc Id] scoped notation:max "𝐈𝐝 " A:max a:max a':max => MLTT.Id A a a'
+@[inherit_doc Id'] scoped notation:max "𝐈𝐝 " A:max a:max a':max => MLTT.Id' A a a'
 @[inherit_doc refl'] scoped notation:max "𝐫𝐞𝐟𝐥 " a:max => MLTT.refl' a
 @[inherit_doc J] scoped notation:max "𝐉 " C:max a:max b:max c:max e:max =>
   MLTT.J C a b c e

@@ -32,8 +32,10 @@ open WSLN
 /-! ## The scope cast -/
 
 /-- Lean-specific: transport of a term along an equality of scopes.  This replaces
-the Agda source's `subst Trm[_] (symm +0)` transports; see the module docstring. -/
-def Trm.castScope {Sg : Sig} {m n : Nat} (e : m = n) (t : Trm Sg m) : Trm Sg n := e ▸ t
+the Agda source's `subst Trm[_] (symm +0)` transports; see the module docstring.
+It lives in the `WSLN.Trm` namespace so that dot notation on `Trm` keeps working. -/
+def _root_.WSLN.Trm.castScope {Sg : Sig} {m n : Nat} (e : m = n) (t : Trm Sg m) :
+    Trm Sg n := e ▸ t
 
 @[simp] theorem castScope_symm_castScope {Sg : Sig} {m n : Nat} (e : m = n)
     (t : Trm Sg m) : Trm.castScope e.symm (Trm.castScope e t) = t := by cases e; rfl
@@ -154,8 +156,8 @@ def InjArg {Sg : Sig} {ms : List Nat} (ρ : Rn) (bs : NomArg Sg ms) : Prop :=
 def InjBnd {Sg : Sig} {m : Nat} (ρ : Rn) (b : NomBnd Sg m) : Prop :=
   ∀ {x x' : Atom}, x ∈ supp b → x' ∈ supp b → ρ x = ρ x' → x = x'
 
-/-- Lean-specific: the argument shared by `InjUpdate`, `InjUpdateArg` and
-`InjUpdateBnd`, which the Agda source spells out three times. -/
+/-- Lean-specific: the argument shared by `injUpdate`, `injUpdateArg` and
+`injUpdateBnd`, which the Agda source spells out three times. -/
 theorem injUpdate_core {A : Type} [FiniteSupport A] (x y : Atom) (a : A) (h : y # a)
     {z z' : Atom} (hz : z ∈ supp a) (hz' : z' ∈ supp a)
     (e : ((x ≔ʳ y) : Rn) z = ((x ≔ʳ y) : Rn) z') : z = z' := by
@@ -178,16 +180,16 @@ theorem injUpdate_core {A : Type} [FiniteSupport A] (x y : Atom) (a : A) (h : y 
     · rwa [if_neg h₁, if_neg h₂] at e
 
 /-- Agda: `InjUpdate` (Adequacy/Translation.agda). -/
-theorem InjUpdate {Sg : Sig} (x y : Atom) (M : NomTrm Sg) (h : y # M) :
+theorem injUpdate {Sg : Sig} (x y : Atom) (M : NomTrm Sg) (h : y # M) :
     Inj ((x ≔ʳ y) : Rn) M := fun hz hz' e => injUpdate_core x y M h hz hz' e
 
 /-- Agda: `InjUpdateᵃ` (Adequacy/Translation.agda). -/
-theorem InjUpdateArg {Sg : Sig} {ms : List Nat} (x y : Atom) (bs : NomArg Sg ms)
+theorem injUpdateArg {Sg : Sig} {ms : List Nat} (x y : Atom) (bs : NomArg Sg ms)
     (h : y # bs) : InjArg ((x ≔ʳ y) : Rn) bs :=
   fun hz hz' e => injUpdate_core x y bs h hz hz' e
 
 /-- Agda: `InjUpdateᵇ` (Adequacy/Translation.agda). -/
-theorem InjUpdateBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # b) :
+theorem injUpdateBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # b) :
     InjBnd ((x ≔ʳ y) : Rn) b := fun hz hz' e => injUpdate_core x y b h hz hz' e
 
 /-! ## Injective renamings preserve the translation -/
@@ -245,17 +247,17 @@ end
 /-- Agda: `freshRn` (Adequacy/Translation.agda). -/
 theorem freshRn {Sg : Sig} (x y : Atom) (M : NomTrm Sg) (h : y # M) :
     toWS (((x ≔ʳ y) : Rn) * M) = ((x ≔ʳ y) : Rn) * toWS M :=
-  toWS_rn _ M (InjUpdate x y M h)
+  toWS_rn _ M (injUpdate x y M h)
 
 /-- Agda: `freshRnᵃ` (Adequacy/Translation.agda). -/
 theorem freshRnArg {Sg : Sig} {ms : List Nat} (x y : Atom) (bs : NomArg Sg ms)
     (h : y # bs) : toWSArg (((x ≔ʳ y) : Rn) * bs) = ((x ≔ʳ y) : Rn) * toWSArg bs :=
-  toWSArg_rn _ bs (InjUpdateArg x y bs h)
+  toWSArg_rn _ bs (injUpdateArg x y bs h)
 
 /-- Agda: `freshRnᵇ` (Adequacy/Translation.agda). -/
 theorem freshRnBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # b) :
     toWSBnd (((x ≔ʳ y) : Rn) * b) = ((x ≔ʳ y) : Rn) * toWSBnd b :=
-  toWSBnd_rn _ b (InjUpdateBnd x y b h)
+  toWSBnd_rn _ b (injUpdateBnd x y b h)
 
 /-! ## Soundness -/
 
@@ -376,7 +378,7 @@ mutual
 def surjectiveLe {Sg : Sig} {s : Nat} (t : Trm Sg 0) (q : t.size ≤ s) :
     { M : NomTrm Sg // toWS M = t } :=
   match t, q with
-  | .var i, _ => absurd i.isLt (Nat.not_lt_zero i.val)
+  | .var i, _ => i.elim0
   | .atom x, _ => ⟨.atom x, rfl⟩
   | .op o ts, q =>
       have hh : 0 < s := by simp only [Trm.size_op] at q; omega
@@ -432,6 +434,8 @@ theorem bijection {Sg : Sig} (t : Trm Sg 0) : toWS (toNom t) = t := (surjective 
 theorem bijection₂ {Sg : Sig} (M : NomTrm Sg) : toNom (toWS M) ~ M :=
   injective (toNom (toWS M)) M (bijection (toWS M))
 
+/-- info: 'Adequacy.bijection' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
 #print axioms bijection
 
 end Adequacy

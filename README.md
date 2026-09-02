@@ -2,7 +2,8 @@
 
 A Lean 4 port of Andrew Pitts' Agda library **WSLN** — *Well-Scoped Locally Nameless*
 syntax, generic over a Plotkin-style binding signature — together with its adequacy
-proof, a Martin-Löf type theory development, and the λ-/π-calculus examples.
+proof, a Martin-Löf type theory development, decidability of βη-conversion for
+Gödel's System T by normalization by evaluation, and the λ-/π-calculus examples.
 
 Everything is checked by Lean **4.33.1** using **Lean core only**: no Mathlib, no
 Batteries, no external dependencies.
@@ -11,7 +12,8 @@ Batteries, no external dependencies.
 
 This is a port, not new mathematics. All statements and proof structure follow the
 Agda originals; each Lean declaration carries an `Agda:` traceability comment naming
-its counterpart.
+its counterpart. The port covers the complete upstream index (`README.agda`):
+Prelude, WSLN, Adequacy, Lambda, PiCalc, MLTT and GST.
 
 - **Agda library** — [amp12/WSLN](https://github.com/amp12/WSLN),
   browsable at <https://amp12.github.io/WSLN/#githubcomamp12wsln>
@@ -29,14 +31,18 @@ its counterpart.
 lake build
 ```
 
-Builds four libraries (`WSLN`, `Adequacy`, `MLTT`, `Examples`) in 35 jobs. A cold
-build takes a few minutes; `MLTT.Substitution` and `MLTT.Admissible` dominate, and
-seven proofs raise `maxHeartbeats` to `1000000` in a scoped `set_option ... in`.
+Builds five libraries (`WSLN`, `Adequacy`, `MLTT`, `GST`, `Examples`) in 56 jobs. A
+cold build takes a few minutes; `MLTT.Substitution` and `MLTT.Admissible` dominate,
+and seven proofs raise `maxHeartbeats` to `1000000` in a scoped `set_option ... in`.
 
 The build is self-checking. `MLTT/Uniqueness.lean` ends with `#print axioms` for the
-seven headline metatheorems; `Adequacy/Translation.lean` does the same for
-`bijection`. All report `[propext, Quot.sound]` — no `sorryAx`, no added axiom. There
-is no `sorry`, `admit`, or `native_decide` anywhere in the source.
+seven headline metatheorems, `Adequacy/Translation.lean` does the same for
+`bijection`, and `GST/DecidableConv.lean` for the six System T results (`svTy`,
+`sound`, `NF1`, `NF2`, `tyDec`, `convDec`). Every one of these fourteen commands is
+pinned with `#guard_msgs`, so the expected report `[propext, Quot.sound]` is enforced
+by the compiler: an added axiom, or a `sorryAx` leaking in from an unfinished proof,
+fails `lake build` with a message mismatch rather than printing an info line nobody
+reads. There is no `sorry`, `admit`, or `native_decide` anywhere in the source.
 
 The reference Agda sources cited throughout the docstrings as `agda-code/agda/...`
 are not vendored here. To follow along:
@@ -52,7 +58,8 @@ git clone https://github.com/amp12/WSLN agda-code
 | `WSLN/` | The core library: scopes, atoms, signatures, terms, substitution, opening/closing |
 | `Adequacy/` | Nameful syntax and the bijection with locally closed WSLN terms |
 | `MLTT/` | Martin-Löf type theory in WSLN style, and its metatheory |
-| `Examples/` | Untyped λ-calculus, π-calculus, and adequacy instantiated at a concrete signature |
+| `GST/` | Gödel's System T: normalization by evaluation and decidable βη-conversion |
+| `Examples/` | Untyped λ-calculus, π-calculus, adequacy and System T at concrete signatures |
 
 Each directory has a root facade module (`WSLN.lean`, `Adequacy.lean`, …) that imports
 its parts in dependency order.
@@ -125,6 +132,42 @@ theorem svTy {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {a : Tm0}
     (q : Γ ⊢ a ∶ A ⦂ l) (q' : Γ ⊢ a ∶ A' ⦂ l') : (l = l') ∧ (Γ ⊢ A ＝ A' ⦂ l)
 ```
 
+### `GST/`
+
+Gödel's System T — simply typed λ-calculus with `𝐍𝐚𝐭` and `𝐧𝐫𝐞𝐜` — with its
+βη-conversion relation shown decidable by **normalization by evaluation**: terms are
+interpreted in presheaves over the category of typed renamings, and the normal form
+is read back off the interpretation.  The binding rules are *exists-fresh* (one atom
+plus two freshness side conditions), not cofinite.
+
+| Module | Contents |
+| --- | --- |
+| `Syntax` | Simple types, the signature, pattern constructors (`𝛌`, `∙`, `𝐳𝐞𝐫𝐨`, `𝐬𝐮𝐜𝐜`, `𝐧𝐫𝐞𝐜`) |
+| `Context` | `Cx`, indexed by its domain; `IsIn`, decidable lookup |
+| `TypeSystem` | The typing and βη-conversion judgements, both `Type`-valued |
+| `WellScoped` | Provable judgements only mention names in the context |
+| `Setoid` | Bundled setoids, their morphisms, products and exponentials |
+| `Renaming` | Typed renamings; renaming preserves typing and conversion |
+| `Substitution` | Typed and convertible substitutions; `convTy₁`/`convTy₂` |
+| `Admissible` | `lam'`, `betaLam'`, `lamInv` |
+| `UniqueTypes` | `svVr`, `svTy`: types are unique |
+| `NormalForm` | Mutual normal (`⊢ⁿ`) and neutral (`⊢ᵘ`) forms, and neutral substitutions |
+| `Presheaf` | The category of renamings, presheaves on it, and its cartesian closed structure |
+| `TypeSemantics` | The presheaves `Norm`/`Neut`, `𝓓` on types and `𝓔` on contexts |
+| `ReifyReflect` | `reify`/`reflect` by recursion on the type; the initial environment |
+| `TermSemantics` | `sem`: a derivation as a natural transformation, and its coherence laws |
+| `LogicalRelation` | The glueing relation and the fundamental property `FP` |
+| `Sound` | Convertible terms have equal interpretations |
+| `Normalization` | `nf`, `NF1`, `NF2` |
+| `DecidableConv` | `tyDec` and `convDec` |
+
+```lean
+def tyDec {S : Fset} (Γ : Cx S) (A : Ty) (a : Tm0) : Dec (Γ ⊢ a ∶ A)
+def convDec {S : Fset} (Γ : Cx S) (A : Ty) (a a' : Tm0) : Dec (Γ ⊢ a ＝ a' ∶ A)
+```
+
+`Examples/GST.lean` runs both of them, and `nf`, on closed terms with `#guard`.
+
 ### `Examples/`
 
 `Lambda.lean` and `PiCalc.lean` are the two example signatures from the paper. Both
@@ -138,7 +181,8 @@ example : (𝛌 i0 ∙ (𝐯3 : Tm 0)) ⟶β (𝐯3 : Tm 0) := .beta i0 (𝐯3)
 
 `Examples/Adequacy.lean` instantiates the adequacy theorems at `Lambda.sig` — they
 are proved for an arbitrary signature, so they cannot be exercised inside `Adequacy/`
-itself without importing a concrete one.
+itself without importing a concrete one.  `Examples/GST.lean` builds a System T
+typing derivation by hand and then runs `tyDec`, `convDec` and `nf` on closed terms.
 
 ## Notation
 
@@ -155,6 +199,8 @@ Open the namespace (`open WSLN`, `open MLTT`, …) to bring it into scope.
 | `M ~ N` | α-equivalence of nameful terms |
 | `Γ ⊢ J` | Derivability of the MLTT judgement `J` |
 | `Γ ⨟ x ∶ A ⦂ l`, `◇` | Context extension and the empty context |
+| `Γ ⊢ a ∶ A`, `Γ ⊢ a ＝ a' ∶ A` | Typing and βη-conversion in System T |
+| `Γ ⨟ x ∶ A ∣ h`, `◇` | System T context extension (with its freshness proof) |
 
 ## Port notes
 
@@ -177,11 +223,28 @@ The port is faithful to the Agda statements but idiomatic where Lean is stronger
   binder of depth `k` needs `k + m = (k + n) + 1`.
 - **Scope casts.** Core `Arg Sg n ms` stores a `Trm Sg (n + m)`, so at `n = 0` an
   arity-`m` argument has type `Trm Sg (0 + m)`, which does not reduce for a variable
-  `m`. `Adequacy.Trm.castScope` is the single transport used for this, with a small
-  simp set of interaction laws; there is deliberately no second convention.
+  `m`. `WSLN.Trm.castScope` is the single transport used for this (defined in
+  `Adequacy/Translation.lean`, where it is needed), with a small simp set of
+  interaction laws; there is deliberately no second convention.
 - **No standard library.** Lean 4.33.1 core has no `Function.update`, no
   `Fin.succAbove`/`Fin.predAbove`, and its `Vector` is `Array`-backed, so the port
   keeps its own `updateFn`, `insert`/`remove`, and structural `Vec`.
+- **Naming.** Agda names that are already alphabetic keep their camelCase spelling
+  (`sbOpn`, `opnCls`, `alphaEquiv`), so a reader can grep the Agda source for them.
+  Agda names that are symbolic (`sb[]`, `#cls`, `∪⊆`, `⟦rn⟧`, `size[]≤`) have no
+  spelling to keep, so they become descriptive Lean-core-style snake_case
+  (`sb_conc`, `fresh_cls`, `union_subset_union`, `toWS_rn`, `size_conc_le`); the
+  `Agda:` docstring on each declaration records the original symbol.
+- **Induction-recursion.** Agda declares System T's `Cx` and `dom` by
+  induction-recursion, so that `_⨟_∶_` can require `x ∉ dom Γ`. Lean has no
+  induction-recursion, so `GST/Context.lean` makes the domain an *index*:
+  `Cx : Fset → Type`, with `dom Γ` the index and Agda's instance-implicit freshness
+  premise the explicit argument of `Γ ⨟ x ∶ A ∣ h`. Statement shapes are unchanged.
+- **`Type`-valued judgements.** System T's typing and conversion judgements are
+  eliminated into data — the semantics interprets a *derivation*, and `convTy₁`
+  builds a typing derivation from a conversion — so they live in `Type`, as in Agda,
+  and the deciders return `WSLN.Dec` (Agda's `Sort`-polymorphic `Dec`) rather than
+  core's `Prop`-valued `Decidable`.
 
 ## License
 

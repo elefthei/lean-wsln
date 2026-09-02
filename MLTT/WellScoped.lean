@@ -133,7 +133,7 @@ theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
         notMem_union_left (notMem_union_right (notMem_union_right hx))
       have hxS : x # S :=
         notMem_union_right (notMem_union_right (notMem_union_right hx))
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hC := suppConcFresh C x (subL (ih₃ x hxS)) hxC
       have hcs := suppConcFresh₂ cs x y (subL (ih₁ x y hfr)) hxcs hycs
       have ha := subL ih₂
@@ -270,7 +270,7 @@ theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
         notMem_union_right
           (notMem_union_right
             (notMem_union_right (notMem_union_right (notMem_union_right hx))))
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hC := suppConcFresh C x (subL (ih₀ x hxS)) hxC
       have hC' := suppConcFresh C' x (subL (subR (ih₀ x hxS))) hxC'
       have hcs := suppConcFresh₂ cs x y (subL (ih₂ x y hfr)) hxcs hycs
@@ -335,7 +335,7 @@ theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
         notMem_union_left (notMem_union_right (notMem_union_right hx))
       have hxS : x # S :=
         notMem_union_right (notMem_union_right (notMem_union_right hx))
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hC := suppConcFresh C x (subL (ih₂ x hxS)) hxC
       have hcs := suppConcFresh₂ cs x y (subL (ih₁ x y hfr)) hxcs hycs
       exact union_subset
@@ -354,7 +354,7 @@ theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
         notMem_union_left (notMem_union_right (notMem_union_right hx))
       have hxS : x # S :=
         notMem_union_right (notMem_union_right (notMem_union_right hx))
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hC := suppConcFresh C x (subL (ih₃ x hxS)) hxC
       have hcs := suppConcFresh₂ cs x y (subL (ih₁ x y hfr)) hxcs hycs
       have hc₀ := subL ih₀

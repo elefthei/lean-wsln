@@ -97,13 +97,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
         (fun x hx => ih₆ x (notMem_union_left hx)
           (.snoc p h₀ (notMem_union_right hx) (ih₅ p)))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p h₀ hxΔ (ih₅ p)
-      exact ih₀ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₀ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h₁ x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₆ x hxS pw))
   | nat q ih =>
       intro Δ p
@@ -121,13 +121,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
           (.snoc p (Deriv.nat (derivOk q₂)) (notMem_union_right hx)
             (Deriv.nat (okWk p))))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p (Deriv.nat (derivOk q₂)) hxΔ (Deriv.nat (okWk p))
-      exact ih₁ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₁ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₃ x hxS pw))
   | refl q ih =>
       intro Δ p
@@ -175,13 +175,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
         (fun x hx => ih₆ x (notMem_union_left hx)
           (.snoc p h₀ (notMem_union_right hx) (ih₅ p)))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p h₀ hxΔ (ih₅ p)
-      exact ih₀ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₀ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h₁ x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₆ x hxS pw))
   | succCong q ih =>
       intro Δ p
@@ -197,13 +197,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
           (.snoc p (Deriv.nat (derivOk q₃)) (notMem_union_right hx)
             (Deriv.nat (okWk p))))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p (Deriv.nat (derivOk q₃)) hxΔ (Deriv.nat (okWk p))
-      exact ih₂ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₂ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₄ x hxS pw))
   | piBeta S q₀ q₁ h₀ h₁ ih₀ ih₁ ih₂ ih₃ =>
       intro Δ p
@@ -219,13 +219,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
         (fun x hx => ih₄ x (notMem_union_left hx)
           (.snoc p h₀ (notMem_union_right hx) (ih₃ p)))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p h₀ hxΔ (ih₃ p)
-      exact ih₀ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₀ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h₁ x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₄ x hxS pw))
   | natBeta₀ S q₀ q₁ h ih₀ ih₁ ih₂ =>
       intro Δ p
@@ -234,13 +234,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
           (.snoc p (Deriv.nat (derivOk q₀)) (notMem_union_right hx)
             (Deriv.nat (okWk p))))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p (Deriv.nat (derivOk q₀)) hxΔ (Deriv.nat (okWk p))
-      exact ih₁ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₁ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₂ x hxS pw))
   | natBetaS S q₀ q₁ q₂ h ih₀ ih₁ ih₂ ih₃ =>
       intro Δ p
@@ -249,13 +249,13 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
           (.snoc p (Deriv.nat (derivOk q₀)) (notMem_union_right hx)
             (Deriv.nat (okWk p))))
       intro x y hfr
-      obtain ⟨hy, hxx, hxy⟩ := fresh₂Inv hfr
+      obtain ⟨hy, hxx, hxy⟩ := Fresh₂.inv hfr
       have hxS : x # S := notMem_union_left hxx
       have hxΔ : x # Δ := notMem_union_right hxx
       have hyS : y # S := notMem_union_left hy
       have hyΔ : y # Δ := notMem_union_right hy
       have pw := Weakens.snoc p (Deriv.nat (derivOk q₀)) hxΔ (Deriv.nat (okWk p))
-      exact ih₁ x y (fresh₂Intro hyS hxS hxy)
+      exact ih₁ x y (Fresh₂.intro hyS hxS hxy)
         (.snoc pw (h x hxS) (NotMem.union hyΔ (fresh_symm hxy)) (ih₃ x hxS pw))
   | piEta S q₀ q₁ q₂ h ih₀ ih₁ ih₂ ih₃ =>
       intro Δ p

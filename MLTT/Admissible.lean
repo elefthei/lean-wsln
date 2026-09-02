@@ -143,7 +143,7 @@ theorem concEqTy₂Inf {l l' l'' : Lvl} {Γ : Cx} {A : Ty0} {a a' b b' : Tm0} (B
   have hxy : x # y := notMem_union_left hx
   have hxS : x # S := notMem_union_left (notMem_union_right hx)
   have hxB : x # B := notMem_union_left (notMem_union_right (notMem_union_right hx))
-  have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+  have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
   exact concEqTy₂ (B := B[x]) C C' x y (q₀ x y hfr) q₁ (h₄ x hxS)
     (castEq rfl rfl (ssb_conc x a B hxB).symm q₂)
     (notMem_union_right (notMem_union_right (notMem_union_right hx)))
@@ -242,7 +242,7 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
         obtain ⟨x, hx⟩ := fresh (y, S, (C, C'))
         have hxy : x # y := notMem_union_left hx
         have hxS : x # S := notMem_union_left (notMem_union_right hx)
-        have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+        have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
         exact concEqTy₂ C C' x y (q₀ x y hfr) q₁ (h₁ x hxS)
           (castEq rfl rfl (eqI x hxS a).symm (.reflCong q₁ h₀))
           (notMem_union_right (notMem_union_right hx)) (notMem_union_right hy)
@@ -255,7 +255,7 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
         refine .j S (fun x y hf => ?_) (.conv ih₁.2 (.refl h₀))
           (.conv ih₂.2 (.refl h₀)) (.conv ih₃.2 qc)
           (.conv ih₄.2 (.idCong (.refl h₀) q₁ q₂)) h₀ r₂
-        obtain ⟨_, hxS, _⟩ := fresh₂Inv hf
+        obtain ⟨_, hxS, _⟩ := Fresh₂.inv hf
         exact snocEqDeriv (r₁ x hxS) (ih₀ x y hf).2 (r₂ x hxS)
       have qe : Γ ⊢ C'[b'][ee'] ＝ C[b][ee] ⦂ l' := by
         obtain ⟨y, hy⟩ := fresh (S, (C, C'))
@@ -263,7 +263,7 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
         obtain ⟨x, hx⟩ := fresh (y, S, (C, C'))
         have hxy : x # y := notMem_union_left hx
         have hxS : x # S := notMem_union_left (notMem_union_right hx)
-        have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+        have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
         exact .symm (concEqTy₂ C C' x y (q₀ x y hfr) q₂ (h₁ x hxS)
           (castEq rfl rfl (eqI x hxS b).symm q₄)
           (notMem_union_right (notMem_union_right hx)) (notMem_union_right hy)
@@ -283,7 +283,7 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
       have qn : Γ ⊢ 𝐧𝐫𝐞𝐜 C' c₀' cs' a' ∶ C'[a'] ⦂ l := by
         refine .nrec S (.conv ih₁.2 qz) (fun x y hf => ?_) ih₃.2
           (fun x hx => (ih₀ x hx).2)
-        obtain ⟨hyS, hxS, _⟩ := fresh₂Inv hf
+        obtain ⟨hyS, hxS, _⟩ := Fresh₂.inv hf
         have hxΓ : x # Γ := (snocOkInv (derivOk (h x hxS))).1
         have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
           (snocOkInv (derivOk (q₂ x y hf))).1
@@ -323,7 +323,7 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
         notMem_union_left (notMem_union_right (notMem_union_right hx))
       have hxcs : x # cs :=
         notMem_union_right (notMem_union_right (notMem_union_right hx))
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hxΓ : x # Γ := (snocOkInv (derivOk (h x hxS))).1
       have hyΓx : y # (Γ ⨟ x ∶ (𝐍𝐚𝐭 : Ty0) ⦂ 0) :=
         (snocOkInv (derivOk (q₁ x y hfr))).1
@@ -449,7 +449,7 @@ private theorem tyOfTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyOfTmGoal Γ J :=
       have hxy : x # y := notMem_union_left hx
       have hxS : x # S := notMem_union_left (notMem_union_right hx)
       have hxC : x # C := notMem_union_right (notMem_union_right hx)
-      have hfr : x # y # S := fresh₂Intro hyS hxS hxy
+      have hfr : x # y # S := Fresh₂.intro hyS hxS hxy
       have hxΓ : x # Γ := (snocOkInv (derivOk (h₁ x hxS))).1
       have hfrq := derivFresh q₁ hxΓ
       have hxa : x # a := notMem_union_left hfrq

@@ -125,6 +125,11 @@ instance instHMulRnTrm {Sg : Sig} {n : Nat} : HMul Rn (Trm Sg n) (Trm Sg n) :=
 instance instHMulRnArg {Sg : Sig} {n : Nat} {ms : List Nat} :
     HMul Rn (Arg Sg n ms) (Arg Sg n ms) := ⟨fun ρ ts => (Sb.ofRn ρ : Sb Sg) * ts⟩
 
+/-! ### Defining equations of the action
+
+Lean-only, no Agda counterpart: these `rfl` lemmas expose the clauses of `actSb`
+to `simp`, which Agda gets definitionally from its clausal definition. -/
+
 @[simp] theorem actSb_var {Sg : Sig} {n : Nat} (σ : Sb Sg) (i : Fin n) :
     σ * (Trm.var i : Trm Sg n) = .var i := rfl
 

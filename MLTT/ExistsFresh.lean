@@ -77,7 +77,7 @@ theorem jEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a b c e : Tm0} {x y : A
     rw [sbId, ssbFresh x d A hxA, ssbFresh x d a hxa, sbAtom, Sb.single_eq]
   refine .j (dom Γ) (fun x' y' hf => ?_) q₁ q₂ q₃ q₄ (derivTyOfTm q₁)
     (fun x' hx' => castIsTy (eqI (𝐯x')) (rnSnoc hI hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (eqI (𝐯x'))
     (castIsTy (ssb_conc₂ x y (𝐯x') (𝐯y') C q₅ (NotMem.union q₆ hyx))
       (rnSnoc₂ q₀ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
@@ -103,7 +103,7 @@ theorem nrecEF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} {x y : 
       Sb.update_neq _ _ hyxne, Sb.single_eq]
   refine .nrec (dom Γ) q₀ (fun x' y' hf => ?_) q₂
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') C hxC) (rnSnoc hCx hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (ssb_conc x (𝐯x') C hxC)
     (castTm (ssb_conc₂ x y (𝐯x') (𝐯y') cs hxcs (NotMem.union q₄ hyx))
       (eqC (𝐯x') (𝐯y'))
@@ -178,7 +178,7 @@ theorem jCongEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C C' : Ty 2}
     rw [sbId, ssbFresh x d A hxA, ssbFresh x d a hxa, sbAtom, Sb.single_eq]
   refine .jCong (dom Γ) (fun x' y' hf => ?_) q₁ q₂ q₃ q₄ hA
     (fun x' hx' => castIsTy (eqI (𝐯x')) (rnSnoc hI hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (eqI (𝐯x'))
     (castTyEq (ssb_conc₂ x y (𝐯x') (𝐯y') C hxC (NotMem.union hyC hyx))
       (ssb_conc₂ x y (𝐯x') (𝐯y') C' hxC' (NotMem.union hyC' hyx))
@@ -217,7 +217,7 @@ theorem nrecCongEF {l : Lvl} {Γ : Cx} {C C' : Ty 1} {c₀ c₀' a a' : Tm0}
       (rnSnoc q₀ hx'))
     q₁ (fun x' y' hf => ?_) q₃
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') C hxC) (rnSnoc hCx hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (ssb_conc x (𝐯x') C hxC)
     (castEq (ssb_conc₂ x y (𝐯x') (𝐯y') cs hxcs (NotMem.union hycs hyx))
       (ssb_conc₂ x y (𝐯x') (𝐯y') cs' hxcs' (NotMem.union hycs' hyx))
@@ -255,7 +255,7 @@ theorem idBetaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a c : Tm0} {x y : 
     rw [sbId, ssbFresh x d A hxA, ssbFresh x d a hxa, sbAtom, Sb.single_eq]
   refine .idBeta (dom Γ) (fun x' y' hf => ?_) q₁ q₂ (derivTyOfTm q₁)
     (fun x' hx' => castIsTy (eqI (𝐯x')) (rnSnoc hI hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (eqI (𝐯x'))
     (castIsTy (ssb_conc₂ x y (𝐯x') (𝐯y') C q₃ (NotMem.union q₄ hyx))
       (rnSnoc₂ q₀ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
@@ -281,7 +281,7 @@ theorem natBeta₀EF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ : Tm0} {cs : Tm 2} {x 
       Sb.update_neq _ _ hyxne, Sb.single_eq]
   refine .natBeta₀ (dom Γ) q₀ (fun x' y' hf => ?_)
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') C hxC) (rnSnoc hCx hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (ssb_conc x (𝐯x') C hxC)
     (castTm (ssb_conc₂ x y (𝐯x') (𝐯y') cs hxcs (NotMem.union q₃ hyx))
       (eqC (𝐯x') (𝐯y'))
@@ -308,7 +308,7 @@ theorem natBetaSEF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} {x 
       Sb.update_neq _ _ hyxne, Sb.single_eq]
   refine .natBetaS (dom Γ) q₀ (fun x' y' hf => ?_) q₂
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') C hxC) (rnSnoc hCx hx'))
-  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := fresh₂Inv hf
+  obtain ⟨hy'Γ, hx'Γ, hx'y'⟩ := Fresh₂.inv hf
   exact castCxSnoc (ssb_conc x (𝐯x') C hxC)
     (castTm (ssb_conc₂ x y (𝐯x') (𝐯y') cs hxcs (NotMem.union q₄ hyx))
       (eqC (𝐯x') (𝐯y'))

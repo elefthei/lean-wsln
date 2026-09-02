@@ -35,31 +35,14 @@ class Scoped (A : Nat → Type u) where
   weaken_trans : ∀ {k : Nat} (x : A k) (m n : Nat) (h₁ : k ≤ m) (h₂ : m ≤ n) (h₃ : k ≤ n),
     weaken (weaken x m h₁) n h₂ = weaken x n h₃
 
-/-- Scope weakening with the ordering side condition discharged by `omega`.
-Surface form of Agda's `_‿_`, whose ordering premise is an instance argument. -/
-abbrev Scoped.wk {A : Nat → Type u} [Scoped A] {m : Nat} (x : A m) (n : Nat)
-    (h : m ≤ n := by omega) : A n :=
-  Scoped.weaken x n h
-
-@[inherit_doc Scoped.wk]
-scoped notation:65 x " ‿ " n => Scoped.wk x n
-
 /-! ## Indices
 
-Agda's `toℕ` is `Fin.val`, `toℕ<` is `Fin.isLt`, `toℕInj` is `Fin.ext`, `decFin` /
-`hasDecEqFin` are core's `instDecidableEqFin`, and the `Scoped Fin` instance fields
-`unitFin`/`assocFin` are the `weaken_self`/`weaken_trans` fields of `instScopedFin`
-below.  The inductive index inequality `_≠i_` and its companions `sucInj`, `suc≢`,
-`suc≠`, `≠iirrefl`, `≢→≠i`, `isProp≠`, `removeIrrel` are dropped: `i ≠ j` is already
-a proposition in Lean. -/
-
-/-- Agda: `toℕ‿` (WSLN/Index.agda): `(Fin.castLE h i).val = i.val`. -/
-@[simp] theorem val_castLE {m n : Nat} (h : m ≤ n) (i : Fin m) :
-    (Fin.castLE h i).val = i.val := rfl
-
-/-- `(Fin.cast e i).val = i.val`. -/
-@[simp] theorem val_cast {m n : Nat} (e : m = n) (i : Fin m) :
-    (Fin.cast e i).val = i.val := rfl
+Agda's `toℕ` is `Fin.val`, `toℕ<` is `Fin.isLt`, `toℕInj` is `Fin.ext`, `toℕ‿` is
+core's `Fin.val_castLE`, and `decFin` / `hasDecEqFin` are core's
+`instDecidableEqFin`.  The `Scoped Fin` instance fields `unitFin`/`assocFin` are the
+`weaken_self`/`weaken_trans` fields of `instScopedFin` below.  The inductive index
+inequality `_≠i_` and its companions `sucInj`, `suc≢`, `suc≠`, `≠iirrefl`, `≢→≠i`,
+`isProp≠`, `removeIrrel` are dropped: `i ≠ j` is already a proposition in Lean. -/
 
 /-- Agda: `suc^{m}` / `toℕ∘suc^` (WSLN/Index.agda).
 
@@ -76,7 +59,7 @@ def shiftIdx (m : Nat) {n : Nat} (i : Fin n) : Fin (n + m) :=
 /-- `Fin.cast` is injective (used to transport index disequalities). -/
 theorem cast_ne {m n : Nat} (e : m = n) {i j : Fin m} (h : i ≠ j) :
     Fin.cast e i ≠ Fin.cast e j :=
-  fun heq => h (Fin.ext (congrArg (fun (k : Fin n) => k.val) heq))
+  fun heq => h (Fin.ext (congrArg (Fin.val (n := n)) heq))
 
 /-- Agda: `ScopedFin` (WSLN/Index.agda); `actFin` is `Fin.castLE`. -/
 instance instScopedFin : Scoped Fin where
