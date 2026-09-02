@@ -88,6 +88,14 @@ theorem Sb.single_neq (u : Trm Sg 0) {x y : Atom} (h : x ≠ y) :
 theorem Rn.single_neq (y : Atom) {x z : Atom} (h : x ≠ z) : (x ≔ʳ y) z = z :=
   Rn.update_neq _ _ h
 
+/-- Lean-only: a one-atom substitution is the identity updated at that atom,
+definitionally; named so proofs can rewrite with it. -/
+theorem Sb.single_def (x : Atom) (u : Trm Sg 0) :
+    (x ≔ u) = ((Sb.id : Sb Sg) ∘/ x ≔ u) := rfl
+
+/-- Lean-only: a one-atom renaming is the identity updated at that atom. -/
+theorem Rn.single_def (x y : Atom) : ((x ≔ʳ y) : Rn) = (Rn.id ∘/ x ≔ʳ y) := rfl
+
 end Update
 
 /-! ## The action on terms -/
@@ -322,8 +330,7 @@ theorem updateIdSb {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) :
 /-- Agda: `ssbFresh` (WSLN/Sig/Substitution.agda). -/
 theorem ssbFresh {Sg : Sig} {n : Nat} (x : Atom) (u : Trm Sg 0) (t : Trm Sg n)
     (h : x # t) : (x ≔ u) * t = t := by
-  rw [show (x ≔ u) = ((Sb.id : Sb Sg) ∘/ x ≔ u) from rfl,
-    updateFresh Sb.id x u t h, sbUnit]
+  rw [Sb.single_def x u, updateFresh Sb.id x u t h, sbUnit]
 
 /-- Agda: `updateRn` (WSLN/Sig/Substitution.agda). -/
 theorem updateRn {Sg : Sig} {n : Nat} (ρ : Rn) (x x' : Atom) (t : Trm Sg n) :

@@ -184,9 +184,6 @@ manipulation of `∈`/`∉`/`⊆` witnesses by ordinary `simp` reasoning. -/
     | unionR p => exact .inr p
   · intro h; exact h.elim Mem.unionL Mem.unionR
 
-theorem notMem_iff_not_mem {x : Atom} {s : Fset} : x ∉ᶠ s ↔ ¬ (x ∈ s) :=
-  ⟨not_mem_of_notMem, notMem_of_not_mem⟩
-
 @[simp] theorem notMem_empty_iff {x : Atom} : (x ∉ᶠ (∅ : Fset)) ↔ True :=
   ⟨fun _ => trivial, fun _ => .empty⟩
 
@@ -225,9 +222,6 @@ theorem union_subset_union {s s' t t' : Fset} (h : s ⊆ s') (h' : t ⊆ t') :
 theorem subset_union_left {s t : Fset} : s ⊆ s ∪ t := fun _ p => Mem.unionL p
 
 theorem subset_union_right {s t : Fset} : t ⊆ s ∪ t := fun _ p => Mem.unionR p
-
-theorem subset_iff {s t : Fset} : s ⊆ t ↔ ∀ x, x ∈ s → x ∈ t :=
-  ⟨fun h _ p => h p, fun h _ p => h _ p⟩
 
 @[simp] theorem empty_subset {s : Fset} : (∅ : Fset) ⊆ s := fun _ h => nomatch h
 

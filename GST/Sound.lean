@@ -97,8 +97,7 @@ theorem soundAux : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a a' : Tm0} →
             show _ = ((x' ≔ (𝐯x : Tm0)) * b) ∙ ((x' ≔ (𝐯x : Tm0)) * (𝐯x' : Tm0))
             rw [ssbFresh x' (𝐯x) b hb]
             show _ = b ∙ ((x' ≔ (𝐯x : Tm0)) * (Trm.atom x' : Tm0))
-            rw [show ((x' ≔ (𝐯x : Tm0)) : Sb sig) = (Sb.id ∘/ x' ≔ (𝐯x : Tm0)) from rfl,
-              updateEq]
+            rw [Sb.single_def x' (𝐯x : Tm0), updateEq]
           ((𝓓 B).obj _).trans'
             (((𝓓 B).obj _).symm'
               (((𝓓 B).obj _).trans' ((sem r).ntl z.1 𝓼 (RnHom.id _, z.2))

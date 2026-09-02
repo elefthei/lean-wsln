@@ -167,10 +167,9 @@ def FP : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a : Tm0} → (q : Γ ⊢ a
       castGlue (Trm.weaken_self (σ x) (Nat.zero_le 0)).symm (FPVar q₁ r)
   | _, Γ, _, _, .lam (A := A) (B := B) (b := b) (x := x) (h := hx) q₀ hb,
       _, Γ', σ, 𝓼, r =>
-      let f := fresh (((σ * b, b), dom Γ') : (Tm 1 × Tm 1) × Fset)
-      have hσb : f.val # σ * b :=
-        Fset.notMem_union_left (Fset.notMem_union_left f.property)
-      have hΓ' : f.val ∉ᶠ dom Γ' := Fset.notMem_union_right f.property
+      let f := freshFor ((σ * b, b) : Tm 1 × Tm 1) (dom Γ')
+      have hσb : f.val # σ * b := Fset.notMem_union_left f.property.1
+      have hΓ' : f.val ∉ᶠ dom Γ' := f.property.2
       have rlam : Γ' ⊢ 𝛌 A (σ * b) ∶ A ⇒ B :=
         .lam (h := hΓ') (sbDerivBody hx hΓ' b (glueEscSb r) q₀ hb) hσb
       ⟨rlam, fun {_} {Γ''} {a'} p 𝓪 r' =>

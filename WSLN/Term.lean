@@ -177,6 +177,10 @@ theorem Arg.cons_inj {Sg : Sig} {n k : Nat} {ms : List Nat} {t t' : Trm Sg (n + 
   rw [Arg.cons.injEq] at e
   exact e
 
+/-- Lean-only: congruence for `Trm.var` from equality of the index values. -/
+theorem Trm.var_ext {Sg : Sig} {n : Nat} {i j : Fin n} (h : i.val = j.val) :
+    (Trm.var i : Trm Sg n) = .var j := congrArg Trm.var (Fin.ext h)
+
 /-! ## Decidable equality -/
 
 mutual

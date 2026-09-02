@@ -122,7 +122,7 @@ instance instGetElemTrmAtom {Sg : Sig} {n : Nat} :
     (Trm.var j : Trm Sg (n + 1)).conc u = .var ⟨j.val - 1, by have := j.isLt; omega⟩ := by
   have hne : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) ≠ j := fun e => h (congrArg Fin.val e).symm
   rw [Trm.conc, opn_var_ne u rfl hne]
-  refine congrArg Trm.var (Fin.ext ?_)
+  refine Trm.var_ext ?_
   simp only [remove_val, Fin.val_cast]
   rw [if_neg (by omega : ¬ (j.val < 0))]
 
@@ -234,7 +234,7 @@ theorem opn_lt {Sg : Sig} {k m n : Nat} (i : Fin n) (u : Trm Sg 0) (e : n = m + 
         simp only [Fin.val_castLE] at hv
         omega
       rw [Trm.weaken_var, opn_var_ne u e hne, Trm.weaken_var]
-      refine congrArg Trm.var (Fin.ext ?_)
+      refine Trm.var_ext ?_
       simp only [remove_val, Fin.val_cast, Fin.val_castLE]
       rw [if_pos (by omega : j.val < i.val)]
   | .atom x => simp
@@ -350,26 +350,22 @@ theorem rnUpdate_conc₂ {Sg : Sig} {n : Nat} (ρ : Rn) (x x' y y' : Atom)
 /-- Agda: `ssb[]` (WSLN/Sig/Concretion.agda). -/
 theorem ssb_conc {Sg : Sig} {n : Nat} (x : Atom) (u : Trm Sg 0) (t : Trm Sg (n + 1))
     (h : x # t) : (x ≔ u) * (t[x]) = t[u] := by
-  rw [show (x ≔ u) = ((Sb.id : Sb Sg) ∘/ x ≔ u) from rfl,
-    sbUpdate_conc Sb.id x u t h, sbUnit]
+  rw [Sb.single_def x u, sbUpdate_conc Sb.id x u t h, sbUnit]
 
 /-- Agda: `ssb[]²` (WSLN/Sig/Concretion.agda). -/
 theorem ssb_conc₂ {Sg : Sig} {n : Nat} (x y : Atom) (u v : Trm Sg 0) (t : Trm Sg (n + 2))
     (hx : x # t) (hy : y # (t, x)) : ((x ≔ u) ∘/ y ≔ v) * (t[x][y]) = t[u][v] := by
-  rw [show (x ≔ u) = ((Sb.id : Sb Sg) ∘/ x ≔ u) from rfl,
-    sbUpdate_conc₂ Sb.id x y u v t hx hy, sbUnit]
+  rw [Sb.single_def x u, sbUpdate_conc₂ Sb.id x y u v t hx hy, sbUnit]
 
 /-- Agda: `srn[]` (WSLN/Sig/Concretion.agda). -/
 theorem srn_conc {Sg : Sig} {n : Nat} (x x' : Atom) (t : Trm Sg (n + 1)) (h : x # t) :
     ((x ≔ʳ x') : Rn) * (t[x]) = t[x'] := by
-  rw [show ((x ≔ʳ x') : Rn) = (Rn.id ∘/ x ≔ʳ x') from rfl,
-    rnUpdate_conc (Sg := Sg) Rn.id x x' t h, rnUnit]
+  rw [Rn.single_def x x', rnUpdate_conc (Sg := Sg) Rn.id x x' t h, rnUnit]
 
 /-- Agda: `srn[]²` (WSLN/Sig/Concretion.agda). -/
 theorem srn_conc₂ {Sg : Sig} {n : Nat} (x x' y y' : Atom) (t : Trm Sg (n + 2))
     (hx : x # t) (hy : y # (t, x)) :
     (((x ≔ʳ x') ∘/ y ≔ʳ y') : Rn) * (t[x][y]) = t[x'][y'] := by
-  rw [show ((x ≔ʳ x') : Rn) = (Rn.id ∘/ x ≔ʳ x') from rfl,
-    rnUpdate_conc₂ (Sg := Sg) Rn.id x x' y y' t hx hy, rnUnit]
+  rw [Rn.single_def x x', rnUpdate_conc₂ (Sg := Sg) Rn.id x x' y y' t hx hy, rnUnit]
 
 end WSLN

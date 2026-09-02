@@ -99,7 +99,7 @@ theorem opnCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
         intro he
         exact hav (Fin.ext (congrArg (Fin.val (n := n)) he))
       rw [cls_var, opn_var_ne b e hne, actSb_var]
-      refine congrArg Trm.var (Fin.ext ?_)
+      refine Trm.var_ext ?_
       simp only [remove_val, Fin.val_cast, insert_val]
       by_cases hj : j.val < i.val
       · simp [hj]
@@ -146,7 +146,7 @@ theorem clsOpn {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin m) (t : Trm Sg m)
       · subst hij
         rw [opn_var_eq, Trm.weaken_atom, cls_atom_eq]
       · rw [opn_var_ne (Trm.atom x) e hij, cls_var]
-        refine congrArg Trm.var (Fin.ext ?_)
+        refine Trm.var_ext ?_
         have hv : i.val ≠ j.val := fun ev => hij (Fin.ext ev)
         have hj := j.isLt
         simp only [Fin.val_cast, insert_val, remove_val]
@@ -188,7 +188,7 @@ theorem cls_fresh_weaken {Sg : Sig} {k m n : Nat} (x : Atom) (i : Fin n) (e : n 
   | .var j =>
       have hj := j.isLt
       rw [Trm.weaken_var, cls_var, Trm.weaken_var]
-      refine congrArg Trm.var (Fin.ext ?_)
+      refine Trm.var_ext ?_
       simp only [Fin.val_cast, insert_val, Fin.val_castLE]
       rw [if_pos (by omega : j.val < i.val)]
   | .atom y =>

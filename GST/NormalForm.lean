@@ -85,11 +85,11 @@ mutual
 def rnNf {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a : Tm0}
     (p : Γ' ⊢ʳ ρ ∶ Γ) : (Γ ⊢ⁿ a ∶ A) → Γ' ⊢ⁿ ρ * a ∶ A
   | .lam (A := A) (b := b) (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh ((ρ * b, dom Γ') : Tm 1 × Fset)
-      Nf.lam (A := A) (h := Fset.notMem_union_right f.property)
+      let f := freshFor (ρ * b) (dom Γ')
+      Nf.lam (A := A) (h := f.property.2)
         (castNf (rnUpdate_conc ρ x f.val b q₁)
-          (rnNf (liftRn hx (Fset.notMem_union_right f.property) p) q₀))
-        (Fset.notMem_union_left f.property)
+          (rnNf (liftRn hx f.property.2 p) q₀))
+        f.property.1
   | .zero => .zero
   | .succ q => .succ (rnNf p q)
   | .neu q => .neu (rnNe p q)
@@ -180,11 +180,11 @@ mutual
 def sbNf {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {σ : Sb sig} {A : Ty} {a : Tm0}
     (p : Γ' ⊢ˢᵘ σ ∶ Γ) : (Γ ⊢ⁿ a ∶ A) → Γ' ⊢ⁿ σ * a ∶ A
   | .lam (A := A) (b := b) (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh ((σ * b, dom Γ') : Tm 1 × Fset)
-      Nf.lam (A := A) (h := Fset.notMem_union_right f.property)
+      let f := freshFor (σ * b) (dom Γ')
+      Nf.lam (A := A) (h := f.property.2)
         (castNf (sbUpdate_conc σ x (𝐯f.val) b q₁)
-          (sbNf (liftNeSb hx (Fset.notMem_union_right f.property) p) q₀))
-        (Fset.notMem_union_left f.property)
+          (sbNf (liftNeSb hx f.property.2 p) q₀))
+        f.property.1
   | .zero => .zero
   | .succ q => .succ (sbNf p q)
   | .neu q => .neu (sbNe p q)

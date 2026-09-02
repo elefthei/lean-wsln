@@ -336,8 +336,8 @@ theorem sbSem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
         (sbSemVar p q₁ 𝓼)
   | @lam _ _ A B b x hx q₀ hb ih =>
       intro _ _ Γ' Γ'' σ p 𝓼 _ Γ''' z
-      let f := fresh ((σ * b, dom Γ') : Tm 1 × Fset)
-      have hΓ' : f.val ∉ᶠ dom Γ' := Fset.notMem_union_right f.property
+      let f := freshFor (σ * b) (dom Γ')
+      have hΓ' : f.val ∉ᶠ dom Γ' := f.property.2
       refine ((𝓓 B).obj Γ''').trans'
         (irrelSem
           (castTm (sbUpdate_conc σ x (𝐯f.val) b hb)

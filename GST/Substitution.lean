@@ -262,12 +262,12 @@ def sbDeriv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {σ : Sb sig} {A : Ty} {a : 
   | .var (x := x) q =>
       castTm (Trm.weaken_self (σ x) (Nat.zero_le 0)).symm (sbVar q p)
   | .lam (A := A) (b := b) (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh ((σ * b, dom Γ') : Tm 1 × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor (σ * b) (dom Γ')
+      have hΓ' := f.property.2
       Deriv.lam (A := A) (h := hΓ')
         (castTm (sbUpdate_conc σ x (𝐯f.val) b q₁)
           (sbDeriv (liftSb hx hΓ' p) q₀))
-        (Fset.notMem_union_left f.property)
+        f.property.1
   | .app q₀ q₁ => .app (sbDeriv p q₀) (sbDeriv p q₁)
   | .zero => .zero
   | .succ q => .succ (sbDeriv p q)
@@ -289,29 +289,29 @@ def sbConv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {σ : Sb sig} {A : Ty} {a a' 
   | .symm q => .symm (sbConv p q)
   | .trans q₀ q₁ => .trans (sbConv p q₀) (sbConv p q₁)
   | .lam (A := A) (b := b) (b' := b') (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh (((σ * b, σ * b'), dom Γ') : (Tm 1 × Tm 1) × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor ((σ * b, σ * b') : Tm 1 × Tm 1) (dom Γ')
+      have hΓ' := f.property.2
       Conv.lam (A := A) (h := hΓ')
         (castEq (sbUpdate_conc σ x (𝐯f.val) b (Fset.notMem_union_left q₁))
           (sbUpdate_conc σ x (𝐯f.val) b' (Fset.notMem_union_right q₁))
           (sbConv (liftSb hx hΓ' p) q₀))
-        (Fset.notMem_union_left f.property)
+        f.property.1
   | .app q₀ q₁ => .app (sbConv p q₀) (sbConv p q₁)
   | .succ q => .succ (sbConv p q)
   | .nrec q₀ q₁ q₂ => .nrec (sbConv p q₀) (sbConv p q₁) (sbConv p q₂)
   | .betaLam (A := A) (a := a) (b := b) (x := x) (h := hx) q₀ q₁ q₂ =>
-      let f := fresh ((σ * b, dom Γ') : Tm 1 × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor (σ * b) (dom Γ')
+      have hΓ' := f.property.2
       castEq rfl (sb_conc σ b a).symm
         (Conv.betaLam (A := A) (h := hΓ')
           (castTm (sbUpdate_conc σ x (𝐯f.val) b q₂) (sbDeriv (liftSb hx hΓ' p) q₀))
-          (sbDeriv p q₁) (Fset.notMem_union_left f.property))
+          (sbDeriv p q₁) f.property.1)
   | .betaZero q₀ q₁ => .betaZero (sbDeriv p q₀) (sbDeriv p q₁)
   | .betaSucc q₀ q₁ q₂ => .betaSucc (sbDeriv p q₀) (sbDeriv p q₁) (sbDeriv p q₂)
   | .eta (A := A) (b := b) (x := x) q₀ q₁ =>
-      let f := fresh ((σ * b, dom Γ') : Tm0 × Fset)
-      have hb := Fset.notMem_union_left f.property
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor (σ * b : Tm0) (dom Γ')
+      have hb := f.property.1
+      have hΓ' := f.property.2
       castEq rfl
         (by
           have key : σ * (x ． (b ∙ 𝐯x))
@@ -343,13 +343,13 @@ def sbEqDeriv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {σ σ' : Sb sig} {A : Ty}
       castEq (Trm.weaken_self (σ x) (Nat.zero_le 0)).symm
         (Trm.weaken_self (σ' x) (Nat.zero_le 0)).symm (sbConvVar q p)
   | .lam (A := A) (b := b) (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh (((σ * b, σ' * b), dom Γ') : (Tm 1 × Tm 1) × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor ((σ * b, σ' * b) : Tm 1 × Tm 1) (dom Γ')
+      have hΓ' := f.property.2
       Conv.lam (A := A) (h := hΓ')
         (castEq (sbUpdate_conc σ x (𝐯f.val) b q₁)
           (sbUpdate_conc σ' x (𝐯f.val) b q₁)
           (sbEqDeriv (liftSbConv hx hΓ' p) q₀))
-        (Fset.notMem_union_left f.property)
+        f.property.1
   | .app q₀ q₁ => .app (sbEqDeriv p q₀) (sbEqDeriv p q₁)
   | .zero => .refl .zero
   | .succ q => .succ (sbEqDeriv p q)
@@ -386,10 +386,10 @@ def convTy {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} :
   | .betaSucc q₀ q₁ q₂ => ⟨.nrec q₀ q₁ (.succ q₂), .app (.app q₁ q₂) (.nrec q₀ q₁ q₂)⟩
   | .eta (Γ := Γ) (A := A) (b := b) (x := x) q₀ q₁ =>
       ⟨q₀,
-        let f := fresh ((x, b, dom Γ) : Atom × Tm0 × Fset)
-        have hx' := Fset.notMem_union_left f.property
-        have hb' := Fset.notMem_union_left (Fset.notMem_union_right f.property)
-        have hΓ := Fset.notMem_union_right (Fset.notMem_union_right f.property)
+        let f := freshFor (x, b) (dom Γ)
+        have hx' := Fset.notMem_union_left f.property.1
+        have hb' := Fset.notMem_union_right f.property.1
+        have hΓ := f.property.2
         Deriv.lam (A := A) (h := hΓ)
           (castTm
             (by
@@ -398,8 +398,7 @@ def convTy {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} :
               show _ = ((x ≔ (𝐯f.val : Tm0)) * b) ∙ ((x ≔ (𝐯f.val : Tm0)) * (𝐯x : Tm0))
               rw [ssbFresh x (𝐯f.val) b q₁]
               show _ = b ∙ ((x ≔ (𝐯f.val : Tm0)) * (Trm.atom x : Tm0))
-              rw [show ((x ≔ (𝐯f.val : Tm0)) : Sb sig)
-                    = (Sb.id ∘/ x ≔ (𝐯f.val : Tm0)) from rfl, updateEq])
+              rw [Sb.single_def x (𝐯f.val : Tm0), updateEq])
             (.app (wkDeriv hΓ q₀) (.var .new)))
           (fresh_abs' (b ∙ 𝐯x) (by
             show f.val ∉ᶠ supp b ∪ (｛ x ｝ ∪ ∅)

@@ -131,11 +131,11 @@ def rnDeriv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a : Tm0}
     (p : Γ' ⊢ʳ ρ ∶ Γ) : (Γ ⊢ a ∶ A) → Γ' ⊢ ρ * a ∶ A
   | .var q => .var (rnVar q p)
   | .lam (A := A) (b := b) (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh ((ρ * b, dom Γ') : Tm 1 × Fset)
-      Deriv.lam (A := A) (h := Fset.notMem_union_right f.property)
+      let f := freshFor (ρ * b) (dom Γ')
+      Deriv.lam (A := A) (h := f.property.2)
         (castTm (rnUpdate_conc ρ x f.val b q₁)
-          (rnDeriv (liftRn hx (Fset.notMem_union_right f.property) p) q₀))
-        (Fset.notMem_union_left f.property)
+          (rnDeriv (liftRn hx f.property.2 p) q₀))
+        f.property.1
   | .app q₀ q₁ => .app (rnDeriv p q₀) (rnDeriv p q₁)
   | .zero => .zero
   | .succ q => .succ (rnDeriv p q)
@@ -158,30 +158,30 @@ def rnConv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a a' : Tm
   | .symm q => .symm (rnConv p q)
   | .trans q₀ q₁ => .trans (rnConv p q₀) (rnConv p q₁)
   | .lam (A := A) (b := b) (b' := b') (x := x) (h := hx) q₀ q₁ =>
-      let f := fresh (((ρ * b, ρ * b'), dom Γ') : (Tm 1 × Tm 1) × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor ((ρ * b, ρ * b') : Tm 1 × Tm 1) (dom Γ')
+      have hΓ' := f.property.2
       Conv.lam (A := A) (h := hΓ')
         (castEq (rnUpdate_conc ρ x f.val b (Fset.notMem_union_left q₁))
           (rnUpdate_conc ρ x f.val b' (Fset.notMem_union_right q₁))
           (rnConv (liftRn hx hΓ' p) q₀))
-        (Fset.notMem_union_left f.property)
+        f.property.1
   | .app q₀ q₁ => .app (rnConv p q₀) (rnConv p q₁)
   | .succ q => .succ (rnConv p q)
   | .nrec q₀ q₁ q₂ => .nrec (rnConv p q₀) (rnConv p q₁) (rnConv p q₂)
   | .betaLam (A := A) (a := a) (b := b) (x := x) (h := hx) q₀ q₁ q₂ =>
-      let f := fresh ((ρ * b, dom Γ') : Tm 1 × Fset)
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor (ρ * b) (dom Γ')
+      have hΓ' := f.property.2
       castEq rfl (rn_conc ρ b a).symm
         (Conv.betaLam (A := A) (h := hΓ')
           (castTm (rnUpdate_conc ρ x f.val b q₂)
             (rnDeriv (liftRn hx hΓ' p) q₀))
-          (rnDeriv p q₁) (Fset.notMem_union_left f.property))
+          (rnDeriv p q₁) f.property.1)
   | .betaZero q₀ q₁ => .betaZero (rnDeriv p q₀) (rnDeriv p q₁)
   | .betaSucc q₀ q₁ q₂ => .betaSucc (rnDeriv p q₀) (rnDeriv p q₁) (rnDeriv p q₂)
   | .eta (A := A) (b := b) (x := x) q₀ q₁ =>
-      let f := fresh ((ρ * b, dom Γ') : Tm0 × Fset)
-      have hb := Fset.notMem_union_left f.property
-      have hΓ' := Fset.notMem_union_right f.property
+      let f := freshFor (ρ * b : Tm0) (dom Γ')
+      have hb := f.property.1
+      have hΓ' := f.property.2
       castEq rfl
         (by
           have key : ρ * (x ． (b ∙ 𝐯x)) = (f.val ． ((ρ ∘/ x ≔ʳ f.val) : Rn) * (b ∙ 𝐯x)) :=

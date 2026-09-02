@@ -73,6 +73,15 @@ instance instFiniteSupportVec {A : Type u} [FiniteSupport A] {n : Nat} :
     FiniteSupport (Vec A n) :=
   ⟨suppVec⟩
 
+/-- Pick an atom fresh for `a` that also avoids the finite set `S`: `fresh` at a
+pair, with the two halves of the freshness split once.  Lean-only, no Agda
+counterpart: the Agda development re-splits `fresh ((a , S))` with `∉∪₁`/`∉∪₂` at
+every use site. -/
+def freshFor {A : Type u} [FiniteSupport A] (a : A) (S : Fset) :
+    { x : Atom // (x # a) ∧ (x ∉ᶠ S) } :=
+  let f := fresh ((a, S) : A × Fset)
+  ⟨f.val, Fset.notMem_union_left f.property, Fset.notMem_union_right f.property⟩
+
 /-- Agda: `#symm` (WSLN/Fresh.agda). -/
 theorem fresh_symm {x y : Atom} (h : x # y) : y # x :=
   .single (Ne.symm (Fset.ne_of_notMem_single h))
