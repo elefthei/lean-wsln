@@ -19,39 +19,35 @@ open WSLN
 
 /-! ## The signature -/
 
-/-- Agda: `OpWSLN` (Lambda.agda). -/
 inductive Op where
-  /-- Agda: `′lm′`. Function abstraction. -/
+  /-- Function abstraction. -/
   | lm : Op
-  /-- Agda: `′ap′`. Function application. -/
+  /-- Function application. -/
   | ap : Op
   deriving DecidableEq
 
-/-- Agda: `arWSLN` (Lambda.agda).
-
-Function abstraction takes one argument binding one name; function application
+/-- Function abstraction takes one argument binding one name; function application
 takes two arguments, each binding no names. -/
 def ar : Op → List Nat
   | .lm => [1]
   | .ap => [0, 0]
 
-/-- Agda: `WSLN : Sig` (Lambda.agda). -/
 def sig : Sig := ⟨Op, ar⟩
 
-/-- Terms of the λ-calculus in scope `n`; Agda `Trm[ n ]`. -/
+/-- Terms of the λ-calculus in scope `n`. -/
 abbrev Tm (n : Nat) := WSLN.Trm sig n
 
 instance : DecidableEq sig.Op := inferInstanceAs (DecidableEq Op)
 
 /-! ## Concrete syntax -/
 
-/-- Agda: `pattern 𝐯 x = 𝐚 x` (Lambda.agda). Variable named by the atom `x`. -/
+/-- Variable named by the atom `x`. -/
 @[match_pattern] def vr {n : Nat} (x : Atom) : Tm n := .atom x
 
-/-- Agda: `pattern 𝛌 a` (Lambda.agda). Function abstraction. -/
+/-- Function abstraction. -/
 @[match_pattern] def lam {n : Nat} (t : Tm (n + 1)) : Tm n := .op .lm (.cons t .nil)
 
-/-- Agda: `pattern _∙_ b a` (Lambda.agda). Function application. -/
+/-- Function application. -/
 @[match_pattern] def app {n : Nat} (b a : Tm n) : Tm n :=
   .op .ap (.cons b (.cons a .nil))
 
@@ -67,7 +63,6 @@ constructors and then with the concrete syntax. -/
 section
 variable (z : Atom)
 
-/-- Agda: `ex` (Lambda.agda). -/
 def ex : Tm 0 :=
   .op .lm (.cons
     (.op .lm (.cons
@@ -79,28 +74,23 @@ def ex : Tm 0 :=
       .nil))
     .nil)
 
-/-- Agda: `ex'` (Lambda.agda). The same term using the concrete syntax. -/
+/-- The same term using the concrete syntax. -/
 def ex' : Tm 0 := 𝛌 (𝛌 (i1 ∙ (i0 ∙ 𝐯z)))
 
-/-- Agda: `ex≡ex'` (Lambda.agda). -/
 theorem ex_eq_ex' : ex z = ex' z := rfl
 
 end
 
 /-! ## One-step β-reduction -/
 
-/-- Agda: `_⟶β_` (Lambda.agda). -/
+/-- One-step β-reduction. -/
 inductive Step : Tm 0 → Tm 0 → Prop where
-  /-- Agda: `beta`.  `t [ u ]` is the concretion of the 1-term `t` at the
-  0-term `u`. -/
+  /-- `t [ u ]` is the concretion of the 1-term `t` at the 0-term `u`. -/
   | beta (t : Tm 1) (u : Tm 0) : Step (Lambda.lam t ∙ u) (t[u])
-  /-- Agda: `lam`.  `S : Fset` is a finite set of atoms; the premise is
-  cofinitely quantified. -/
+  /-- `S : Fset` is a finite set of atoms; the premise is cofinitely quantified. -/
   | lam {t t' : Tm 1} (S : Fset) (h : ∀ x, x # S → Step (t[x]) (t'[x])) :
       Step (Lambda.lam t) (Lambda.lam t')
-  /-- Agda: `app₁`. -/
   | app₁ {u u' : Tm 0} (t : Tm 0) (h : Step u u') : Step (t ∙ u) (t ∙ u')
-  /-- Agda: `app₂`. -/
   | app₂ {t t' : Tm 0} (u : Tm 0) (h : Step t t') : Step (t ∙ u) (t' ∙ u)
 
 @[inherit_doc Step] scoped infix:40 " ⟶β " => Lambda.Step

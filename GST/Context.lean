@@ -41,35 +41,34 @@ open WSLN
 
 /-! ## Contexts -/
 
-/-- Agda: `Cx` (GST/Context.agda), with `dom` as an index; see the module docstring. -/
+/-- Contexts, with `dom` as an index; see the module docstring. -/
 inductive Cx : Fset → Type where
-  /-- Agda: `◇`. -/
+  /-- The empty context. -/
   | nil : Cx ∅
-  /-- Agda: `_⨟_∶_`. -/
+  /-- Context extension; the freshness proof is an explicit argument. -/
   | snoc {S : Fset} (Γ : Cx S) (x : Atom) (A : Ty) (h : x ∉ᶠ S) : Cx (S ∪ ｛ x ｝)
 
 @[inherit_doc Cx.nil] scoped notation "◇" => GST.Cx.nil
 @[inherit_doc Cx.snoc]
 scoped notation:50 Γ:50 " ⨟ " x:51 " ∶ " A:51 " ∣ " h:51 => GST.Cx.snoc Γ x A h
 
-/-- Agda: `dom` (GST/Context.agda).  The domain of a context is its index. -/
+/-- The domain of a context is its index. -/
 abbrev dom {S : Fset} (_ : Cx S) : Fset := S
 
-/-- Agda: `FiniteSupportCx` (GST/Context.agda).  Freshness for contexts. -/
+/-- Freshness for contexts. -/
 instance instFiniteSupportCx {S : Fset} : FiniteSupport (Cx S) := ⟨fun _ => S⟩
 
 @[simp] theorem supp_cx {S : Fset} (Γ : Cx S) : supp Γ = dom Γ := rfl
 
-/-- Agda: `cx⁻¹` (GST/Context.agda), at a fixed domain. -/
+/-- Injectivity of context extension, at a fixed domain. -/
 theorem snoc_inj {S : Fset} {Γ Γ' : Cx S} {x : Atom} {A A' : Ty} {h h' : x ∉ᶠ S}
     (e : (Γ ⨟ x ∶ A ∣ h) = (Γ' ⨟ x ∶ A' ∣ h')) : Γ = Γ' ∧ A = A' := by
   cases e; exact ⟨rfl, rfl⟩
 
-/-- Agda: `_∈?_` (GST/Context.agda). -/
 instance memDec (x : Atom) {S : Fset} (Γ : Cx S) : Decidable (x ∈ dom Γ) :=
   Fset.decidableMem x S
 
-/-- Agda: `decEqCx` / `hasDecEqCx` (GST/Context.agda), at a fixed domain. -/
+/-- Decidable equality of contexts, at a fixed domain. -/
 instance decEqCx {S : Fset} : DecidableEq (Cx S)
   | .nil, .nil => isTrue rfl
   | .snoc Γ x A _, .snoc Γ' _ A' _ =>
@@ -81,18 +80,16 @@ instance decEqCx {S : Fset} : DecidableEq (Cx S)
 
 /-! ## Context components -/
 
-/-- Agda: `_isIn_` (GST/Context.agda). -/
+/-- Context membership: the pair `(x, A)` occurs in `Γ`. -/
 inductive IsIn : {S : Fset} → Atom × Ty → Cx S → Type where
-  /-- Agda: `isInNew`. -/
   | new {S : Fset} {Γ : Cx S} {x : Atom} {A : Ty} {h : x ∉ᶠ S} :
       IsIn (x, A) (Γ ⨟ x ∶ A ∣ h)
-  /-- Agda: `isInOld`. -/
   | old {S : Fset} {Γ : Cx S} {xA : Atom × Ty} {x' : Atom} {A' : Ty} {h : x' ∉ᶠ S}
       (p : IsIn xA Γ) : IsIn xA (Γ ⨟ x' ∶ A' ∣ h)
 
 @[inherit_doc IsIn] scoped infix:40 " isIn " => GST.IsIn
 
-/-- Agda: `isIn→dom` (GST/Context.agda), stated on the raw pair so that `induction`
+/-- Membership implies domain membership, stated on the raw pair so that `induction`
 applies. -/
 theorem IsIn.dom_mem {S : Fset} {Γ : Cx S} {xA : Atom × Ty} (h : xA isIn Γ) :
     xA.1 ∈ dom Γ := by
@@ -100,13 +97,10 @@ theorem IsIn.dom_mem {S : Fset} {Γ : Cx S} {xA : Atom × Ty} (h : xA isIn Γ) :
   | new => exact .unionR .single
   | old _ ih => exact .unionL ih
 
-/-- Agda: `isIn→dom` (GST/Context.agda). -/
 theorem isIn_dom {S : Fset} {Γ : Cx S} {x : Atom} {A : Ty} (h : (x, A) isIn Γ) :
     x ∈ dom Γ := h.dom_mem
 
-/-- Agda: `dom→isIn` (GST/Context.agda).
-
-The recursion is on the context, not on the membership evidence: `x ∈ dom Γ` is a
+/-- The recursion is on the context, not on the membership evidence: `x ∈ dom Γ` is a
 `Prop` in Lean, while the result is data. -/
 def dom_isIn {S : Fset} : (Γ : Cx S) → {x : Atom} → x ∈ dom Γ → Σ A : Ty, (x, A) isIn Γ
   | .nil, _, h => absurd h (Fset.not_mem_of_notMem .empty)
@@ -116,7 +110,6 @@ def dom_isIn {S : Fset} : (Γ : Cx S) → {x : Atom} → x ∈ dom Γ → Σ A :
         let ⟨A, p⟩ := dom_isIn Γ (Fset.mem_left_of_notMem_right h (.single e))
         ⟨A, .old p⟩
 
-/-- Agda: `isIn?` (GST/Context.agda). -/
 def isInDec {S : Fset} : (Γ : Cx S) → (A : Ty) → (x : Atom) → Dec ((x, A) isIn Γ)
   | .nil, _, _ => .no fun p => nomatch p
   | .snoc Γ y B _, A, x =>
@@ -132,7 +125,6 @@ def isInDec {S : Fset} : (Γ : Cx S) → (A : Ty) → (x : Atom) → Dec ((x, A)
 
 /-! ## Membership evidence is unique -/
 
-/-- Agda: `isPropIsIn` (GST/Context.agda). -/
 theorem IsIn.unique {S : Fset} {Γ : Cx S} {xA : Atom × Ty} :
     ∀ (p p' : xA isIn Γ), p = p'
   | .new, .new => rfl

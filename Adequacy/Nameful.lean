@@ -26,26 +26,21 @@ open WSLN
 
 mutual
 
-/-- Agda: `NomTrm` (Adequacy/Nameful.agda). -/
 inductive NomTrm (Sg : Sig) : Type where
-  /-- Agda: `𝐚`.  A name. -/
+  /-- A name. -/
   | atom (x : Atom) : NomTrm Sg
-  /-- Agda: `𝐨`.  A compound term. -/
+  /-- A compound term. -/
   | op (o : Sg.Op) (bs : NomArg Sg (Sg.ar o)) : NomTrm Sg
 
-/-- Agda: `NomArg` (Adequacy/Nameful.agda). -/
 inductive NomArg (Sg : Sig) : List Nat → Type where
-  /-- Agda: `[]`. -/
   | nil : NomArg Sg []
-  /-- Agda: `_::_`. -/
   | cons {m : Nat} {ms : List Nat} (b : NomBnd Sg m) (bs : NomArg Sg ms) :
       NomArg Sg (m :: ms)
 
-/-- Agda: `NomBnd` (Adequacy/Nameful.agda). -/
 inductive NomBnd (Sg : Sig) : Nat → Type where
-  /-- Agda: `⟨⟩`.  A term with no binders. -/
+  /-- A term with no binders. -/
   | base (M : NomTrm Sg) : NomBnd Sg 0
-  /-- Agda: `⟨_,_⟩`.  Binding of one more name. -/
+  /-- Binding of one more name. -/
   | abs {m : Nat} (x : Atom) (b : NomBnd Sg m) : NomBnd Sg (m + 1)
 
 end
@@ -54,31 +49,25 @@ end
 
 mutual
 
-/-- Agda: `suppNomTrm` (Adequacy/Nameful.agda). -/
 def suppNomTrm {Sg : Sig} : NomTrm Sg → Fset
   | .atom x => ｛ x ｝
   | .op _ bs => suppNomArg bs
 
-/-- Agda: `suppNomArg` (Adequacy/Nameful.agda). -/
 def suppNomArg {Sg : Sig} {ms : List Nat} : NomArg Sg ms → Fset
   | .nil => ∅
   | .cons b bs => suppNomBnd b ∪ suppNomArg bs
 
-/-- Agda: `suppNomBnd` (Adequacy/Nameful.agda). -/
 def suppNomBnd {Sg : Sig} {m : Nat} : NomBnd Sg m → Fset
   | .base M => suppNomTrm M
   | .abs x b => ｛ x ｝ ∪ suppNomBnd b
 
 end
 
-/-- Agda: `FiniteSupportNomTrm` (Adequacy/Nameful.agda). -/
 instance instFiniteSupportNomTrm {Sg : Sig} : FiniteSupport (NomTrm Sg) := ⟨suppNomTrm⟩
 
-/-- Agda: `FiniteSupportNomArg` (Adequacy/Nameful.agda). -/
 instance instFiniteSupportNomArg {Sg : Sig} {ms : List Nat} :
     FiniteSupport (NomArg Sg ms) := ⟨suppNomArg⟩
 
-/-- Agda: `FiniteSupportNomBnd` (Adequacy/Nameful.agda). -/
 instance instFiniteSupportNomBnd {Sg : Sig} {m : Nat} :
     FiniteSupport (NomBnd Sg m) := ⟨suppNomBnd⟩
 
@@ -105,31 +94,25 @@ All names are renamed, be they free, bound or binding. -/
 
 mutual
 
-/-- Agda: `rnNomTrm` (Adequacy/Nameful.agda). -/
 def rnNomTrm {Sg : Sig} (ρ : Rn) : NomTrm Sg → NomTrm Sg
   | .atom x => .atom (ρ x)
   | .op o bs => .op o (rnNomArg ρ bs)
 
-/-- Agda: `rnNomArg` (Adequacy/Nameful.agda). -/
 def rnNomArg {Sg : Sig} {ms : List Nat} (ρ : Rn) : NomArg Sg ms → NomArg Sg ms
   | .nil => .nil
   | .cons b bs => .cons (rnNomBnd ρ b) (rnNomArg ρ bs)
 
-/-- Agda: `rnNomBnd` (Adequacy/Nameful.agda). -/
 def rnNomBnd {Sg : Sig} {m : Nat} (ρ : Rn) : NomBnd Sg m → NomBnd Sg m
   | .base M => .base (rnNomTrm ρ M)
   | .abs x b => .abs (ρ x) (rnNomBnd ρ b)
 
 end
 
-/-- Agda: `ApplyRnNomTrm` (Adequacy/Nameful.agda). -/
 instance instHMulRnNomTrm {Sg : Sig} : HMul Rn (NomTrm Sg) (NomTrm Sg) := ⟨rnNomTrm⟩
 
-/-- Agda: `ApplyRnNomArg` (Adequacy/Nameful.agda). -/
 instance instHMulRnNomArg {Sg : Sig} {ms : List Nat} :
     HMul Rn (NomArg Sg ms) (NomArg Sg ms) := ⟨rnNomArg⟩
 
-/-- Agda: `ApplyRnNomBnd` (Adequacy/Nameful.agda). -/
 instance instHMulRnNomBnd {Sg : Sig} {m : Nat} :
     HMul Rn (NomBnd Sg m) (NomBnd Sg m) := ⟨rnNomBnd⟩
 
@@ -156,28 +139,22 @@ instance instHMulRnNomBnd {Sg : Sig} {m : Nat} :
 
 mutual
 
-/-- Agda: `_~_` (Adequacy/Nameful.agda). -/
+/-- α-equivalence of nameful terms. -/
 inductive AlphaEq {Sg : Sig} : NomTrm Sg → NomTrm Sg → Prop where
-  /-- Agda: `~𝐚`. -/
   | atom (x : Atom) : AlphaEq (.atom x) (.atom x)
-  /-- Agda: `~𝐨`. -/
   | op {o : Sg.Op} {bs bs' : NomArg Sg (Sg.ar o)} (q : AlphaEqArg bs bs') :
       AlphaEq (.op o bs) (.op o bs')
 
-/-- Agda: `_~ᵃ_` (Adequacy/Nameful.agda). -/
+/-- α-equivalence of nameful argument lists. -/
 inductive AlphaEqArg {Sg : Sig} : {ms : List Nat} → NomArg Sg ms → NomArg Sg ms → Prop where
-  /-- Agda: `~[]`. -/
   | nil : AlphaEqArg (.nil : NomArg Sg []) .nil
-  /-- Agda: `~::`. -/
   | cons {m : Nat} {ms : List Nat} {b b' : NomBnd Sg m} {bs bs' : NomArg Sg ms}
       (q₀ : AlphaEqBnd b b') (q₁ : AlphaEqArg bs bs') :
       AlphaEqArg (.cons b bs) (.cons b' bs')
 
-/-- Agda: `_~ᵇ_` (Adequacy/Nameful.agda). -/
+/-- α-equivalence of nameful binders. -/
 inductive AlphaEqBnd {Sg : Sig} : {m : Nat} → NomBnd Sg m → NomBnd Sg m → Prop where
-  /-- Agda: `~⟨⟩`. -/
   | base {M M' : NomTrm Sg} (q : AlphaEq M M') : AlphaEqBnd (.base M) (.base M')
-  /-- Agda: `~⟨,⟩`. -/
   | abs {m : Nat} {x x' y : Atom} {b b' : NomBnd Sg m}
       (q₀ : AlphaEqBnd (((x ≔ʳ y) : Rn) * b) (((x' ≔ʳ y) : Rn) * b'))
       (q₁ : y # (b, b')) : AlphaEqBnd (.abs x b) (.abs x' b')
@@ -192,17 +169,14 @@ end
 
 mutual
 
-/-- Agda: `sizeNomTrm` (Adequacy/Nameful.agda). -/
 def NomTrm.size {Sg : Sig} : NomTrm Sg → Nat
   | .atom _ => 0
   | .op _ bs => NomArg.size bs + 1
 
-/-- Agda: `sizeNomArg` (Adequacy/Nameful.agda). -/
 def NomArg.size {Sg : Sig} {ms : List Nat} : NomArg Sg ms → Nat
   | .nil => 0
   | .cons b bs => max (NomBnd.size b) (NomArg.size bs)
 
-/-- Agda: `sizeNomBnd` (Adequacy/Nameful.agda). -/
 def NomBnd.size {Sg : Sig} {m : Nat} : NomBnd Sg m → Nat
   | .base M => NomTrm.size M
   | .abs _ b => NomBnd.size b
@@ -230,13 +204,11 @@ end
 
 mutual
 
-/-- Agda: `sizeRenTrm` (Adequacy/Nameful.agda). -/
 @[simp] theorem sizeRenTrm {Sg : Sig} (M : NomTrm Sg) (ρ : Rn) : (ρ * M).size = M.size := by
   match M with
   | .atom x => rfl
   | .op o bs => simpa using sizeRenArg bs ρ
 
-/-- Agda: `sizeRenArg` (Adequacy/Nameful.agda). -/
 @[simp] theorem sizeRenArg {Sg : Sig} {ms : List Nat} (bs : NomArg Sg ms) (ρ : Rn) :
     (ρ * bs).size = bs.size := by
   match bs with
@@ -244,7 +216,6 @@ mutual
   | .cons b bs' =>
       simp only [rnNomArg_cons, NomArg.size_cons, sizeRenBnd b ρ, sizeRenArg bs' ρ]
 
-/-- Agda: `sizeRenBnd` (Adequacy/Nameful.agda). -/
 @[simp] theorem sizeRenBnd {Sg : Sig} {m : Nat} (b : NomBnd Sg m) (ρ : Rn) :
     (ρ * b).size = b.size := by
   match b with
@@ -253,15 +224,12 @@ mutual
 
 end
 
-/-- Agda: `sizeRenTrm≤` (Adequacy/Nameful.agda). -/
 theorem sizeRenTrmLe {Sg : Sig} {s : Nat} (M : NomTrm Sg) (ρ : Rn) (q : M.size ≤ s) :
     (ρ * M).size ≤ s := by rw [sizeRenTrm]; exact q
 
-/-- Agda: `sizeRenArg≤` (Adequacy/Nameful.agda). -/
 theorem sizeRenArgLe {Sg : Sig} {s : Nat} {ms : List Nat} (bs : NomArg Sg ms) (ρ : Rn)
     (q : bs.size ≤ s) : (ρ * bs).size ≤ s := by rw [sizeRenArg]; exact q
 
-/-- Agda: `sizeRenBnd≤` (Adequacy/Nameful.agda). -/
 theorem sizeRenBndLe {Sg : Sig} {s : Nat} {m : Nat} (b : NomBnd Sg m) (ρ : Rn)
     (q : b.size ≤ s) : (ρ * b).size ≤ s := by rw [sizeRenBnd]; exact q
 

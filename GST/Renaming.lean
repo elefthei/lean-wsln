@@ -19,11 +19,9 @@ open WSLN
 
 /-! ## Well-typed renaming -/
 
-/-- Agda: `_⊢ʳ_∶_` (GST/Renaming.agda). -/
+/-- Typed renamings: `Δ ⊢ʳ ρ ∶ Γ`. -/
 inductive RnTyping : {S' : Fset} → Cx S' → Rn → {S : Fset} → Cx S → Type where
-  /-- Agda: `◇`. -/
   | nil {S' : Fset} {Γ' : Cx S'} {ρ : Rn} : RnTyping Γ' ρ ◇
-  /-- Agda: `[]`. -/
   | snoc {S' S : Fset} {Γ' : Cx S'} {Γ : Cx S} {ρ : Rn} {A : Ty} {x : Atom}
       {h : x ∉ᶠ S} (q₀ : RnTyping Γ' ρ Γ) (q₁ : (ρ x, A) isIn Γ') :
       RnTyping Γ' ρ (Γ ⨟ x ∶ A ∣ h)
@@ -31,13 +29,11 @@ inductive RnTyping : {S' : Fset} → Cx S' → Rn → {S : Fset} → Cx S → Ty
 @[inherit_doc RnTyping]
 scoped notation:25 Γ':26 " ⊢ʳ " ρ:41 " ∶ " Γ:41 => GST.RnTyping Γ' ρ Γ
 
-/-- Agda: `[]₀` (GST/Renaming.agda). -/
 def RnTyping.inv₀ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {x : Atom}
     {h : x ∉ᶠ S} (q : Γ' ⊢ʳ ρ ∶ (Γ ⨟ x ∶ A ∣ h)) : Γ' ⊢ʳ ρ ∶ Γ :=
   match q with
   | .snoc q₀ _ => q₀
 
-/-- Agda: `[]₁` (GST/Renaming.agda). -/
 def RnTyping.inv₁ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {x : Atom}
     {h : x ∉ᶠ S} (q : Γ' ⊢ʳ ρ ∶ (Γ ⨟ x ∶ A ∣ h)) : (ρ x, A) isIn Γ' :=
   match q with
@@ -45,7 +41,7 @@ def RnTyping.inv₁ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {
 
 /-! ## Setoid of renamings of the variables in a given context -/
 
-/-- Agda: `Rn[_]` (GST/Renaming.agda). -/
+/-- The setoid of typed renamings, `Rn[ Γ ]`. -/
 def rnSetd (S : Fset) : Setd where
   El := Rn
   rel ρ ρ' := ∀ x, x ∈ S → ρ x = ρ' x
@@ -55,7 +51,6 @@ def rnSetd (S : Fset) : Setd where
 
 @[inherit_doc rnSetd] scoped notation:max "Rn[ " Γ " ]" => GST.rnSetd (GST.dom Γ)
 
-/-- Agda: `rnUpdate#` (GST/Renaming.agda). -/
 theorem rnUpdate_fresh {S : Fset} {x x' : Atom} (ρ : Rn) (h : x ∉ᶠ S) :
     rnSetd S ∋ ρ ~ (ρ ∘/ x ≔ʳ x') := by
   intro y hy
@@ -65,7 +60,6 @@ theorem rnUpdate_fresh {S : Fset} {x x' : Atom} (ρ : Rn) (h : x ∉ᶠ S) :
 
 /-! ## Renaming is well scoped -/
 
-/-- Agda: `rnDom` (GST/Renaming.agda). -/
 theorem rnDom : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {ρ : Rn} → {x : Atom} →
     (Γ' ⊢ʳ ρ ∶ Γ) → x ∈ dom Γ → ρ x ∈ dom Γ'
   | _, _, _, _, _, _, .nil, h => absurd h (Fset.not_mem_of_notMem .empty)
@@ -74,7 +68,6 @@ theorem rnDom : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {ρ : Rn} �
       | unionL h => exact rnDom q₀ h
       | unionR h => cases h; exact isIn_dom q₁
 
-/-- Agda: `Rn[]∘` (GST/Renaming.agda). -/
 theorem rnSetd_comp {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ ρ' ρ₁ ρ₁' : Rn}
     (p : Γ' ⊢ʳ ρ ∶ Γ) (e : rnSetd (dom Γ) ∋ ρ ~ ρ')
     (e₁ : rnSetd (dom Γ') ∋ ρ₁ ~ ρ₁') :
@@ -83,7 +76,6 @@ theorem rnSetd_comp {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ ρ' ρ₁ ρ₁'
 
 /-! ## Types of variables under renaming -/
 
-/-- Agda: `⊢rnVar` (GST/Renaming.agda). -/
 def rnVar {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {x : Atom} {A : Ty} :
     (x, A) isIn Γ → (Γ' ⊢ʳ ρ ∶ Γ) → (ρ x, A) isIn Γ'
   | .new, .snoc _ q₁ => q₁
@@ -91,24 +83,20 @@ def rnVar {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {x : Atom} {A : Ty} 
 
 /-! ## Weakening, identity, composition and extensionality -/
 
-/-- Agda: `wkRn` (GST/Renaming.agda). -/
 def wkRn {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {x : Atom}
     (h : x ∉ᶠ S') : (Γ' ⊢ʳ ρ ∶ Γ) → (Γ' ⨟ x ∶ A ∣ h) ⊢ʳ ρ ∶ Γ
   | .nil => .nil
   | .snoc q₀ q₁ => .snoc (wkRn h q₀) (.old q₁)
 
-/-- Agda: `⊢ʳid` (GST/Renaming.agda). -/
 def rnTypingId : {S : Fset} → (Γ : Cx S) → Γ ⊢ʳ Rn.id ∶ Γ
   | _, .nil => .nil
   | _, .snoc Γ _ _ h => .snoc (wkRn h (rnTypingId Γ)) .new
 
-/-- Agda: `⊢ʳ∘` (GST/Renaming.agda). -/
 def rnTypingComp {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {ρ ρ' : Rn}
     (p' : Γ'' ⊢ʳ ρ' ∶ Γ') : (Γ' ⊢ʳ ρ ∶ Γ) → Γ'' ⊢ʳ Rn.comp ρ' ρ ∶ Γ
   | .nil => .nil
   | .snoc (x := x) q₀ q₁ => .snoc (rnTypingComp p' q₀) (rnVar (x := ρ x) q₁ p')
 
-/-- Agda: `⊢ʳExt` (GST/Renaming.agda). -/
 def rnTypingExt {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ ρ' : Rn}
     (e : rnSetd (dom Γ) ∋ ρ ~ ρ') (p : Γ' ⊢ʳ ρ ∶ Γ) : Γ' ⊢ʳ ρ' ∶ Γ :=
   match p with
@@ -117,7 +105,6 @@ def rnTypingExt {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ ρ' : Rn}
       .snoc (rnTypingExt (fun y hy => e y (.unionL hy)) q₀)
         (castIsIn (e x (.unionR .single)) q₁)
 
-/-- Agda: `liftRn` (GST/Renaming.agda). -/
 def liftRn {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {x x' : Atom}
     (hx : x ∉ᶠ S) (hx' : x' ∉ᶠ S') (p : Γ' ⊢ʳ ρ ∶ Γ) :
     (Γ' ⨟ x' ∶ A ∣ hx') ⊢ʳ (ρ ∘/ x ≔ʳ x') ∶ (Γ ⨟ x ∶ A ∣ hx) :=
@@ -126,7 +113,6 @@ def liftRn {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {x x' : At
 
 /-! ## Renaming preserves typing -/
 
-/-- Agda: `rn⊢` (GST/Renaming.agda). -/
 def rnDeriv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a : Tm0}
     (p : Γ' ⊢ʳ ρ ∶ Γ) : (Γ ⊢ a ∶ A) → Γ' ⊢ ρ * a ∶ A
   | .var q => .var (rnVar q p)
@@ -141,8 +127,7 @@ def rnDeriv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a : Tm0}
   | .succ q => .succ (rnDeriv p q)
   | .nrec q₀ q₁ q₂ => .nrec (rnDeriv p q₀) (rnDeriv p q₁) (rnDeriv p q₂)
 
-/-- Agda: `rn⊢¹` (GST/Renaming.agda): the λ-body typing is independent of the choice
-of fresh concreting atom. -/
+/-- The λ-body typing is independent of the choice of fresh concreting atom. -/
 def rnDerivBody {S : Fset} {Γ : Cx S} {A B : Ty} (x x' : Atom) (hx : x ∉ᶠ S)
     (hx' : x' ∉ᶠ S) (b : Tm 1) (q : (Γ ⨟ x ∶ A ∣ hx) ⊢ b[x] ∶ B) (hb : x # b)
     (_hb' : x' # b) : (Γ ⨟ x' ∶ A ∣ hx') ⊢ b[x'] ∶ B :=
@@ -151,7 +136,6 @@ def rnDerivBody {S : Fset} {Γ : Cx S} {A B : Ty} (x x' : Atom) (hx : x ∉ᶠ S
 
 /-! ## Renaming preserves conversion -/
 
-/-- Agda: `rn＝` (GST/Renaming.agda). -/
 def rnConv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a a' : Tm0}
     (p : Γ' ⊢ʳ ρ ∶ Γ) : (Γ ⊢ a ＝ a' ∶ A) → Γ' ⊢ ρ * a ＝ ρ * a' ∶ A
   | .refl q => .refl (rnDeriv p q)
@@ -206,7 +190,6 @@ def rnConv {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {ρ : Rn} {A : Ty} {a a' : Tm
           rw [key, e₂])
         (Conv.eta (rnDeriv p q₀) hb)
 
-/-- Agda: `rn＝¹` (GST/Renaming.agda). -/
 def rnConvBody {S : Fset} {Γ : Cx S} {A B : Ty} (x x' : Atom) (hx : x ∉ᶠ S)
     (hx' : x' ∉ᶠ S) (b b' : Tm 1) (q : (Γ ⨟ x ∶ A ∣ hx) ⊢ b[x] ＝ b'[x] ∶ B)
     (hb : x # (b, b')) (_hb' : x' # (b, b')) :
@@ -219,19 +202,16 @@ def rnConvBody {S : Fset} {Γ : Cx S} {A B : Ty} (x x' : Atom) (hx : x ∉ᶠ S)
 
 /-! ## Weakening -/
 
-/-- Agda: `wk⊢` (GST/Renaming.agda). -/
 def wkDeriv {S : Fset} {Γ : Cx S} {A A' : Ty} {a : Tm0} {x : Atom} (h : x ∉ᶠ S)
     (q : Γ ⊢ a ∶ A) : (Γ ⨟ x ∶ A' ∣ h) ⊢ a ∶ A :=
   castTm (rnUnit a) (rnDeriv (wkRn h (rnTypingId Γ)) q)
 
-/-- Agda: `wk＝` (GST/Renaming.agda). -/
 def wkConv {S : Fset} {Γ : Cx S} {A A' : Ty} {a a' : Tm0} {x : Atom} (h : x ∉ᶠ S)
     (q : Γ ⊢ a ＝ a' ∶ A) : (Γ ⨟ x ∶ A' ∣ h) ⊢ a ＝ a' ∶ A :=
   castEq (rnUnit a) (rnUnit a') (rnConv (wkRn h (rnTypingId Γ)) q)
 
 /-! ## Support-respecting renaming of terms -/
 
-/-- Agda: `rnRespSuppTm` (GST/Renaming.agda). -/
 def rnRespSuppTm {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {a a' : Tm0}
     {ρ ρ' : Rn} (q : Γ ⊢ a ＝ a' ∶ A) (p : Γ' ⊢ʳ ρ ∶ Γ)
     (e : rnSetd (dom Γ) ∋ ρ ~ ρ') : Γ' ⊢ ρ * a ＝ ρ' * a' ∶ A :=
@@ -239,11 +219,9 @@ def rnRespSuppTm {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {a a' : Tm0}
 
 /-! ## Unitary and associative laws -/
 
-/-- Agda: `⊢rnUnit` (GST/Renaming.agda). -/
 def rnUnitConv {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
     Γ ⊢ Rn.id * a ＝ a ∶ A := castEq (rnUnit a).symm rfl (.refl q)
 
-/-- Agda: `⊢rnAssoc` (GST/Renaming.agda). -/
 def rnAssocConv {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {A : Ty}
     {a : Tm0} {ρ ρ' : Rn} (q : Γ ⊢ a ∶ A) (p : Γ' ⊢ʳ ρ ∶ Γ) (p' : Γ'' ⊢ʳ ρ' ∶ Γ') :
     Γ'' ⊢ Rn.comp ρ' ρ * a ＝ ρ' * (ρ * a) ∶ A :=

@@ -17,15 +17,13 @@ open WSLN
 
 /-! ## Provable typings are well-scoped -/
 
-/-- Agda: `supp⊢¹` (GST/WellScoped.agda), inlined as a lemma about one λ-body:
-a name occurring in the body occurs in the context, since the concreting atom is
-fresh for the body. -/
+/-- Support of one λ-body: a name occurring in the body occurs in the context, since the
+concreting atom is fresh for the body. -/
 theorem supp_body {S : Fset} {x y : Atom} {b : Tm 1} (hb : x # b)
     (h : supp (b[x]) ⊆ S ∪ ｛ x ｝) (hy : y ∈ supp b) : y ∈ S :=
   Fset.mem_left_of_notMem_right (h (conc_supp b (Trm.atom x) hy))
     (.single fun e => Fset.not_mem_of_notMem hb (e ▸ hy))
 
-/-- Agda: `supp⊢` (GST/WellScoped.agda). -/
 theorem supp_deriv {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
     supp a ⊆ dom Γ := by
   induction q with
@@ -64,7 +62,7 @@ theorem supp_deriv {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A
 
 /-! ## Provable conversions are well-scoped -/
 
-/-- Agda: `supp＝₁` and `supp＝₂` (GST/WellScoped.agda), proved as one induction. -/
+/-- Provable conversions have well-scoped subjects, both sides proved as one induction. -/
 theorem supp_conv {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} (q : Γ ⊢ a ＝ a' ∶ A) :
     supp a ⊆ dom Γ ∧ supp a' ⊆ dom Γ := by
   induction q with
@@ -189,25 +187,20 @@ theorem supp_conv {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} (q : Γ ⊢ a ＝
               | unionR hy => cases hy
       | unionR hy => cases hy
 
-/-- Agda: `supp＝₁` (GST/WellScoped.agda). -/
 theorem supp_conv₁ {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0}
     (q : Γ ⊢ a ＝ a' ∶ A) : supp a ⊆ dom Γ := (supp_conv q).1
 
-/-- Agda: `supp＝₂` (GST/WellScoped.agda). -/
 theorem supp_conv₂ {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0}
     (q : Γ ⊢ a ＝ a' ∶ A) : supp a' ⊆ dom Γ := (supp_conv q).2
 
 /-! ## Freshness property of provable judgements -/
 
-/-- Agda: `#⊢` (GST/WellScoped.agda). -/
 theorem fresh_deriv {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} {x : Atom}
     (q : Γ ⊢ a ∶ A) (h : x ∉ᶠ S) : x # a := Fset.subset_notMem (supp_deriv q) h
 
-/-- Agda: `#＝₁` (GST/WellScoped.agda). -/
 theorem fresh_conv₁ {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} {x : Atom}
     (q : Γ ⊢ a ＝ a' ∶ A) (h : x ∉ᶠ S) : x # a := Fset.subset_notMem (supp_conv₁ q) h
 
-/-- Agda: `#＝₂` (GST/WellScoped.agda). -/
 theorem fresh_conv₂ {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} {x : Atom}
     (q : Γ ⊢ a ＝ a' ∶ A) (h : x ∉ᶠ S) : x # a' := Fset.subset_notMem (supp_conv₂ q) h
 

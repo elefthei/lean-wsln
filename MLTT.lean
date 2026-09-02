@@ -15,6 +15,4 @@ import MLTT.Uniqueness
 Lean 4 port of `agda-code/agda/MLTT.agda` and the modules it re-exports:
 syntax, judgements, the cofinite rules, and the metatheory (well-scopedness,
 weakening, substitution, admissible rules, exists-fresh rules, uniqueness of types).
-
-Agda: `MLTT` (MLTT.agda).
 -/

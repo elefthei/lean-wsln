@@ -26,23 +26,18 @@ open WSLN
 
 /-! ## Setoids -/
 
-/-- Agda: `Setd` (GST/Setoid.agda). -/
 structure Setd : Type 1 where
-  /-- Agda: `∣_∣`. The carrier. -/
+  /-- The carrier. -/
   El : Type
-  /-- Agda: `_∋_~_`. The equivalence relation. -/
+  /-- The equivalence relation. -/
   rel : El → El → Prop
-  /-- Agda: `~Refl`. -/
   rfl' (x : El) : rel x x
-  /-- Agda: `~Symm`. -/
   symm' {x y : El} : rel x y → rel y x
-  /-- Agda: `~Trans`. -/
   trans' {x y z : El} : rel x y → rel y z → rel x z
 
 @[inherit_doc Setd.rel]
 scoped notation:50 A:51 " ∋ " x:51 " ~ " y:51 => Setd.rel A x y
 
-/-- Agda: `~Refl'` (GST/Setoid.agda). -/
 theorem Setd.relOfEq (A : Setd) {x x' : A.El} (e : x = x') : A ∋ x ~ x' := by
   cases e; exact A.rfl' x
 
@@ -51,21 +46,19 @@ instance (A : Setd) : Trans A.rel A.rel A.rel := ⟨A.trans'⟩
 
 /-! ## Morphisms of setoids -/
 
-/-- Agda: `Setd[_⟶_]` (GST/Setoid.agda). -/
+/-- Morphisms of setoids: relation-respecting functions. -/
 structure Setd.Hom (A B : Setd) : Type where
-  /-- Agda: `_₀_`. The underlying function. -/
+  /-- The underlying function. -/
   map : A.El → B.El
-  /-- Agda: `_₁_`. The function respects the relations. -/
+  /-- The function respects the relations. -/
   resp {x x' : A.El} : (A ∋ x ~ x') → (B ∋ map x ~ map x')
 
 @[inherit_doc Setd.Hom] scoped notation:25 "Setd[ " A " ⟶ " B " ]" => Setd.Hom A B
 
-/-- Agda: `SetdIdentity` (GST/Setoid.agda). -/
 def Setd.Hom.id (A : Setd) : Setd[ A ⟶ A ] where
   map x := x
   resp e := e
 
-/-- Agda: `SetdComp` (GST/Setoid.agda). -/
 def Setd.Hom.comp {A B C : Setd} (g : Setd[ B ⟶ C ]) (f : Setd[ A ⟶ B ]) :
     Setd[ A ⟶ C ] where
   map x := g.map (f.map x)
@@ -73,7 +66,6 @@ def Setd.Hom.comp {A B C : Setd} (g : Setd[ B ⟶ C ]) (f : Setd[ A ⟶ B ]) :
 
 /-! ## Discrete and terminal setoids -/
 
-/-- Agda: `Δ` (GST/Setoid.agda). -/
 def Setd.disc (A : Type) : Setd where
   El := A
   rel _ _ := True
@@ -81,12 +73,11 @@ def Setd.disc (A : Type) : Setd where
   symm' _ := trivial
   trans' _ _ := trivial
 
-/-- Agda: `１` (GST/Setoid.agda). -/
 def Setd.one : Setd := Setd.disc Unit
 
 /-! ## Products -/
 
-/-- Agda: `_⊗_` (GST/Setoid.agda). -/
+/-- The product setoid. -/
 def Setd.prod (A B : Setd) : Setd where
   El := A.El × B.El
   rel p q := (A ∋ p.1 ~ q.1) ∧ (B ∋ p.2 ~ q.2)
@@ -96,23 +87,19 @@ def Setd.prod (A B : Setd) : Setd where
 
 @[inherit_doc Setd.prod] scoped infixl:70 " ⊗ " => GST.Setd.prod
 
-/-- Agda: `fst` (GST/Setoid.agda). -/
 def Setd.fst {A B : Setd} : Setd[ A ⊗ B ⟶ A ] where
   map p := p.1
   resp e := e.1
 
-/-- Agda: `snd` (GST/Setoid.agda). -/
 def Setd.snd {A B : Setd} : Setd[ A ⊗ B ⟶ B ] where
   map p := p.2
   resp e := e.2
 
-/-- Agda: `pair` (GST/Setoid.agda). -/
 def Setd.pair {A B C : Setd} (f : Setd[ C ⟶ A ]) (g : Setd[ C ⟶ B ]) :
     Setd[ C ⟶ A ⊗ B ] where
   map c := (f.map c, g.map c)
   resp e := ⟨f.resp e, g.resp e⟩
 
-/-- Agda: `_⊗′_` (GST/Setoid.agda). -/
 def Setd.prodMap {A A' B B' : Setd} (f : Setd[ A ⟶ A' ]) (g : Setd[ B ⟶ B' ]) :
     Setd[ A ⊗ B ⟶ A' ⊗ B' ] where
   map p := (f.map p.1, g.map p.2)
@@ -120,7 +107,7 @@ def Setd.prodMap {A A' B B' : Setd} (f : Setd[ A ⟶ A' ]) (g : Setd[ B ⟶ B' ]
 
 /-! ## Exponentials -/
 
-/-- Agda: `_⇨_` (GST/Setoid.agda). -/
+/-- The exponential setoid. -/
 def Setd.exp (A B : Setd) : Setd where
   El := Setd[ A ⟶ B ]
   rel f f' := ∀ x, B ∋ f.map x ~ f'.map x
@@ -130,12 +117,10 @@ def Setd.exp (A B : Setd) : Setd where
 
 @[inherit_doc Setd.exp] scoped infixr:60 " ⇨ " => GST.Setd.exp
 
-/-- Agda: `ev` (GST/Setoid.agda). -/
 def Setd.ev {A B : Setd} : Setd[ (A ⇨ B) ⊗ A ⟶ B ] where
   map p := p.1.map p.2
   resp {p p'} e := B.trans' (e.1 p.2) (p'.1.resp e.2)
 
-/-- Agda: `cur` (GST/Setoid.agda). -/
 def Setd.cur {A B C : Setd} (f : Setd[ C ⊗ A ⟶ B ]) : Setd[ C ⟶ (A ⇨ B) ] where
   map c := { map := fun a => f.map (c, a), resp := fun e => f.resp ⟨C.rfl' c, e⟩ }
   resp e a := f.resp ⟨e, A.rfl' a⟩

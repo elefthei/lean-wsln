@@ -19,9 +19,7 @@ namespace WSLN
 
 mutual
 
-/-- Agda: `cls` (WSLN/Sig/Abstraction.agda).
-
-Name closing combined with `insert`, giving an operation `Trm Sg m → Trm Sg (m+1)`. -/
+/-- Name closing combined with `insert`, giving an operation `Trm Sg m → Trm Sg (m+1)`. -/
 def cls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m) (e : n = m + 1) :
     Trm Sg n :=
   match t with
@@ -29,7 +27,6 @@ def cls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m) (e : n = m 
   | .atom y => if x = y then .var i else .atom y
   | .op o ts => .op o (clsArg x i ts e)
 
-/-- Agda: `cls'` (WSLN/Sig/Abstraction.agda). -/
 def clsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) : Arg Sg n ms :=
   match ts with
@@ -66,19 +63,15 @@ theorem cls_atom_ne {Sg : Sig} {m n : Nat} {x y : Atom} (i : Fin n) (e : n = m +
     clsArg x i (Arg.cons t us) e
       = .cons (cls x (shiftIdx k i) t (by omega)) (clsArg x i us e) := rfl
 
-/-- Agda: `_<~_` (WSLN/Sig/Abstraction.agda). -/
 def Trm.close {Sg : Sig} {m : Nat} (i : Fin (m + 1)) (x : Atom) (t : Trm Sg m) :
     Trm Sg (m + 1) := cls x i t rfl
 
-/-- Agda: `_<~'_` (WSLN/Sig/Abstraction.agda). -/
 def Arg.close {Sg : Sig} {m : Nat} {ms : List Nat} (i : Fin (m + 1)) (x : Atom)
     (ts : Arg Sg m ms) : Arg Sg (m + 1) ms := clsArg x i ts rfl
 
 /-! ## Abstraction -/
 
-/-- Agda: `_．_` (WSLN/Sig/Abstraction.agda).
-
-The usual notion of abstraction: the `i = zero` case of closing.  Note that
+/-- The usual notion of abstraction: the `i = zero` case of closing.  Note that
 `cls x zero` may call `cls x i` for nonzero `i`, hence the general definition. -/
 def Trm.abs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : Trm Sg (n + 1) :=
   cls x ⟨0, Nat.succ_pos n⟩ t rfl
@@ -89,7 +82,6 @@ def Trm.abs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : Trm Sg (n + 1) :=
 
 mutual
 
-/-- Agda: `opnCls` (WSLN/Sig/Abstraction.agda). -/
 theorem opnCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
     (e : n = m + 1) (b : Trm Sg 0) : opn i b (cls x i t e) e = (x ≔ b) * t := by
   match t with
@@ -113,7 +105,6 @@ theorem opnCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
         simp [Sb.id]
   | .op o ts => simpa using opnClsArg x i ts e b
 
-/-- Agda: `opnCls'` (WSLN/Sig/Abstraction.agda). -/
 theorem opnClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) (b : Trm Sg 0) :
     opnArg i b (clsArg x i ts e) e = (x ≔ b) * ts := by
@@ -125,11 +116,9 @@ theorem opnClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
 
 end
 
-/-- Agda: `concAbs` (WSLN/Sig/Abstraction.agda). -/
 theorem concAbs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) (b : Trm Sg 0) :
     (x ． t)[b] = (x ≔ b) * t := opnCls x _ t rfl b
 
-/-- Agda: `concAbs'` (WSLN/Sig/Abstraction.agda). -/
 theorem concAbs' {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : (x ． t)[x] = t := by
   rw [conc_atom, ← conc_trm, concAbs x t (Trm.atom x), updateIdSb]
 
@@ -137,7 +126,6 @@ theorem concAbs' {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : (x ． t)[x] =
 
 mutual
 
-/-- Agda: `clsOpn` (WSLN/Sig/Abstraction.agda). -/
 theorem clsOpn {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin m) (t : Trm Sg m)
     (e : m = n + 1) (h : x # t) : cls x i (opn i (Trm.atom x) t e) e = t := by
   match t with
@@ -159,7 +147,6 @@ theorem clsOpn {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin m) (t : Trm Sg m)
       rw [opn_atom, cls_atom_ne i e (Fset.ne_of_notMem_single h)]
   | .op o ts => simpa using clsOpnArg x i ts e h
 
-/-- Agda: `clsOpn'` (WSLN/Sig/Abstraction.agda). -/
 theorem clsOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin m)
     (ts : Arg Sg m ms) (e : m = n + 1) (h : x # ts) :
     clsArg x i (opnArg i (Trm.atom x) ts e) e = ts := by
@@ -172,7 +159,6 @@ theorem clsOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin m)
 
 end
 
-/-- Agda: `absConc` (WSLN/Sig/Abstraction.agda). -/
 theorem absConc {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg (n + 1)) (h : x # t) :
     (x ． t[x]) = t := clsOpn x _ t rfl h
 
@@ -180,7 +166,6 @@ theorem absConc {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg (n + 1)) (h : x # t)
 
 mutual
 
-/-- Agda: `cls#` (WSLN/Sig/Abstraction.agda). -/
 theorem cls_fresh_weaken {Sg : Sig} {k m n : Nat} (x : Atom) (i : Fin n) (e : n = m + 1)
     (q : k ≤ i.val) (h₁ : k ≤ m) (h₂ : k ≤ n) (t : Trm Sg k) (h : x # t) :
     cls x i (t.weaken m h₁) e = t.weaken n h₂ := by
@@ -195,7 +180,6 @@ theorem cls_fresh_weaken {Sg : Sig} {k m n : Nat} (x : Atom) (i : Fin n) (e : n 
       rw [Trm.weaken_atom, cls_atom_ne i e (Fset.ne_of_notMem_single h), Trm.weaken_atom]
   | .op o ts => simpa using clsArg_fresh_weaken x i e q h₁ h₂ ts h
 
-/-- Agda: `cls#'` (WSLN/Sig/Abstraction.agda). -/
 theorem clsArg_fresh_weaken {Sg : Sig} {k m n : Nat} {ms : List Nat} (x : Atom)
     (i : Fin n) (e : n = m + 1) (q : k ≤ i.val) (h₁ : k ≤ m) (h₂ : k ≤ n)
     (ts : Arg Sg k ms) (h : x # ts) :
@@ -211,7 +195,6 @@ theorem clsArg_fresh_weaken {Sg : Sig} {k m n : Nat} {ms : List Nat} (x : Atom)
 
 end
 
-/-- Agda: `abs#` (WSLN/Sig/Abstraction.agda). -/
 theorem abs_fresh_weaken {Sg : Sig} (x : Atom) (t : Trm Sg 0) (h : x # t) :
     (x ． t) = t.weaken 1 (Nat.zero_le 1) := by
   have e := cls_fresh_weaken x (⟨0, Nat.succ_pos 0⟩ : Fin 1) rfl (Nat.zero_le _)
@@ -223,7 +206,6 @@ theorem abs_fresh_weaken {Sg : Sig} (x : Atom) (t : Trm Sg 0) (h : x # t) :
 
 mutual
 
-/-- Agda: `suppCls` (WSLN/Sig/Abstraction.agda). -/
 theorem suppCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
     (e : n = m + 1) : supp (cls x i t e) ⊆ supp t := by
   match t with
@@ -235,7 +217,6 @@ theorem suppCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
       · rw [cls_atom_ne i e h] at hy; exact hy
   | .op o ts => intro y hy; exact suppClsArg x i ts e hy
 
-/-- Agda: `suppCls'` (WSLN/Sig/Abstraction.agda). -/
 theorem suppClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) : supp (clsArg x i ts e) ⊆ supp ts := by
   match ts with
@@ -249,13 +230,11 @@ theorem suppClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
 
 end
 
-/-- Agda: `suppAbs` (WSLN/Sig/Abstraction.agda). -/
 theorem suppAbs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : supp (x ． t) ⊆ supp t :=
   suppCls x _ t rfl
 
 mutual
 
-/-- Agda: `#cls` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_cls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
     (e : n = m + 1) : x # cls x i t e := by
   match t with
@@ -266,7 +245,6 @@ theorem fresh_cls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
       · rw [cls_atom_ne i e h]; exact .single h
   | .op o ts => exact fresh_clsArg x i ts e
 
-/-- Agda: `#cls'` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_clsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) : x # clsArg x i ts e := by
   match ts with
@@ -277,13 +255,11 @@ theorem fresh_clsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin 
 
 end
 
-/-- Agda: `#abs` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_abs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) : x # (x ． t) :=
   fresh_cls x _ t rfl
 
 mutual
 
-/-- Agda: `#cls≠` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_cls_ne {Sg : Sig} {m n : Nat} {x y : Atom} (i : Fin n) (t : Trm Sg m)
     (e : n = m + 1) (h : y # (x, t)) : y # cls x i t e := by
   match t with
@@ -294,7 +270,6 @@ theorem fresh_cls_ne {Sg : Sig} {m n : Nat} {x y : Atom} (i : Fin n) (t : Trm Sg
       · rw [cls_atom_ne i e hx]; exact Fset.notMem_union_right h
   | .op o ts => exact fresh_clsArg_ne i ts e h
 
-/-- Agda: `#cls'≠` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_clsArg_ne {Sg : Sig} {m n : Nat} {ms : List Nat} {x y : Atom} (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) (h : y # (x, ts)) : y # clsArg x i ts e := by
   match ts with
@@ -310,14 +285,12 @@ theorem fresh_clsArg_ne {Sg : Sig} {m n : Nat} {ms : List Nat} {x y : Atom} (i :
 
 end
 
-/-- Agda: `#abs'` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_abs' {Sg : Sig} {n : Nat} {x y : Atom} (t : Trm Sg n) (h : y # t) :
     y # (x ． t) := by
   by_cases hxy : x = y
   · subst hxy; exact fresh_abs x t
   · exact fresh_cls_ne _ t rfl (.union (.single (Ne.symm hxy)) h)
 
-/-- Agda: `y#x．𝐚x` (WSLN/Sig/Abstraction.agda). -/
 theorem fresh_abs_atom {Sg : Sig} (x y : Atom) : y # (x ． (Trm.atom x : Trm Sg 0)) := by
   by_cases h : x = y
   · subst h; exact fresh_abs x _
@@ -327,7 +300,6 @@ theorem fresh_abs_atom {Sg : Sig} (x y : Atom) : y # (x ． (Trm.atom x : Trm Sg
 
 mutual
 
-/-- Agda: `sbCls` (WSLN/Sig/Abstraction.agda). -/
 theorem sbCls {Sg : Sig} {m n : Nat} (σ : Sb Sg) (x x' : Atom) (i : Fin n)
     (t : Trm Sg m) (f : ∀ y, y ∈ supp t → ¬ (x = y) → x' # σ y) (e : n = m + 1) :
     σ * (cls x i t e) = cls x' i ((σ ∘/ x ≔ (Trm.atom x' : Trm Sg 0)) * t) e := by
@@ -343,7 +315,6 @@ theorem sbCls {Sg : Sig} {m n : Nat} (σ : Sb Sg) (x x' : Atom) (i : Fin n)
           (σ y) (f y Fset.Mem.single h)).symm
   | .op o ts => simpa using sbClsArg σ x x' i ts f e
 
-/-- Agda: `sbCls'` (WSLN/Sig/Abstraction.agda). -/
 theorem sbClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (σ : Sb Sg) (x x' : Atom)
     (i : Fin n) (ts : Arg Sg m ms)
     (f : ∀ y, y ∈ supp ts → ¬ (x = y) → x' # σ y) (e : n = m + 1) :
@@ -358,13 +329,11 @@ theorem sbClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (σ : Sb Sg) (x x' : Ato
 
 end
 
-/-- Agda: `sbAbs` (WSLN/Sig/Abstraction.agda). -/
 theorem sbAbs {Sg : Sig} {m : Nat} (σ : Sb Sg) (x x' : Atom) (t : Trm Sg m)
     (f : ∀ y, y ∈ supp t → ¬ (x = y) → x' # σ y) :
     σ * (x ． t) = (x' ． (σ ∘/ x ≔ (Trm.atom x' : Trm Sg 0)) * t) :=
   sbCls σ x x' _ t f rfl
 
-/-- Agda: `rnAbs` (WSLN/Sig/Abstraction.agda). -/
 theorem rnAbs {Sg : Sig} {m : Nat} (ρ : Rn) (x x' : Atom) (t : Trm Sg m)
     (f : ∀ y, y ∈ supp t → ¬ (x = y) → ¬ (x' = ρ y)) :
     ρ * (x ． t) = (x' ． ((ρ ∘/ x ≔ʳ x') : Rn) * t) := by
@@ -374,7 +343,6 @@ theorem rnAbs {Sg : Sig} {m : Nat} (ρ : Rn) (x x' : Atom) (t : Trm Sg m)
 
 /-! ## Alpha equivalence -/
 
-/-- Agda: `alphaEquiv` (WSLN/Sig/Abstraction.agda). -/
 theorem alphaEquiv {Sg : Sig} {n : Nat} (x x' : Atom) (t : Trm Sg n) (h : x' # t) :
     (x ． t) = (x' ． ((x ≔ʳ x') : Rn) * t) :=
   calc (x ． t)

@@ -21,20 +21,17 @@ namespace WSLN
 
 /-! ## Atomic names -/
 
-/-- Agda: `𝔸` (WSLN/Atom.agda). Atomic names are natural numbers. -/
+/-- Atomic names are natural numbers. -/
 abbrev Atom := Nat
 
 /-! ## Finite sets of atoms -/
 
-/-- Agda: `Fset𝔸` (WSLN/Atom.agda). -/
 inductive Fset : Type where
-  /-- Agda: `∅`. -/
   | empty : Fset
-  /-- Agda: `｛_｝`. -/
+  /-- The singleton set `｛ x ｝`. -/
   | single : Atom → Fset
-  /-- Agda: `_∪_`. -/
   | union : Fset → Fset → Fset
-  deriving DecidableEq, Repr  -- Agda: `decEqFset𝔸`
+  deriving DecidableEq, Repr
 
 instance : EmptyCollection Fset := ⟨Fset.empty⟩
 instance : Union Fset := ⟨Fset.union⟩
@@ -47,11 +44,9 @@ scoped notation "｛" x "｝" => Fset.single x
 
 namespace Fset
 
-/-- Agda: `∪inj` (WSLN/Atom.agda). -/
 theorem union_inj {s s' t t' : Fset} (e : s ∪ t = s' ∪ t') : s = s' ∧ t = t' := by
   cases e; exact ⟨rfl, rfl⟩
 
-/-- Agda: `⋃` (WSLN/Atom.agda). -/
 def bigUnion (f : Atom → Fset) : Fset → Fset
   | .empty => ∅
   | .single x => f x
@@ -59,24 +54,17 @@ def bigUnion (f : Atom → Fset) : Fset → Fset
 
 /-! ## Membership -/
 
-/-- Agda: `_∈𝔸_` (WSLN/Atom.agda). -/
 inductive Mem (x : Atom) : Fset → Prop where
-  /-- Agda: `∈｛｝`. -/
   | single : Mem x ｛ x ｝
-  /-- Agda: `∈∪₁`. -/
   | unionL {s t : Fset} : Mem x s → Mem x (s ∪ t)
-  /-- Agda: `∈∪₂`. -/
   | unionR {s t : Fset} : Mem x t → Mem x (s ∪ t)
 
 instance : Membership Atom Fset := ⟨fun s x => Mem x s⟩
 
-/-- Agda: `_∉𝔸_` (WSLN/Atom.agda). -/
+/-- Non-membership `x ∉ᶠ s`, as an inductive predicate. -/
 inductive NotMem (x : Atom) : Fset → Prop where
-  /-- Agda: `∉∅`. -/
   | empty : NotMem x ∅
-  /-- Agda: `∉｛｝`. -/
   | single {y : Atom} : x ≠ y → NotMem x ｛ y ｝
-  /-- Agda: `_∉∪_`. -/
   | union {s t : Fset} : NotMem x s → NotMem x t → NotMem x (s ∪ t)
 
 end Fset
@@ -86,19 +74,15 @@ scoped infix:50 " ∉ᶠ " => WSLN.Fset.NotMem
 
 namespace Fset
 
-/-- Agda: `∉｛｝⁻¹` (WSLN/Atom.agda). -/
 theorem ne_of_notMem_single {x y : Atom} (h : x ∉ᶠ ｛ y ｝) : x ≠ y := by
   cases h with | single p => exact p
 
-/-- Agda: `∉∪₁` (WSLN/Atom.agda). -/
 theorem notMem_union_left {x : Atom} {s t : Fset} (h : x ∉ᶠ s ∪ t) : x ∉ᶠ s := by
   cases h with | union p _ => exact p
 
-/-- Agda: `∉∪₂` (WSLN/Atom.agda). -/
 theorem notMem_union_right {x : Atom} {s t : Fset} (h : x ∉ᶠ s ∪ t) : x ∉ᶠ t := by
   cases h with | union _ p => exact p
 
-/-- Agda: `∉→¬∈` (WSLN/Atom.agda). -/
 theorem not_mem_of_notMem {x : Atom} {s : Fset} (h : x ∉ᶠ s) : ¬ (x ∈ s) := by
   induction h with
   | empty => intro p; cases p
@@ -109,7 +93,6 @@ theorem not_mem_of_notMem {x : Atom} {s : Fset} (h : x ∉ᶠ s) : ¬ (x ∈ s) 
       | unionL q => exact ih q
       | unionR q => exact ih' q
 
-/-- Agda: `¬∈→∉` (WSLN/Atom.agda). -/
 theorem notMem_of_not_mem {x : Atom} {s : Fset} (h : ¬ (x ∈ s)) : x ∉ᶠ s := by
   induction s with
   | empty => exact .empty
@@ -134,30 +117,25 @@ instance decidableMem (x : Atom) (s : Fset) : Decidable (x ∈ s) :=
             | unionL r => exact p r
             | unionR r => exact q r
 
-/-- Agda: `dec∉` (WSLN/Atom.agda). -/
 instance decidableNotMem (x : Atom) (s : Fset) : Decidable (x ∉ᶠ s) :=
   if h : x ∈ s then isFalse (fun p => not_mem_of_notMem p h)
   else isTrue (notMem_of_not_mem h)
 
 /-! ## Finite inexhaustibility -/
 
-/-- Agda: `maxfs` (WSLN/Atom.agda). -/
 def maxfs : Fset → Atom
   | .empty => 0
   | .single x => x
   | .union s t => max (maxfs s) (maxfs t)
 
-/-- Agda: `≤maxfs` (WSLN/Atom.agda). -/
 theorem le_maxfs {x : Atom} {s : Fset} (h : x ∈ s) : x ≤ maxfs s := by
   induction h with
   | single => exact Nat.le_refl _
   | unionL p ih => exact Nat.le_trans ih (Nat.le_max_left _ _)
   | unionR p ih => exact Nat.le_trans ih (Nat.le_max_right _ _)
 
-/-- Agda: `new` (WSLN/Atom.agda). -/
 def new (s : Fset) : Atom := maxfs s + 1
 
-/-- Agda: `new∉` (WSLN/Atom.agda). -/
 theorem new_notMem (s : Fset) : new s ∉ᶠ s :=
   notMem_of_not_mem fun h => Nat.not_succ_le_self (maxfs s) (le_maxfs h)
 
@@ -196,25 +174,21 @@ manipulation of `∈`/`∉`/`⊆` witnesses by ordinary `simp` reasoning. -/
 
 /-! ## Containment -/
 
-/-- Agda: `_⊆_` (WSLN/Atom.agda). -/
 def Subset (s t : Fset) : Prop := ∀ ⦃x : Atom⦄, x ∈ s → x ∈ t
 
 instance : HasSubset Fset := ⟨Subset⟩
 
-/-- Agda: `⊆refl` (WSLN/Atom.agda). -/
 theorem subset_refl {s : Fset} : s ⊆ s := fun _ h => h
 
 theorem subset_trans {s t u : Fset} (h : s ⊆ t) (h' : t ⊆ u) : s ⊆ u :=
   fun _ p => h' (h p)
 
-/-- Agda: `⊆ub` (WSLN/Atom.agda). -/
 theorem union_subset {s t u : Fset} (h : s ⊆ u) (h' : t ⊆ u) : s ∪ t ⊆ u := by
   intro x p
   cases p with
   | unionL q => exact h q
   | unionR q => exact h' q
 
-/-- Agda: `∪⊆` (WSLN/Atom.agda). -/
 theorem union_subset_union {s s' t t' : Fset} (h : s ⊆ s') (h' : t ⊆ t') :
     s ∪ t ⊆ s' ∪ t' :=
   union_subset (fun _ p => Mem.unionL (h p)) (fun _ p => Mem.unionR (h' p))
@@ -232,7 +206,6 @@ theorem subset_union_right {s t : Fset} : t ⊆ s ∪ t := fun _ p => Mem.unionR
 @[simp] theorem single_subset_iff {x : Atom} {u : Fset} : ｛ x ｝ ⊆ u ↔ x ∈ u :=
   ⟨fun h => h Mem.single, fun h _ p => by cases p; exact h⟩
 
-/-- Agda: `⊆⋃` (WSLN/Atom.agda). -/
 theorem subset_bigUnion {x : Atom} {s : Fset} (f : Atom → Fset) (h : x ∈ s) :
     f x ⊆ bigUnion f s := by
   induction h with
@@ -240,25 +213,21 @@ theorem subset_bigUnion {x : Atom} {s : Fset} (f : Atom → Fset) (h : x ∈ s) 
   | unionL _ ih => exact fun _ p => Mem.unionL (ih p)
   | unionR _ ih => exact fun _ p => Mem.unionR (ih p)
 
-/-- Agda: `⊆∉` (WSLN/Atom.agda). -/
 theorem subset_notMem {s t : Fset} {x : Atom} (h : s ⊆ t) (h' : x ∉ᶠ t) : x ∉ᶠ s :=
   notMem_of_not_mem fun p => not_mem_of_notMem h' (h p)
 
-/-- Agda: `∈∉₁` (WSLN/Atom.agda). -/
 theorem mem_left_of_notMem_right {x : Atom} {s t : Fset} (h : x ∈ s ∪ t) (h' : x ∉ᶠ t) :
     x ∈ s := by
   cases h with
   | unionL p => exact p
   | unionR p => exact absurd p (not_mem_of_notMem h')
 
-/-- Agda: `∈∉₂` (WSLN/Atom.agda). -/
 theorem mem_right_of_notMem_left {x : Atom} {s t : Fset} (h : x ∈ s ∪ t) (h' : x ∉ᶠ s) :
     x ∈ t := by
   cases h with
   | unionL p => exact absurd p (not_mem_of_notMem h')
   | unionR p => exact p
 
-/-- Agda: `∉⊆` (WSLN/Atom.agda). -/
 theorem notMem_subset {s t : Fset} {x : Atom} (h : x ∉ᶠ t) (h' : t ⊆ s ∪ ｛ x ｝) :
     t ⊆ s := by
   intro y hy
@@ -270,7 +239,7 @@ end Fset
 
 /-! ## Name swapping -/
 
-/-- Agda: `_≀_` (WSLN/Atom.agda). -/
+/-- The transposition `x ≀ y`: swaps the two atoms and fixes every other. -/
 def swap (x y : Atom) : Atom → Atom :=
   fun z => if x = z then y else if y = z then x else z
 

@@ -27,7 +27,6 @@ open WSLN
 for nameful substitution and for renaming distinguishable. -/
 def NomSb (Sg : Sig) : Type := Atom → NomTrm Sg
 
-/-- Agda: `IdentityNomSb` (Adequacy/Substitution.agda). -/
 def NomSb.id {Sg : Sig} : NomSb Sg := fun x => .atom x
 
 /-- Agda's overloaded `_∘/_:=_` (WSLN/Atom.agda) at nameful substitution type. -/
@@ -45,26 +44,23 @@ scoped notation:55 x:56 " ≔ⁿ " M:56 => Adequacy.NomSb.single x M
 
 /-! ## Capture-avoiding substitution -/
 
-/-- Lean-specific: the deterministic binder name chosen by `actNomSbBnd`, factored
-out so that the definition and the `mulCorrectBnd` proof use syntactically the same
-expression.  Agda: `new (⋃ (supp ∘ σ) (supp b))`. -/
+/-- Lean-specific: the deterministic binder name chosen by `actNomSbBnd`, factored out so that
+the definition and the `mulCorrectBnd` proof use syntactically the same expression. -/
 def newBinder {Sg : Sig} (σ : NomSb Sg) {m : Nat} (b : NomBnd Sg m) : Atom :=
   Fset.new (Fset.bigUnion (fun z => supp (σ z)) (supp b))
 
 mutual
 
-/-- Agda: `actNomSb` (Adequacy/Substitution.agda). -/
 def actNomSb {Sg : Sig} (σ : NomSb Sg) : NomTrm Sg → NomTrm Sg
   | .atom x => σ x
   | .op o bs => .op o (actNomSbArg σ bs)
 
-/-- Agda: `actNomSbᵃ` (Adequacy/Substitution.agda). -/
 def actNomSbArg {Sg : Sig} {ms : List Nat} (σ : NomSb Sg) : NomArg Sg ms → NomArg Sg ms
   | .nil => .nil
   | .cons b bs => .cons (actNomSbBnd σ b) (actNomSbArg σ bs)
 
-/-- Agda: `actNomSbᵇ` (Adequacy/Substitution.agda).  Every binder is freshened
-against the substitution's range on the binder's support, and against the binder. -/
+/-- Every binder is freshened against the substitution's range on the binder's support, and
+against the binder. -/
 def actNomSbBnd {Sg : Sig} {m : Nat} (σ : NomSb Sg) : NomBnd Sg m → NomBnd Sg m
   | .base M => .base (actNomSb σ M)
   | .abs x b =>
@@ -72,15 +68,12 @@ def actNomSbBnd {Sg : Sig} {m : Nat} (σ : NomSb Sg) : NomBnd Sg m → NomBnd Sg
 
 end
 
-/-- Agda: `ApplyNomSb` (Adequacy/Substitution.agda). -/
 instance instHMulNomSbNomTrm {Sg : Sig} : HMul (NomSb Sg) (NomTrm Sg) (NomTrm Sg) :=
   ⟨actNomSb⟩
 
-/-- Agda: `ApplyNomSbᵃ` (Adequacy/Substitution.agda). -/
 instance instHMulNomSbNomArg {Sg : Sig} {ms : List Nat} :
     HMul (NomSb Sg) (NomArg Sg ms) (NomArg Sg ms) := ⟨actNomSbArg⟩
 
-/-- Agda: `ApplyNomSbᵇ` (Adequacy/Substitution.agda). -/
 instance instHMulNomSbNomBnd {Sg : Sig} {m : Nat} :
     HMul (NomSb Sg) (NomBnd Sg m) (NomBnd Sg m) := ⟨actNomSbBnd⟩
 
@@ -110,7 +103,6 @@ instance instHMulNomSbNomBnd {Sg : Sig} {m : Nat} :
 
 mutual
 
-/-- Agda: `*correct` (Adequacy/Substitution.agda). -/
 theorem mulCorrect {Sg : Sig} (σ : NomSb Sg) (M : NomTrm Sg) :
     toWS (σ * M) = toWSSb σ * toWS M := by
   match M with
@@ -121,7 +113,6 @@ theorem mulCorrect {Sg : Sig} (σ : NomSb Sg) (M : NomTrm Sg) :
       rw [Trm.weaken_self]
   | .op o bs => exact congrArg (Trm.op o) (mulCorrectArg σ bs)
 
-/-- Agda: `*correctᵃ` (Adequacy/Substitution.agda). -/
 theorem mulCorrectArg {Sg : Sig} {ms : List Nat} (σ : NomSb Sg) (bs : NomArg Sg ms) :
     toWSArg (σ * bs) = toWSSb σ * toWSArg bs := by
   match bs with
@@ -137,7 +128,6 @@ theorem mulCorrectArg {Sg : Sig} {ms : List Nat} (σ : NomSb Sg) (bs : NomArg Sg
           (actSb_castScope (toWSSb σ) (Nat.zero_add m).symm (toWSBnd b)).symm,
         mulCorrectArg σ bs'⟩
 
-/-- Agda: `*correctᵇ` (Adequacy/Substitution.agda). -/
 theorem mulCorrectBnd {Sg : Sig} {m : Nat} (σ : NomSb Sg) (b : NomBnd Sg m) :
     toWSBnd (σ * b) = toWSSb σ * toWSBnd b := by
   match b with
@@ -165,7 +155,6 @@ theorem mulCorrectBnd {Sg : Sig} {m : Nat} (σ : NomSb Sg) (b : NomBnd Sg m) :
 
 end
 
-/-- Agda: `:=correct` (Adequacy/Substitution.agda). -/
 theorem updateCorrect {Sg : Sig} (M : NomTrm Sg) (x : Atom) (N : NomTrm Sg) :
     toWS ((x ≔ⁿ M) * N) = ((x ≔ toWS M) : Sb Sg) * toWS N :=
   (mulCorrect (x ≔ⁿ M) N).trans

@@ -7,12 +7,11 @@ import GST.NormalForm
 Port of `agda-code/agda/GST/TypeSemantics.agda`.
 
 `Norm A` and `Neut A` are the presheaves of normal and of neutral forms of type `A`,
-`tySem A` (Agda `𝓓 A`) is the interpretation of a type and `cxSem Γ` (Agda `𝓔 Γ`) the
-presheaf of semantic environments.  The Agda glyphs `𝓓` and `𝓔` are kept as scoped
-notation.
+`tySem A` is the interpretation of a type and `cxSem Γ` the presheaf of semantic
+environments.  The Agda glyphs `𝓓` and `𝓔` are kept as scoped notation.
 
 The last section is the interaction between environments and renamings: `envComp`
-(Agda `_⊚_`) precomposes an environment with a typed renaming.
+precomposes an environment with a typed renaming.
 -/
 
 namespace GST
@@ -21,14 +20,12 @@ open WSLN
 
 /-! ## Presheaf of normal forms -/
 
-/-- Agda: `∣Norm∣` (GST/TypeSemantics.agda). -/
 structure NormEl {S : Fset} (A : Ty) (Γ : Cx S) : Type where
-  /-- Agda: `nt`. The underlying term. -/
+  /-- The underlying term. -/
   nt : Tm0
-  /-- Agda: `pf`. Its normal-form derivation. -/
+  /-- Its normal-form derivation. -/
   pf : Γ ⊢ⁿ nt ∶ A
 
-/-- Agda: `Norm` (GST/TypeSemantics.agda). -/
 def Norm (A : Ty) : Psh where
   obj Γ :=
     { El := NormEl A Γ
@@ -47,14 +44,12 @@ def Norm (A : Ty) : Psh where
 
 /-! ## Presheaf of neutral forms -/
 
-/-- Agda: `∣Neut∣` (GST/TypeSemantics.agda). -/
 structure NeutEl {S : Fset} (A : Ty) (Γ : Cx S) : Type where
-  /-- Agda: `ut`. The underlying term. -/
+  /-- The underlying term. -/
   ut : Tm0
-  /-- Agda: `pf`. Its neutral-form derivation. -/
+  /-- Its neutral-form derivation. -/
   pf : Γ ⊢ᵘ ut ∶ A
 
-/-- Agda: `Neut` (GST/TypeSemantics.agda). -/
 def Neut (A : Ty) : Psh where
   obj Γ :=
     { El := NeutEl A Γ
@@ -71,18 +66,16 @@ def Neut (A : Ty) : Psh where
   unit _ a := rnUnit a.ut
   assoc p q a := rnAssoc p.rn q.rn a.ut
 
-/-- Agda: `newvar` (GST/TypeSemantics.agda). -/
 def newvar {S : Fset} {Γ : Cx S} (x : Atom) (A : Ty) (h : x ∉ᶠ S) :
     Psh.El (Neut A) (Γ ⨟ x ∶ A ∣ h) := ⟨𝐯x, .var .new⟩
 
-/-- Agda: `neu` (GST/TypeSemantics.agda). -/
 def neuHom {A : Ty} : Psh.Hom (Neut A) (Norm A) where
   hom := { map := fun a => ⟨a.ut, .neu a.pf⟩, resp := fun e => e }
   ntl _ _ := rfl
 
 /-! ## Presheaf semantics of types -/
 
-/-- Agda: `𝓓` (GST/TypeSemantics.agda). -/
+/-- The presheaf interpretation `𝓓 A` of a type. -/
 def tySem : Ty → Psh
   | 𝐍𝐚𝐭 => Norm 𝐍𝐚𝐭
   | A ⇒ B => tySem A →^ tySem B
@@ -91,14 +84,13 @@ def tySem : Ty → Psh
 
 /-! ## Presheaf semantics of contexts: semantic environments -/
 
-/-- Agda: `𝓔` (GST/TypeSemantics.agda). -/
+/-- The presheaf interpretation `𝓔 Γ` of a context. -/
 def cxSem : {S : Fset} → Cx S → Psh
   | _, .nil => Psh.one
   | _, .snoc Γ _ A _ => cxSem Γ ×^ 𝓓 A
 
 @[inherit_doc cxSem] scoped notation:max "𝓔 " Γ:max => GST.cxSem Γ
 
-/-- Agda: `val` (GST/TypeSemantics.agda). -/
 def val : {S : Fset} → {Γ : Cx S} → {A : Ty} → {x : Atom} → ((x, A) isIn Γ) →
     Psh.Hom (𝓔 Γ) (𝓓 A)
   | _, _, _, _, .new =>
@@ -110,7 +102,6 @@ def val : {S : Fset} → {Γ : Cx S} → {A : Ty} → {x : Atom} → ((x, A) isI
             resp := fun e => (val q).hom.resp e.1 }
         ntl := fun p z => (val q).ntl p z.1 }
 
-/-- Agda: `val₁` (GST/TypeSemantics.agda). -/
 theorem val₁ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {x x' : Atom}
     {𝓼 𝓼' : Psh.El (𝓔 Γ) Γ'} (q : (x, A) isIn Γ) (q' : (x', A) isIn Γ) (e : x = x')
     (𝓮 : (𝓔 Γ).obj Γ' ∋ 𝓼 ~ 𝓼') :
@@ -121,7 +112,7 @@ theorem val₁ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {x x' : Atom}
 
 /-! ## Post-composing a semantic environment with a variable renaming -/
 
-/-- Agda: `_⊚_` (GST/TypeSemantics.agda). -/
+/-- Post-composition of a semantic environment with a renaming morphism. -/
 def envComp : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     RnHom Γ' Γ → Psh.El (𝓔 Γ') Γ'' → Psh.El (𝓔 Γ) Γ''
   | _, _, _, .nil, _, _, _, _ => ()
@@ -130,7 +121,6 @@ def envComp : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx
 
 @[inherit_doc envComp] scoped infixr:66 " ⊚ " => GST.envComp
 
-/-- Agda: `_⊚₁_` (GST/TypeSemantics.agda). -/
 theorem envComp₁ : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {p p' : RnHom Γ' Γ} → {𝓼 𝓼' : Psh.El (𝓔 Γ') Γ''} → ((Γ' →ᵣ Γ) ∋ p ~ p') →
     ((𝓔 Γ').obj Γ'' ∋ 𝓼 ~ 𝓼') → (𝓔 Γ).obj Γ'' ∋ p ⊚ 𝓼 ~ p' ⊚ 𝓼'
@@ -138,7 +128,6 @@ theorem envComp₁ : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ
   | _, _, _, .snoc _ x _ _, _, _, ⟨_, .snoc _ q⟩, ⟨_, .snoc _ q'⟩, _, _, e, 𝓮 =>
       ⟨envComp₁ (fun y r => e y (.unionL r)) 𝓮, val₁ q q' (e x (.unionR .single)) 𝓮⟩
 
-/-- Agda: `ntl⊚` (GST/TypeSemantics.agda). -/
 theorem envComp_ntl : {S S' S'' S''' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
     {Γ'' : Cx S''} → {Γ''' : Cx S'''} → (p : RnHom Γ' Γ) → (p' : RnHom Γ''' Γ'') →
     (𝓼 : Psh.El (𝓔 Γ') Γ'') →
@@ -147,7 +136,6 @@ theorem envComp_ntl : {S S' S'' S''' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} �
   | _, _, _, _, .snoc _ _ _ _, _, _, _, ⟨ρ, .snoc p q⟩, p', 𝓼 =>
       ⟨envComp_ntl ⟨ρ, p⟩ p' 𝓼, (val q).ntl p' 𝓼⟩
 
-/-- Agda: `renVal` (GST/TypeSemantics.agda). -/
 theorem renVal : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {A : Ty} → {x : Atom} → (p : RnHom Γ' Γ) → (𝓼 : Psh.El (𝓔 Γ') Γ'') →
     (q : (x, A) isIn Γ) → (q' : (p.rn x, A) isIn Γ') →
@@ -157,7 +145,6 @@ theorem renVal : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' :
       exact ((𝓓 _).obj _).rfl' ((val p').hom.map 𝓼)
   | _, _, _, _, _, _, _, _, ⟨ρ, .snoc p _⟩, 𝓼, .old q, q' => renVal ⟨ρ, p⟩ 𝓼 q q'
 
-/-- Agda: `renWk` (GST/TypeSemantics.agda). -/
 theorem renWk : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {x : Atom} → {h : x ∉ᶠ S'} → (p : RnHom Γ' Γ) → (A : Ty) →
     (𝓼 : Psh.El (𝓔 Γ') Γ'') → (𝓪 : Psh.El (𝓓 A) Γ'') →
@@ -166,7 +153,6 @@ theorem renWk : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : 
   | _, _, _, .snoc _ _ _ _, _, _, _, _, ⟨ρ, .snoc p q⟩, A, 𝓼, 𝓪 =>
       congrArg (fun z => (z, (val q).hom.map 𝓼)) (renWk ⟨ρ, p⟩ A 𝓼 𝓪)
 
-/-- Agda: `⊚unit` (GST/TypeSemantics.agda). -/
 theorem envComp_unit : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
     (𝓼 : Psh.El (𝓔 Γ) Γ') → RnHom.id Γ ⊚ 𝓼 = 𝓼
   | _, _, .nil, _, _ => rfl
@@ -181,7 +167,6 @@ theorem val_new_cast {S S'' : Fset} {Γ : Cx S} {Γ'' : Cx S''} {A : Ty} {x z : 
     (val (castIsIn e (IsIn.new (Γ := Γ) (A := A) (h := h)))).hom.map (𝓼, 𝓪) = 𝓪 := by
   cases e; rfl
 
-/-- Agda: `renUpdate` (GST/TypeSemantics.agda). -/
 theorem renUpdate {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {A : Ty}
     {x x' : Atom} (hx : x ∉ᶠ S) (hx' : x' ∉ᶠ S') (p : RnHom Γ' Γ)
     (𝓼 : Psh.El (𝓔 Γ') Γ'') (𝓪 : Psh.El (𝓓 A) Γ'') :

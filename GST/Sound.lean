@@ -18,9 +18,9 @@ namespace GST
 
 open WSLN
 
-/-- Agda: `sound` (GST/Sound.agda), with the conversion derivation first so that
-matching on it refines the two subject terms before the typing derivations are
-inspected; `sound` below restores Agda's argument order. -/
+/-- Soundness, with the conversion derivation first so that matching on it refines the two
+subject terms before the typing derivations are inspected; `sound` below restores the
+conventional argument order. -/
 theorem soundAux : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a a' : Tm0} →
     (q : Γ ⊢ a ＝ a' ∶ A) → (r : Γ ⊢ a ∶ A) → (r' : Γ ⊢ a' ∶ A) → {S' : Fset} →
     {Γ' : Cx S'} → (𝓼 : Psh.El (𝓔 Γ) Γ') → (𝓓 A).obj Γ' ∋ sem₀ r 𝓼 ~ sem₀ r' 𝓼
@@ -111,7 +111,6 @@ theorem soundAux : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a a' : Tm0} →
                   (((𝓓 A₁).obj _).rfl' z.2)))
               (irrelSem r₀' r₀ e₃ (((𝓔 Γ).act z.1).map 𝓼, z.2)))
 
-/-- Agda: `sound` (GST/Sound.agda). -/
 theorem sound {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} (r : Γ ⊢ a ∶ A)
     (r' : Γ ⊢ a' ∶ A) (q : Γ ⊢ a ＝ a' ∶ A) {S' : Fset} {Γ' : Cx S'}
     (𝓼 : Psh.El (𝓔 Γ) Γ') : (𝓓 A).obj Γ' ∋ sem₀ r 𝓼 ~ sem₀ r' 𝓼 := soundAux q r r' 𝓼

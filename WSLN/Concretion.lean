@@ -20,7 +20,6 @@ namespace WSLN
 
 mutual
 
-/-- Agda: `opn` (WSLN/Sig/Concretion.agda). -/
 def opn {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
     (e : m = n + 1) : Trm Sg n :=
   match t with
@@ -34,7 +33,6 @@ def opn {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
   | .atom x => .atom x
   | .op o ts => .op o (opnArg i u ts e)
 
-/-- Agda: `opn'` (WSLN/Sig/Concretion.agda). -/
 def opnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (u : Trm Sg 0)
     (ts : Arg Sg m ms) (e : m = n + 1) : Arg Sg n ms :=
   match ts with
@@ -79,27 +77,23 @@ theorem opn_var_ne {Sg : Sig} {m n : Nat} {i j : Fin m} (u : Trm Sg 0) (e : m = 
     opnArg i u (Arg.cons t us) e
       = .cons (opn (shiftIdx k i) u t (by omega)) (opnArg i u us e) := rfl
 
-/-- Agda: `_~>_` (WSLN/Sig/Concretion.agda). -/
 def Trm.openAt {Sg : Sig} {n : Nat} (i : Fin (n + 1)) (u : Trm Sg 0)
     (t : Trm Sg (n + 1)) : Trm Sg n := opn i u t rfl
 
-/-- Agda: `_~>'_` (WSLN/Sig/Concretion.agda). -/
 def Arg.openAt {Sg : Sig} {n : Nat} {ms : List Nat} (i : Fin (n + 1)) (u : Trm Sg 0)
     (ts : Arg Sg (n + 1) ms) : Arg Sg n ms := opnArg i u ts rfl
 
 /-! ## Concretion -/
 
-/-- Agda: `_[_]` (WSLN/Sig/Concretion.agda), the `i = zero` case of opening. -/
+/-- Concretion: the `i = zero` case of opening. -/
 def Trm.conc {Sg : Sig} {n : Nat} (t : Trm Sg (n + 1)) (u : Trm Sg 0) : Trm Sg n :=
   opn ⟨0, Nat.succ_pos n⟩ u t rfl
 
-/-- Agda: `ConcretionSyntaxTrm` (WSLN/Sig/Concretion.agda). -/
 instance instGetElemTrmTrm {Sg : Sig} {n : Nat} :
     GetElem (Trm Sg (n + 1)) (Trm Sg 0) (Trm Sg n) (fun _ _ => True) where
   getElem t u _ := t.conc u
 
-/-- Agda: `ConcretionSyntax𝔸` (WSLN/Sig/Concretion.agda).  Lets one write
-`t [ x ]` for `t [ 𝐚 x ]`. -/
+/-- Lets one write `t [ x ]` for `t [ 𝐚 x ]`. -/
 instance instGetElemTrmAtom {Sg : Sig} {n : Nat} :
     GetElem (Trm Sg (n + 1)) Atom (Trm Sg n) (fun _ _ => True) where
   getElem t x _ := t.conc (.atom x)
@@ -130,7 +124,6 @@ instance instGetElemTrmAtom {Sg : Sig} {n : Nat} :
 
 mutual
 
-/-- Agda: `opnSupp` (WSLN/Sig/Concretion.agda). -/
 theorem opnSupp {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
     (e : m = n + 1) : supp t ⊆ supp (opn i u t e) := by
   match t with
@@ -138,7 +131,6 @@ theorem opnSupp {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
   | .atom x => intro y hy; simpa using hy
   | .op o ts => intro x hx; exact opnSuppArg i u ts e hx
 
-/-- Agda: `opnSupp'` (WSLN/Sig/Concretion.agda). -/
 theorem opnSuppArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (u : Trm Sg 0)
     (ts : Arg Sg m ms) (e : m = n + 1) : supp ts ⊆ supp (opnArg i u ts e) := by
   match ts with
@@ -152,18 +144,15 @@ theorem opnSuppArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (u : Trm S
 
 end
 
-/-- Agda: `[]supp` (WSLN/Sig/Concretion.agda). -/
 theorem conc_supp {Sg : Sig} {n : Nat} (t : Trm Sg (n + 1)) (u : Trm Sg 0) :
     supp t ⊆ supp (t[u]) := opnSupp _ u t rfl
 
-/-- Agda: `[]²supp` (WSLN/Sig/Concretion.agda). -/
 theorem conc_supp₂ {Sg : Sig} {n : Nat} (t : Trm Sg (n + 2)) (u v : Trm Sg 0) :
     supp t ⊆ supp (t[u][v]) :=
   Fset.subset_trans (conc_supp t u) (conc_supp (t[u]) v)
 
 mutual
 
-/-- Agda: `suppOpn` (WSLN/Sig/Concretion.agda). -/
 theorem suppOpn {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
     (e : m = n + 1) : supp (opn i u t e) ⊆ supp t ∪ supp u := by
   match t with
@@ -178,7 +167,6 @@ theorem suppOpn {Sg : Sig} {m n : Nat} (i : Fin m) (u : Trm Sg 0) (t : Trm Sg m)
   | .atom y => intro x hx; exact .unionL hx
   | .op o ts => intro x hx; exact suppOpnArg i u ts e hx
 
-/-- Agda: `suppOpn'` (WSLN/Sig/Concretion.agda). -/
 theorem suppOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (u : Trm Sg 0)
     (ts : Arg Sg m ms) (e : m = n + 1) : supp (opnArg i u ts e) ⊆ supp ts ∪ supp u := by
   match ts with
@@ -198,11 +186,9 @@ theorem suppOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (u : Trm S
 
 end
 
-/-- Agda: `supp[]` (WSLN/Sig/Concretion.agda). -/
 theorem supp_conc {Sg : Sig} {n : Nat} (t : Trm Sg (n + 1)) (u : Trm Sg 0) :
     supp (t[u]) ⊆ supp t ∪ supp u := suppOpn _ u t rfl
 
-/-- Agda: `supp[]²` (WSLN/Sig/Concretion.agda). -/
 theorem supp_conc₂ {Sg : Sig} {n : Nat} (t : Trm Sg (n + 2)) (u v : Trm Sg 0) :
     supp (t[u][v]) ⊆ (supp t ∪ supp u) ∪ supp v :=
   Fset.subset_trans (supp_conc (t[u]) v)
@@ -210,7 +196,6 @@ theorem supp_conc₂ {Sg : Sig} {n : Nat} (t : Trm Sg (n + 2)) (u v : Trm Sg 0) 
 
 /-! ## Opening at an index greater than those in the term -/
 
-/-- Agda: `opnFin<` (WSLN/Sig/Concretion.agda). -/
 theorem opnFin_lt {m n : Nat} (i : Fin m) (j : Fin n) (q : m ≤ j.val) (h : m ≤ n) :
     Fin.castLE h i ≠ j := by
   intro he
@@ -221,7 +206,6 @@ theorem opnFin_lt {m n : Nat} (i : Fin m) (j : Fin n) (q : m ≤ j.val) (h : m �
 
 mutual
 
-/-- Agda: `opn<` (WSLN/Sig/Concretion.agda). -/
 theorem opn_lt {Sg : Sig} {k m n : Nat} (i : Fin n) (u : Trm Sg 0) (e : n = m + 1)
     (q : k ≤ i.val) (h₁ : k ≤ m) (h₂ : k ≤ n) (t : Trm Sg k) :
     opn i u (t.weaken n h₂) e = t.weaken m h₁ := by
@@ -240,7 +224,6 @@ theorem opn_lt {Sg : Sig} {k m n : Nat} (i : Fin n) (u : Trm Sg 0) (e : n = m + 
   | .atom x => simp
   | .op o ts => simpa using opnArg_lt i u e q h₁ h₂ ts
 
-/-- Agda: `opn<'` (WSLN/Sig/Concretion.agda). -/
 theorem opnArg_lt {Sg : Sig} {k m n : Nat} {ms : List Nat} (i : Fin n) (u : Trm Sg 0)
     (e : n = m + 1) (q : k ≤ i.val) (h₁ : k ≤ m) (h₂ : k ≤ n) (ts : Arg Sg k ms) :
     opnArg i u (ts.weaken n h₂) e = ts.weaken m h₁ := by
@@ -263,7 +246,6 @@ end
 
 mutual
 
-/-- Agda: `sbOpn` (WSLN/Sig/Concretion.agda). -/
 theorem sbOpn {Sg : Sig} {m n : Nat} (σ : Sb Sg) (i : Fin m) (u : Trm Sg 0)
     (t : Trm Sg m) (e : m = n + 1) :
     σ * (opn i u t e) = opn i (σ * u) (σ * t) e := by
@@ -279,7 +261,6 @@ theorem sbOpn {Sg : Sig} {m n : Nat} (σ : Sb Sg) (i : Fin m) (u : Trm Sg 0)
       exact (opn_lt i (σ * u) e (Nat.zero_le _) (Nat.zero_le n) (Nat.zero_le m) (σ x)).symm
   | .op o ts => simpa using sbOpnArg σ i u ts e
 
-/-- Agda: `sbOpn'` (WSLN/Sig/Concretion.agda). -/
 theorem sbOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (σ : Sb Sg) (i : Fin m)
     (u : Trm Sg 0) (ts : Arg Sg m ms) (e : m = n + 1) :
     σ * (opnArg i u ts e) = opnArg i (σ * u) (σ * ts) e := by
@@ -291,32 +272,26 @@ theorem sbOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (σ : Sb Sg) (i : Fin m)
 
 end
 
-/-- Agda: `sb[]` (WSLN/Sig/Concretion.agda). -/
 theorem sb_conc {Sg : Sig} {n : Nat} (σ : Sb Sg) (t : Trm Sg (n + 1)) (u : Trm Sg 0) :
     σ * (t[u]) = (σ * t)[σ * u] := sbOpn σ _ u t rfl
 
-/-- Agda: `rn[]` (WSLN/Sig/Concretion.agda). -/
 theorem rn_conc {Sg : Sig} {n : Nat} (ρ : Rn) (t : Trm Sg (n + 1)) (u : Trm Sg 0) :
     ρ * (t[u]) = (ρ * t)[ρ * u] := sb_conc (Sb.ofRn ρ) t u
 
-/-- Agda: `sb[]²` (WSLN/Sig/Concretion.agda). -/
 theorem sb_conc₂ {Sg : Sig} {n : Nat} (σ : Sb Sg) (t : Trm Sg (n + 2)) (u u' : Trm Sg 0) :
     σ * (t[u][u']) = (σ * t)[σ * u][σ * u'] := by
   rw [sb_conc σ (t[u]) u', sb_conc σ t u]
 
-/-- Agda: `rn[]²` (WSLN/Sig/Concretion.agda). -/
 theorem rn_conc₂ {Sg : Sig} {n : Nat} (ρ : Rn) (t : Trm Sg (n + 2)) (u u' : Trm Sg 0) :
     ρ * (t[u][u']) = (ρ * t)[ρ * u][ρ * u'] := sb_conc₂ (Sb.ofRn ρ) t u u'
 
 /-! ## Concretion at an updated substitution -/
 
-/-- Agda: `sbUpdate[]` (WSLN/Sig/Concretion.agda). -/
 theorem sbUpdate_conc {Sg : Sig} {n : Nat} (σ : Sb Sg) (x : Atom) (u : Trm Sg 0)
     (t : Trm Sg (n + 1)) (h : x # t) : (σ ∘/ x ≔ u) * (t[x]) = (σ * t)[u] := by
   rw [conc_atom, ← conc_trm, sb_conc (σ ∘/ x ≔ u) t (Trm.atom x),
     updateFresh σ x u t h, updateEq σ u x]
 
-/-- Agda: `sbUpdate[]²` (WSLN/Sig/Concretion.agda). -/
 theorem sbUpdate_conc₂ {Sg : Sig} {n : Nat} (σ : Sb Sg) (x y : Atom) (u v : Trm Sg 0)
     (t : Trm Sg (n + 2)) (hx : x # t) (hy : y # (t, x)) :
     ((σ ∘/ x ≔ u) ∘/ y ≔ v) * (t[x][y]) = (σ * t)[u][v] := by
@@ -331,14 +306,12 @@ theorem sbUpdate_conc₂ {Sg : Sig} {n : Nat} (σ : Sb Sg) (x y : Atom) (u v : T
   have e₂ : ((σ ∘/ x ≔ u) ∘/ y ≔ v) * (Trm.atom y : Trm Sg 0) = v := updateEq _ v y
   rw [e₁, e₂]
 
-/-- Agda: `rnUpdate[]` (WSLN/Sig/Concretion.agda). -/
 theorem rnUpdate_conc {Sg : Sig} {n : Nat} (ρ : Rn) (x x' : Atom) (t : Trm Sg (n + 1))
     (h : x # t) : ((ρ ∘/ x ≔ʳ x') : Rn) * (t[x]) = (ρ * t)[x'] := by
   show (Sb.ofRn (ρ ∘/ x ≔ʳ x') : Sb Sg) * (t[x]) = ((Sb.ofRn ρ : Sb Sg) * t)[x']
   rw [← updateRn (Sg := Sg) ρ x x' (t[x])]
   exact sbUpdate_conc (Sb.ofRn ρ) x (Trm.atom x') t h
 
-/-- Agda: `rnUpdate[]²` (WSLN/Sig/Concretion.agda). -/
 theorem rnUpdate_conc₂ {Sg : Sig} {n : Nat} (ρ : Rn) (x x' y y' : Atom)
     (t : Trm Sg (n + 2)) (hx : x # t) (hy : y # (t, x)) :
     (((ρ ∘/ x ≔ʳ x') ∘/ y ≔ʳ y') : Rn) * (t[x][y]) = (ρ * t)[x'][y'] := by
@@ -347,22 +320,18 @@ theorem rnUpdate_conc₂ {Sg : Sig} {n : Nat} (ρ : Rn) (x x' y y' : Atom)
   rw [← updateRn₂ (Sg := Sg) ρ x x' y y' (t[x][y])]
   exact sbUpdate_conc₂ (Sb.ofRn ρ) x y (Trm.atom x') (Trm.atom y') t hx hy
 
-/-- Agda: `ssb[]` (WSLN/Sig/Concretion.agda). -/
 theorem ssb_conc {Sg : Sig} {n : Nat} (x : Atom) (u : Trm Sg 0) (t : Trm Sg (n + 1))
     (h : x # t) : (x ≔ u) * (t[x]) = t[u] := by
   rw [Sb.single_def x u, sbUpdate_conc Sb.id x u t h, sbUnit]
 
-/-- Agda: `ssb[]²` (WSLN/Sig/Concretion.agda). -/
 theorem ssb_conc₂ {Sg : Sig} {n : Nat} (x y : Atom) (u v : Trm Sg 0) (t : Trm Sg (n + 2))
     (hx : x # t) (hy : y # (t, x)) : ((x ≔ u) ∘/ y ≔ v) * (t[x][y]) = t[u][v] := by
   rw [Sb.single_def x u, sbUpdate_conc₂ Sb.id x y u v t hx hy, sbUnit]
 
-/-- Agda: `srn[]` (WSLN/Sig/Concretion.agda). -/
 theorem srn_conc {Sg : Sig} {n : Nat} (x x' : Atom) (t : Trm Sg (n + 1)) (h : x # t) :
     ((x ≔ʳ x') : Rn) * (t[x]) = t[x'] := by
   rw [Rn.single_def x x', rnUpdate_conc (Sg := Sg) Rn.id x x' t h, rnUnit]
 
-/-- Agda: `srn[]²` (WSLN/Sig/Concretion.agda). -/
 theorem srn_conc₂ {Sg : Sig} {n : Nat} (x x' y y' : Atom) (t : Trm Sg (n + 2))
     (hx : x # t) (hy : y # (t, x)) :
     (((x ≔ʳ x') ∘/ y ≔ʳ y') : Rn) * (t[x][y]) = t[x'][y'] := by

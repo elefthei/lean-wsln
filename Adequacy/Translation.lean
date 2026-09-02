@@ -57,18 +57,15 @@ theorem castScope_inj {Sg : Sig} {m n : Nat} (e : m = n) {t t' : Trm Sg m}
 
 mutual
 
-/-- Agda: `⟦_⟧` (Adequacy/Translation.agda). -/
 def toWS {Sg : Sig} : NomTrm Sg → Trm Sg 0
   | .atom x => .atom x
   | .op o bs => .op o (toWSArg bs)
 
-/-- Agda: `⟦_⟧ᵃ` (Adequacy/Translation.agda). -/
 def toWSArg {Sg : Sig} {ms : List Nat} : NomArg Sg ms → Arg Sg 0 ms
   | .nil => .nil
   | .cons (m := m) b bs =>
       .cons (Trm.castScope (Nat.zero_add m).symm (toWSBnd b)) (toWSArg bs)
 
-/-- Agda: `⟦_⟧ᵇ` (Adequacy/Translation.agda). -/
 def toWSBnd {Sg : Sig} {m : Nat} : NomBnd Sg m → Trm Sg m
   | .base M => toWS M
   | .abs x b => x ． toWSBnd b
@@ -97,15 +94,12 @@ end
 
 /-! ## Translation of substitutions -/
 
-/-- Agda: `⟦_⟧ˢ` (Adequacy/Translation.agda). -/
 def toWSSb {Sg : Sig} (σ : Atom → NomTrm Sg) : Sb Sg := fun x => toWS (σ x)
 
 @[simp] theorem toWSSb_apply {Sg : Sig} (σ : Atom → NomTrm Sg) (x : Atom) :
     toWSSb σ x = toWS (σ x) := rfl
 
-/-- Agda: `⟦:=⟧ˢ` (Adequacy/Translation.agda).
-
-Agda's overloaded `σ ∘/ x := M` is `WSLN.updateFn σ x M` at nameful substitution
+/-- Agda's overloaded `σ ∘/ x := M` is `WSLN.updateFn σ x M` at nameful substitution
 type; the `Sb`-typed update on the right keeps its project token `∘/ ≔`. -/
 theorem toWSSb_update {Sg : Sig} (σ : Atom → NomTrm Sg) (M : NomTrm Sg) (x y : Atom) :
     toWSSb (updateFn σ x M) y = ((toWSSb σ) ∘/ x ≔ toWS M) y := by
@@ -115,13 +109,11 @@ theorem toWSSb_update {Sg : Sig} (σ : Atom → NomTrm Sg) (M : NomTrm Sg) (x y 
 
 mutual
 
-/-- Agda: `⟦supp⟧` (Adequacy/Translation.agda). -/
 theorem toWS_supp {Sg : Sig} (M : NomTrm Sg) : supp (toWS M) ⊆ supp M := by
   match M with
   | .atom _ => exact Fset.subset_refl
   | .op _ bs => exact toWSArg_supp bs
 
-/-- Agda: `⟦supp⟧ᵃ` (Adequacy/Translation.agda). -/
 theorem toWSArg_supp {Sg : Sig} {ms : List Nat} (bs : NomArg Sg ms) :
     supp (toWSArg bs) ⊆ supp bs := by
   match bs with
@@ -130,7 +122,6 @@ theorem toWSArg_supp {Sg : Sig} {ms : List Nat} (bs : NomArg Sg ms) :
       simp only [toWSArg_cons, supp_cons, suppNomArg_cons, supp_castScope]
       exact Fset.union_subset_union (toWSBnd_supp b) (toWSArg_supp bs')
 
-/-- Agda: `⟦supp⟧ᵇ` (Adequacy/Translation.agda). -/
 theorem toWSBnd_supp {Sg : Sig} {m : Nat} (b : NomBnd Sg m) :
     supp (toWSBnd b) ⊆ supp b := by
   match b with
@@ -144,15 +135,12 @@ end
 
 /-! ## Renamings injective on the names of a nameful term -/
 
-/-- Agda: `Inj` (Adequacy/Translation.agda). -/
 def Inj {Sg : Sig} (ρ : Rn) (M : NomTrm Sg) : Prop :=
   ∀ {x x' : Atom}, x ∈ supp M → x' ∈ supp M → ρ x = ρ x' → x = x'
 
-/-- Agda: `Injᵃ` (Adequacy/Translation.agda). -/
 def InjArg {Sg : Sig} {ms : List Nat} (ρ : Rn) (bs : NomArg Sg ms) : Prop :=
   ∀ {x x' : Atom}, x ∈ supp bs → x' ∈ supp bs → ρ x = ρ x' → x = x'
 
-/-- Agda: `Injᵇ` (Adequacy/Translation.agda). -/
 def InjBnd {Sg : Sig} {m : Nat} (ρ : Rn) (b : NomBnd Sg m) : Prop :=
   ∀ {x x' : Atom}, x ∈ supp b → x' ∈ supp b → ρ x = ρ x' → x = x'
 
@@ -179,16 +167,13 @@ theorem injUpdate_core {A : Type} [FiniteSupport A] (x y : Atom) (a : A) (h : y 
       exact absurd hz (Fset.not_mem_of_notMem h)
     · rwa [if_neg h₁, if_neg h₂] at e
 
-/-- Agda: `InjUpdate` (Adequacy/Translation.agda). -/
 theorem injUpdate {Sg : Sig} (x y : Atom) (M : NomTrm Sg) (h : y # M) :
     Inj ((x ≔ʳ y) : Rn) M := fun hz hz' e => injUpdate_core x y M h hz hz' e
 
-/-- Agda: `InjUpdateᵃ` (Adequacy/Translation.agda). -/
 theorem injUpdateArg {Sg : Sig} {ms : List Nat} (x y : Atom) (bs : NomArg Sg ms)
     (h : y # bs) : InjArg ((x ≔ʳ y) : Rn) bs :=
   fun hz hz' e => injUpdate_core x y bs h hz hz' e
 
-/-- Agda: `InjUpdateᵇ` (Adequacy/Translation.agda). -/
 theorem injUpdateBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # b) :
     InjBnd ((x ≔ʳ y) : Rn) b := fun hz hz' e => injUpdate_core x y b h hz hz' e
 
@@ -196,14 +181,12 @@ theorem injUpdateBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y 
 
 mutual
 
-/-- Agda: `⟦rn⟧` (Adequacy/Translation.agda). -/
 theorem toWS_rn {Sg : Sig} (ρ : Rn) (M : NomTrm Sg) (hinj : Inj ρ M) :
     toWS (ρ * M) = ρ * toWS M := by
   match M with
   | .atom _ => rfl
   | .op o bs => exact congrArg (Trm.op o) (toWSArg_rn ρ bs hinj)
 
-/-- Agda: `⟦rn⟧ᵃ` (Adequacy/Translation.agda). -/
 theorem toWSArg_rn {Sg : Sig} {ms : List Nat} (ρ : Rn) (bs : NomArg Sg ms)
     (hinj : InjArg ρ bs) : toWSArg (ρ * bs) = ρ * toWSArg bs := by
   match bs with
@@ -222,7 +205,6 @@ theorem toWSArg_rn {Sg : Sig} {ms : List Nat} (ρ : Rn) (bs : NomArg Sg ms)
       rw [Arg.cons.injEq]
       exact ⟨h₁, ih₂⟩
 
-/-- Agda: `⟦rn⟧ᵇ` (Adequacy/Translation.agda). -/
 theorem toWSBnd_rn {Sg : Sig} {m : Nat} (ρ : Rn) (b : NomBnd Sg m) (hinj : InjBnd ρ b) :
     toWSBnd (ρ * b) = ρ * toWSBnd b := by
   match b with
@@ -244,17 +226,14 @@ end
 
 /-! ## Fresh renaming -/
 
-/-- Agda: `freshRn` (Adequacy/Translation.agda). -/
 theorem freshRn {Sg : Sig} (x y : Atom) (M : NomTrm Sg) (h : y # M) :
     toWS (((x ≔ʳ y) : Rn) * M) = ((x ≔ʳ y) : Rn) * toWS M :=
   toWS_rn _ M (injUpdate x y M h)
 
-/-- Agda: `freshRnᵃ` (Adequacy/Translation.agda). -/
 theorem freshRnArg {Sg : Sig} {ms : List Nat} (x y : Atom) (bs : NomArg Sg ms)
     (h : y # bs) : toWSArg (((x ≔ʳ y) : Rn) * bs) = ((x ≔ʳ y) : Rn) * toWSArg bs :=
   toWSArg_rn _ bs (injUpdateArg x y bs h)
 
-/-- Agda: `freshRnᵇ` (Adequacy/Translation.agda). -/
 theorem freshRnBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # b) :
     toWSBnd (((x ≔ʳ y) : Rn) * b) = ((x ≔ʳ y) : Rn) * toWSBnd b :=
   toWSBnd_rn _ b (injUpdateBnd x y b h)
@@ -263,13 +242,11 @@ theorem freshRnBnd {Sg : Sig} {m : Nat} (x y : Atom) (b : NomBnd Sg m) (h : y # 
 
 mutual
 
-/-- Agda: `sound` (Adequacy/Translation.agda). -/
 theorem sound {Sg : Sig} {M N : NomTrm Sg} (q : M ~ N) : toWS M = toWS N := by
   match q with
   | .atom _ => rfl
   | .op (o := o) q' => exact congrArg (Trm.op o) (soundArg q')
 
-/-- Agda: `soundᵃ` (Adequacy/Translation.agda). -/
 theorem soundArg {Sg : Sig} {ms : List Nat} {bs bs' : NomArg Sg ms} (q : bs ~ᵃ bs') :
     toWSArg bs = toWSArg bs' := by
   match q with
@@ -278,7 +255,6 @@ theorem soundArg {Sg : Sig} {ms : List Nat} {bs bs' : NomArg Sg ms} (q : bs ~ᵃ
       simp only [toWSArg_cons, Arg.cons.injEq]
       exact ⟨congrArg (Trm.castScope (Nat.zero_add m).symm) (soundBnd q₀), soundArg q₁⟩
 
-/-- Agda: `soundᵇ` (Adequacy/Translation.agda). -/
 theorem soundBnd {Sg : Sig} {m : Nat} {b b' : NomBnd Sg m} (q : b ~ᵇ b') :
     toWSBnd b = toWSBnd b' := by
   match q with
@@ -311,7 +287,6 @@ theorem concAbsAtom {Sg : Sig} {n : Nat} (x y : Atom) (t : Trm Sg n) :
 
 mutual
 
-/-- Agda: `injective≤` (Adequacy/Translation.agda). -/
 theorem injectiveLe {Sg : Sig} {h : Nat} (M N : NomTrm Sg) (q : M.size ≤ h)
     (q' : N.size ≤ h) (e : toWS M = toWS N) : M ~ N := by
   match M, N with
@@ -330,7 +305,6 @@ theorem injectiveLe {Sg : Sig} {h : Nat} (M N : NomTrm Sg) (q : M.size ≤ h)
       exact .op (injectiveLeArg (h := h - 1) bs bs' (by omega) (by omega) (Trm.op_inj e))
 termination_by (h, 0, 0)
 
-/-- Agda: `injective≤ᵃ` (Adequacy/Translation.agda). -/
 theorem injectiveLeArg {Sg : Sig} {h : Nat} {ms : List Nat} (bs bs' : NomArg Sg ms)
     (q : bs.size ≤ h) (q' : bs'.size ≤ h) (e : toWSArg bs = toWSArg bs') : bs ~ᵃ bs' := by
   match bs, bs' with
@@ -343,7 +317,6 @@ theorem injectiveLeArg {Sg : Sig} {h : Nat} {ms : List Nat} (bs bs' : NomArg Sg 
         (injectiveLeArg (h := h) bs₀ bs₀' (by omega) (by omega) e.2)
 termination_by (h, 2, ms.length)
 
-/-- Agda: `injective≤ᵇ` (Adequacy/Translation.agda). -/
 theorem injectiveLeBnd {Sg : Sig} {h : Nat} {m : Nat} (b b' : NomBnd Sg m)
     (q : b.size ≤ h) (q' : b'.size ≤ h) (e : toWSBnd b = toWSBnd b') : b ~ᵇ b' := by
   match m, b, b' with
@@ -366,7 +339,6 @@ termination_by (h, 1, m)
 
 end
 
-/-- Agda: `injective` (Adequacy/Translation.agda). -/
 theorem injective {Sg : Sig} (M N : NomTrm Sg) (e : toWS M = toWS N) : M ~ N :=
   injectiveLe (h := max M.size N.size) M N (Nat.le_max_left _ _) (Nat.le_max_right _ _) e
 
@@ -374,7 +346,6 @@ theorem injective {Sg : Sig} (M N : NomTrm Sg) (e : toWS M = toWS N) : M ~ N :=
 
 mutual
 
-/-- Agda: `surjective≤` (Adequacy/Translation.agda). -/
 def surjectiveLe {Sg : Sig} {s : Nat} (t : Trm Sg 0) (q : t.size ≤ s) :
     { M : NomTrm Sg // toWS M = t } :=
   match t, q with
@@ -387,7 +358,6 @@ def surjectiveLe {Sg : Sig} {s : Nat} (t : Trm Sg 0) (q : t.size ≤ s) :
       ⟨.op o r.val, by simp only [toWS_op]; exact congrArg (Trm.op o) r.property⟩
 termination_by (s, 0, 0)
 
-/-- Agda: `surjective≤ᵃ` (Adequacy/Translation.agda). -/
 def surjectiveLeArg {Sg : Sig} {s : Nat} {ms : List Nat} (ts : Arg Sg 0 ms)
     (q : ts.size ≤ s) : { bs : NomArg Sg ms // toWSArg bs = ts } :=
   match ms, ts, q with
@@ -401,7 +371,6 @@ def surjectiveLeArg {Sg : Sig} {s : Nat} {ms : List Nat} (ts : Arg Sg 0 ms)
       ⟨.cons rb.val rs.val, by simp [rb.property, rs.property]⟩
 termination_by (s, 2, ms.length)
 
-/-- Agda: `surjective≤ᵇ` (Adequacy/Translation.agda). -/
 def surjectiveLeBnd {Sg : Sig} {m s : Nat} (t : Trm Sg m) (q : t.size ≤ s) :
     { b : NomBnd Sg m // toWSBnd b = t } :=
   match m, t, q with
@@ -418,19 +387,15 @@ termination_by (s, 1, m)
 
 end
 
-/-- Agda: `surjective` (Adequacy/Translation.agda). -/
 def surjective {Sg : Sig} (t : Trm Sg 0) : { M : NomTrm Sg // toWS M = t } :=
   surjectiveLe (s := t.size) t (Nat.le_refl _)
 
 /-! ## Bijection -/
 
-/-- Agda: `⟦_⟧⁻¹` (Adequacy/Translation.agda). -/
 def toNom {Sg : Sig} (t : Trm Sg 0) : NomTrm Sg := (surjective t).val
 
-/-- Agda: `bijection` (Adequacy/Translation.agda). -/
 theorem bijection {Sg : Sig} (t : Trm Sg 0) : toWS (toNom t) = t := (surjective t).property
 
-/-- Agda: `bijection'` (Adequacy/Translation.agda). -/
 theorem bijection₂ {Sg : Sig} (M : NomTrm Sg) : toNom (toWS M) ~ M :=
   injective (toNom (toWS M)) M (bijection (toWS M))
 

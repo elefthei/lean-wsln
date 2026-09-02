@@ -24,38 +24,34 @@ open WSLN
 
 /-! ## Simple types -/
 
-/-- Agda: `Ty` (GST/Syntax.agda). -/
 inductive Ty where
-  /-- Agda: `𝐍𝐚𝐭`. The type of natural numbers. -/
+  /-- The type of natural numbers. -/
   | nat : Ty
-  /-- Agda: `_⇒_`. Function types. -/
+  /-- Function types. -/
   | arrow (A B : Ty) : Ty
-  deriving DecidableEq, Repr  -- Agda: `decEqTy` / `hasDecEqTy`
+  deriving DecidableEq, Repr
 
 @[inherit_doc Ty.nat] scoped notation:max "𝐍𝐚𝐭" => GST.Ty.nat
 @[inherit_doc Ty.arrow] scoped infixr:60 " ⇒ " => GST.Ty.arrow
 
-/-- Agda: `⇒inj` (GST/Syntax.agda). -/
 theorem arrow_inj {A A' B B' : Ty} (e : A ⇒ B = A' ⇒ B') : A = A' ∧ B = B' := by
   cases e; exact ⟨rfl, rfl⟩
 
 /-! ## Signature for terms -/
 
-/-- Agda: `OpGST` (GST/Syntax.agda). -/
 inductive Op where
-  /-- Agda: `′lam′`. Function abstraction, annotated with the domain type. -/
+  /-- Function abstraction, annotated with the domain type. -/
   | lam (A : Ty) : Op
-  /-- Agda: `′app′`. Function application. -/
+  /-- Function application. -/
   | app : Op
-  /-- Agda: `′zero′`. Zero. -/
+  /-- Zero. -/
   | zero : Op
-  /-- Agda: `′succ′`. Successor. -/
+  /-- Successor. -/
   | succ : Op
-  /-- Agda: `′natrec′`. Natural number elimination. -/
+  /-- Natural number elimination. -/
   | natrec : Op
-  deriving DecidableEq  -- Agda: `hasDecEqOpGST`
+  deriving DecidableEq
 
-/-- Agda: `arGST` (GST/Syntax.agda). -/
 def ar : Op → List Nat
   | .lam _ => [1]
   | .app => [0, 0]
@@ -63,39 +59,36 @@ def ar : Op → List Nat
   | .succ => [0]
   | .natrec => [0, 0, 0]
 
-/-- Agda: `GST : Sig` (GST/Syntax.agda). -/
 def sig : Sig := ⟨Op, ar⟩
 
 instance : DecidableEq sig.Op := inferInstanceAs (DecidableEq Op)
 
 /-! ## Terms of Gödel's System T -/
 
-/-- Agda: `Tm[_]` (GST/Syntax.agda). -/
 abbrev Tm (n : Nat) := WSLN.Trm sig n
 
-/-- Agda: `Tm` (GST/Syntax.agda). -/
 abbrev Tm0 := Tm 0
 
 /-! ## Notation -/
 
-/-- Agda: `pattern 𝐯 x = 𝐚 x` (GST/Syntax.agda). -/
+/-- The variable pattern: `𝐯 x` is the atom `x` as a term. -/
 @[match_pattern] def vr {n : Nat} (x : Atom) : Tm n := .atom x
 
-/-- Agda: `pattern 𝛌 A a` (GST/Syntax.agda). -/
+/-- The abstraction pattern `𝛌 A b`. -/
 @[match_pattern] def lam {n : Nat} (A : Ty) (b : Tm (n + 1)) : Tm n :=
   .op (.lam A) (.cons b .nil)
 
-/-- Agda: `pattern _∙_ b a` (GST/Syntax.agda). -/
+/-- The application pattern `a ∙ b`. -/
 @[match_pattern] def app {n : Nat} (b a : Tm n) : Tm n :=
   .op .app (.cons b (.cons a .nil))
 
-/-- Agda: `pattern 𝐳𝐞𝐫𝐨` (GST/Syntax.agda). -/
+/-- The zero pattern `𝐳𝐞𝐫𝐨`. -/
 @[match_pattern] def zero' {n : Nat} : Tm n := .op .zero .nil
 
-/-- Agda: `pattern 𝐬𝐮𝐜𝐜 a` (GST/Syntax.agda). -/
+/-- The successor pattern `𝐬𝐮𝐜𝐜 a`. -/
 @[match_pattern] def succ' {n : Nat} (a : Tm n) : Tm n := .op .succ (.cons a .nil)
 
-/-- Agda: `pattern 𝐧𝐫𝐞𝐜 c₀ cs a` (GST/Syntax.agda). -/
+/-- The recursor pattern `𝐧𝐫𝐞𝐜 c₀ cs a`. -/
 @[match_pattern] def nrec {n : Nat} (c₀ cs a : Tm n) : Tm n :=
   .op .natrec (.cons c₀ (.cons cs (.cons a .nil)))
 
@@ -190,10 +183,8 @@ pattern constructors are `def`s, so their equations are `rfl` lemmas in the defa
 
 /-! ## Decidability results about type expressions -/
 
-/-- Agda: `𝐍𝐚𝐭?` (GST/Syntax.agda). -/
 def natDec (A : Ty) : Dec (A = 𝐍𝐚𝐭) := Dec.ofDecidable (inferInstance)
 
-/-- Agda: `⇒?` (GST/Syntax.agda). -/
 def arrowDec (A B : Ty) : Dec { C : Ty // A = B ⇒ C } :=
   match A with
   | 𝐍𝐚𝐭 => .no fun p => by cases p.property
@@ -201,7 +192,6 @@ def arrowDec (A B : Ty) : Dec { C : Ty // A = B ⇒ C } :=
       if h : A₀ = B then .yes ⟨A₁, by rw [h]⟩
       else .no fun p => h (arrow_inj p.property).1
 
-/-- Agda: `?⇒?` (GST/Syntax.agda). -/
 def arrowDec₂ (A : Ty) : Dec (Σ B : Ty, { C : Ty // A = B ⇒ C }) :=
   match A with
   | 𝐍𝐚𝐭 => .no fun p => by cases p.2.property

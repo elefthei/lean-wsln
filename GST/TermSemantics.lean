@@ -6,11 +6,11 @@ import GST.ReifyReflect
 Port of `agda-code/agda/GST/TermSemantics.agda`.
 
 A *derivation* `q : Γ ⊢ a ∶ A` is interpreted as a natural transformation
-`sem q : Psh.Hom (𝓔 Γ) (𝓓 A)` (Agda `⟦ q ⟧`); `sem₀ q 𝓼` (Agda `⟦ q ⟧₀ 𝓼`) is its value
-at an environment.  Because the interpretation is defined on derivations rather than
-on terms, the bulk of the file is the coherence properties Agda also has to prove:
-`rnSem` (renaming), `irrelSem` (independence of the derivation), `rnSemBody`
-(independence of the concreting atom), `wkSem`, `sbSem` (substitution) and `concSem`.
+`sem q : Psh.Hom (𝓔 Γ) (𝓓 A)`; `sem₀ q 𝓼` is its value at an environment.  Because
+the interpretation is defined on derivations rather than on terms, the bulk of the
+file is the coherence properties Agda also has to prove: `rnSem` (renaming),
+`irrelSem` (independence of the derivation), `rnSemBody` (independence of the
+concreting atom), `wkSem`, `sbSem` (substitution) and `concSem`.
 
 Two Lean-specific points.
 
@@ -30,8 +30,8 @@ open WSLN
 
 /-! ## Semantic `natrec` -/
 
-/-- Agda: `nrec₁` (GST/TermSemantics.agda), on a normal form of an arbitrary type
-together with the evidence that the type is `𝐍𝐚𝐭`; see the module docstring. -/
+/-- Recursor semantics on a normal form of an arbitrary type together with the evidence that
+the type is `𝐍𝐚𝐭`; see the module docstring. -/
 def nrecSemAux {C : Ty} {S : Fset} {Γ : Cx S} (𝓬₀ : Psh.El (𝓓 C) Γ)
     (𝓬s : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ) :
     {n : Tm0} → {A : Ty} → (Γ ⊢ⁿ n ∶ A) → A = 𝐍𝐚𝐭 → Psh.El (𝓓 C) Γ
@@ -41,19 +41,17 @@ def nrecSemAux {C : Ty} {S : Fset} {Γ : Cx S} (𝓬₀ : Psh.El (𝓓 C) Γ)
       Psh.ev.hom.map (Psh.ev.hom.map (𝓬s, ⟨_, q⟩), nrecSemAux 𝓬₀ 𝓬s q rfl)
   | _, _, .neu q, e => reflectEl (.nrec (reifyNf 𝓬₀) (reifyNf 𝓬s) (e ▸ q))
 
-/-- Agda: `nrec₁` (GST/TermSemantics.agda). -/
 def nrecSem {C : Ty} {S : Fset} {Γ : Cx S} (𝓬₀ : Psh.El (𝓓 C) Γ)
     (𝓬s : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ) {n : Tm0} (q : Γ ⊢ⁿ n ∶ 𝐍𝐚𝐭) :
     Psh.El (𝓓 C) Γ := nrecSemAux 𝓬₀ 𝓬s q rfl
 
-/-- Agda: `hom-ev^₁` (GST/TermSemantics.agda). -/
 theorem evResp {A B : Ty} {S : Fset} {Γ : Cx S} {𝓯 𝓯' : Psh.El (𝓓 (A ⇒ B)) Γ}
     {𝓪 𝓪' : Psh.El (𝓓 A) Γ} (e : (𝓓 (A ⇒ B)).obj Γ ∋ 𝓯 ~ 𝓯')
     (e' : (𝓓 A).obj Γ ∋ 𝓪 ~ 𝓪') :
     (𝓓 B).obj Γ ∋ Psh.ev.hom.map (𝓯, 𝓪) ~ Psh.ev.hom.map (𝓯', 𝓪') :=
   (Psh.ev (A := 𝓓 A) (B := 𝓓 B)).hom.resp ⟨e, e'⟩
 
-/-- Agda: `nrec₂` (GST/TermSemantics.agda), for two derivations of one numeral. -/
+/-- The recursor semantics respects the relation, for two derivations of one numeral. -/
 theorem nrecSem₂ {C : Ty} {S : Fset} {Γ : Cx S} {𝓬₀ 𝓬₀' : Psh.El (𝓓 C) Γ}
     {𝓬s 𝓬s' : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ} (e₀ : (𝓓 C).obj Γ ∋ 𝓬₀ ~ 𝓬₀')
     (e₁ : (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)).obj Γ ∋ 𝓬s ~ 𝓬s') : {n : Tm0} → (q q' : Γ ⊢ⁿ n ∶ 𝐍𝐚𝐭) →
@@ -72,8 +70,8 @@ theorem nrecSem₂ {C : Ty} {S : Fset} {Γ : Cx S} {𝓬₀ 𝓬₀' : Psh.El (�
         (reify (𝐍𝐚𝐭 ⇒ C ⇒ C)).hom.resp e₁
       rw [h₀, h₁]
 
-/-- Agda: `nrec₂` (GST/TermSemantics.agda), for numerals related in the setoid of
-normal forms rather than being literally the same term. -/
+/-- The recursor semantics respects the relation, for numerals related in the setoid of normal
+forms rather than being literally the same term. -/
 theorem nrecSem₂' {C : Ty} {S : Fset} {Γ : Cx S} {𝓬₀ 𝓬₀' : Psh.El (𝓓 C) Γ}
     {𝓬s 𝓬s' : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ} {n n' : Tm0} (q : Γ ⊢ⁿ n ∶ 𝐍𝐚𝐭)
     (q' : Γ ⊢ⁿ n' ∶ 𝐍𝐚𝐭) (e₀ : (𝓓 C).obj Γ ∋ 𝓬₀ ~ 𝓬₀')
@@ -81,7 +79,6 @@ theorem nrecSem₂' {C : Ty} {S : Fset} {Γ : Cx S} {𝓬₀ 𝓬₀' : Psh.El (
     (𝓓 C).obj Γ ∋ nrecSem 𝓬₀ 𝓬s q ~ nrecSem 𝓬₀' 𝓬s' q' := by
   cases e₂; exact nrecSem₂ e₀ e₁ q q'
 
-/-- Agda: `nrec₃` (GST/TermSemantics.agda). -/
 theorem nrecSem₃ {C : Ty} {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'}
     (𝓬₀ : Psh.El (𝓓 C) Γ) (𝓬s : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ) (p : RnHom Γ' Γ) :
     {n : Tm0} → (q : Γ ⊢ⁿ n ∶ 𝐍𝐚𝐭) →
@@ -111,19 +108,16 @@ theorem nrecSem₃ {C : Ty} {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'}
 
 /-! ## The interpretations of the operators -/
 
-/-- Agda: `⟦𝐳𝐞𝐫𝐨⟧` (GST/TermSemantics.agda). -/
 def zeroSem {S : Fset} {Γ : Cx S} : Psh.Hom (𝓔 Γ) (Norm 𝐍𝐚𝐭) where
   hom := { map := fun _ => ⟨𝐳𝐞𝐫𝐨, .zero⟩, resp := fun _ => rfl }
   ntl _ _ := rfl
 
-/-- Agda: `⟦𝐬𝐮𝐜𝐜⟧` (GST/TermSemantics.agda). -/
 def succSem : Psh.Hom (Norm 𝐍𝐚𝐭) (Norm 𝐍𝐚𝐭) where
   hom :=
     { map := fun a => ⟨𝐬𝐮𝐜𝐜 a.nt, .succ a.pf⟩
       resp := fun e => congrArg (fun t => 𝐬𝐮𝐜𝐜 t) e }
   ntl _ _ := rfl
 
-/-- Agda: `⟦𝐧𝐫𝐞𝐜⟧` (GST/TermSemantics.agda). -/
 def nrecHom {C : Ty} : Psh.Hom (𝓓 C ×^ 𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C) ×^ 𝓓 𝐍𝐚𝐭) (𝓓 C) where
   hom :=
     { map := fun z => nrecSem z.1.1 z.1.2 z.2.pf
@@ -132,7 +126,6 @@ def nrecHom {C : Ty} : Psh.Hom (𝓓 C ×^ 𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C) ×^ �
 
 /-! ## The interpretation of a derivation -/
 
-/-- Agda: `⟦_⟧` (GST/TermSemantics.agda). -/
 def sem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} : (Γ ⊢ a ∶ A) → Psh.Hom (𝓔 Γ) (𝓓 A)
   | .var q => val q
   | .lam q _ => Psh.cur (sem q)
@@ -142,13 +135,11 @@ def sem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} : (Γ ⊢ a ∶ A) → Psh.Hom
   | .nrec q₀ q₁ q₂ =>
       nrecHom.comp (Psh.pair (Psh.pair (sem q₀) (sem q₁)) (sem q₂))
 
-/-- Agda: `⟦_⟧₀` (GST/TermSemantics.agda). -/
 def sem₀ {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A)
     (𝓼 : Psh.El (𝓔 Γ) Γ') : Psh.El (𝓓 A) Γ' := (sem q).hom.map 𝓼
 
 /-! ## Semantics of renaming -/
 
-/-- Agda: `rnSem` (GST/TermSemantics.agda). -/
 theorem rnSem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
     ∀ {S' S'' : Fset} {Γ' : Cx S'} {Γ'' : Cx S''} (p : RnHom Γ' Γ)
       (𝓼 : Psh.El (𝓔 Γ') Γ'') {a' : Tm0} (q' : Γ' ⊢ a' ∶ A), p.rn * a = a' →
@@ -200,14 +191,12 @@ theorem rnSem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
           exact nrecSem₂' (sem₀ q₂' 𝓼).pf (sem₀ q₂ (p ⊚ 𝓼)).pf
             (ih₀ p 𝓼 q₀' rfl) (ih₁ p 𝓼 q₁' rfl) (ih₂ p 𝓼 q₂' rfl)
 
-/-- Agda: `⟦rn⟧` (GST/TermSemantics.agda). -/
 theorem semRn {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {A : Ty}
     {a : Tm0} (p : RnHom Γ' Γ) (𝓼 : Psh.El (𝓔 Γ') Γ'') (q : Γ ⊢ a ∶ A) :
     (𝓓 A).obj Γ'' ∋ sem₀ (rnDeriv p.pf q) 𝓼 ~ sem₀ q (p ⊚ 𝓼) :=
   rnSem q p 𝓼 (rnDeriv p.pf q) rfl
 
-/-- Agda: `irrelSem` (GST/TermSemantics.agda): the semantics of a term does not
-depend on the derivation. -/
+/-- The semantics of a term does not depend on the derivation. -/
 theorem irrelSem {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {a a' : Tm0}
     (q : Γ ⊢ a ∶ A) (q' : Γ ⊢ a' ∶ A) (e : a = a') (𝓼 : Psh.El (𝓔 Γ) Γ') :
     (𝓓 A).obj Γ' ∋ sem₀ q 𝓼 ~ sem₀ q' 𝓼 := by
@@ -216,8 +205,7 @@ theorem irrelSem {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A : Ty} {a a' : Tm0}
   rw [envComp_unit 𝓼] at h
   exact h
 
-/-- Agda: `rnSem¹` (GST/TermSemantics.agda): the semantics of an abstraction does not
-depend on the atom at which it is concreted. -/
+/-- The semantics of an abstraction does not depend on the atom at which it is concreted. -/
 theorem rnSemBody {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A B : Ty} {x x' : Atom}
     (hx : x ∉ᶠ S) (hx' : x' ∉ᶠ S) (b : Tm 1) (q : (Γ ⨟ x ∶ A ∣ hx) ⊢ b[x] ∶ B)
     (q' : (Γ ⨟ x' ∶ A ∣ hx') ⊢ b[x'] ∶ B) (_ : x # b) (hb' : x' # b)
@@ -235,7 +223,6 @@ theorem rnSemBody {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A B : Ty} {x x' : Ato
 
 /-! ## Semantics of weakening -/
 
-/-- Agda: `wkSem` (GST/TermSemantics.agda). -/
 theorem wkSem {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A A' : Ty} {a : Tm0} {x : Atom}
     (h : x ∉ᶠ S) (q : Γ ⊢ a ∶ A) (q' : (Γ ⨟ x ∶ A' ∣ h) ⊢ a ∶ A)
     (𝓼 : Psh.El (𝓔 Γ) Γ') (𝓪 : Psh.El (𝓓 A') Γ') :
@@ -246,18 +233,15 @@ theorem wkSem {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A A' : Ty} {a : Tm0} {x :
 
 /-! ## Semantics of substitution -/
 
-/-- Agda: `⟦_⟧ˢ` (GST/TermSemantics.agda). -/
 def semSb {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {σ : Sb sig} :
     (Γ' ⊢ˢ σ ∶ Γ) → Psh.Hom (𝓔 Γ') (𝓔 Γ)
   | .nil => Psh.bang
   | .snoc q₀ q₁ => Psh.pair (semSb q₀) (sem q₁)
 
-/-- Agda: `⟦_⟧ˢ₀` (GST/TermSemantics.agda). -/
 def semSb₀ {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {σ : Sb sig}
     (q : Γ' ⊢ˢ σ ∶ Γ) (𝓼 : Psh.El (𝓔 Γ') Γ'') : Psh.El (𝓔 Γ) Γ'' :=
   (semSb q).hom.map 𝓼
 
-/-- Agda: `irrelSemˢ` (GST/TermSemantics.agda). -/
 theorem irrelSemSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {σ σ' : Sb sig} → (q : Γ' ⊢ˢ σ ∶ Γ) → (q' : Γ' ⊢ˢ σ' ∶ Γ) →
     (sbSetd (dom Γ) ∋ σ ~ σ') → (𝓼 : Psh.El (𝓔 Γ') Γ'') →
@@ -267,7 +251,6 @@ theorem irrelSemSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ
       ⟨irrelSemSb q₀ q₀' (fun y r => e y (.unionL r)) 𝓼,
        irrelSem q₁ q₁' (e x (.unionR .single)) 𝓼⟩
 
-/-- Agda: `rnSemˢ` (GST/TermSemantics.agda). -/
 theorem rnSemSb : {S S' S'' S''' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
     {Γ'' : Cx S''} → {Γ''' : Cx S'''} → {σ σ' : Sb sig} → (p : RnHom Γ'' Γ') →
     (𝓼 : Psh.El (𝓔 Γ'') Γ''') → (q : Γ' ⊢ˢ σ ∶ Γ) → (q' : Γ'' ⊢ˢ σ' ∶ Γ) →
@@ -278,7 +261,6 @@ theorem rnSemSb : {S S' S'' S''' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
       ⟨rnSemSb p 𝓼 q₀ q₀' (fun y r => e y (.unionL r)),
        rnSem q₁ p 𝓼 q₁' (e x (.unionR .single))⟩
 
-/-- Agda: `wkSemˢ` (GST/TermSemantics.agda). -/
 theorem wkSemSb {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {σ : Sb sig}
     {A : Ty} {x : Atom} (h : x ∉ᶠ S') (q : Γ' ⊢ˢ σ ∶ Γ)
     (𝓼 : Psh.El (𝓔 Γ') Γ'') (𝓪 : Psh.El (𝓓 A) Γ'') :
@@ -288,7 +270,6 @@ theorem wkSemSb {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''} {σ 
   rw [renWk (RnHom.id Γ') A 𝓼 𝓪, envComp_unit 𝓼] at h₀
   exact h₀
 
-/-- Agda: `semˢUnit` (GST/TermSemantics.agda). -/
 theorem semSbUnit : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
     (𝓼 : Psh.El (𝓔 Γ) Γ') → (𝓔 Γ).obj Γ' ∋ semSb₀ (sbTypingId Γ) 𝓼 ~ 𝓼
   | _, _, .nil, _, _ => trivial
@@ -296,7 +277,6 @@ theorem semSbUnit : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
       ⟨((𝓔 Γ).obj Γ').trans' (wkSemSb h (sbTypingId Γ) 𝓼.1 𝓼.2)
         (semSbUnit 𝓼.1), ((𝓓 A).obj Γ').rfl' 𝓼.2⟩
 
-/-- Agda: `sbSemVar` (GST/TermSemantics.agda). -/
 theorem sbSemVar : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {σ : Sb sig} → {A : Ty} → {x : Atom} → (q : Γ' ⊢ˢ σ ∶ Γ) → (q' : (x, A) isIn Γ) →
     (𝓼 : Psh.El (𝓔 Γ') Γ'') →
@@ -305,7 +285,6 @@ theorem sbSemVar : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ''
       ((𝓓 _).obj _).rfl' (sem₀ q₁ 𝓼)
   | _, _, _, _, _, _, _, _, _, .snoc q₀ _, .old q', 𝓼 => sbSemVar q₀ q' 𝓼
 
-/-- Agda: `sbSemLift` (GST/TermSemantics.agda). -/
 theorem sbSemLift {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''}
     {σ : Sb sig} {A : Ty} {x x' : Atom} (hx : x ∉ᶠ S) (hx' : x' ∉ᶠ S')
     (q : Γ' ⊢ˢ σ ∶ Γ) (q' : (Γ' ⨟ x' ∶ A ∣ hx') ⊢ˢ (σ ∘/ x ≔ 𝐯x') ∶ (Γ ⨟ x ∶ A ∣ hx))
@@ -322,7 +301,6 @@ theorem sbSemLift {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''}
         (castTm (Sb.update_eq σ x (𝐯x')).symm (.var .new)) (.var .new)
         (Sb.update_eq σ x (𝐯x')) (𝓼, 𝓪)⟩
 
-/-- Agda: `sbSem` (GST/TermSemantics.agda). -/
 theorem sbSem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
     ∀ {S' S'' : Fset} {Γ' : Cx S'} {Γ'' : Cx S''} {σ : Sb sig} (p : Γ' ⊢ˢ σ ∶ Γ)
       (𝓼 : Psh.El (𝓔 Γ') Γ''),
@@ -366,7 +344,6 @@ theorem sbSem {S : Fset} {Γ : Cx S} {A : Ty} {a : Tm0} (q : Γ ⊢ a ∶ A) :
 
 /-! ## Semantics of concretion -/
 
-/-- Agda: `concSem` (GST/TermSemantics.agda). -/
 theorem concSem {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {A B : Ty} {a : Tm0} (b : Tm 1)
     (x : Atom) (hx : x ∉ᶠ S) (q₀ : (Γ ⨟ x ∶ A ∣ hx) ⊢ b[x] ∶ B) (q₁ : Γ ⊢ a ∶ A)
     (q₂ : Γ ⊢ b[a] ∶ B) (hb : x # b) (𝓼 : Psh.El (𝓔 Γ) Γ') :

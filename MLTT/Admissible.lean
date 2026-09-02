@@ -19,7 +19,6 @@ private theorem freshU {n : Nat} (x : Atom) (l : Lvl) : x # (𝐔 l : Ty n) :=
 
 /-! ## Reflexivity of context conversion -/
 
-/-- Agda: `CxRefl` (MLTT/Admissible.agda). -/
 theorem cxRefl {Γ : Cx} (p : Ok Γ) : ⊢ Γ ＝ Γ := by
   revert p
   induction Γ with
@@ -31,7 +30,6 @@ theorem cxRefl {Γ : Cx} (p : Ok Γ) : ⊢ Γ ＝ Γ := by
 
 /-! ## Change context up to conversion -/
 
-/-- Agda: `＝⊢idˢ` (MLTT/Admissible.agda). -/
 theorem eqIdSb {Γ Γ' : Cx} (p : ⊢ Γ' ＝ Γ) : Γ' ⊢ˢ Sb.id ∶ Γ := by
   induction p with
   | nil => exact .nil .nil
@@ -42,12 +40,11 @@ theorem eqIdSb {Γ Γ' : Cx} (p : ⊢ Γ' ＝ Γ) : Γ' ⊢ˢ Sb.id ∶ Γ := by
       rw [sbUnit]
       exact .conv (.var (okSnoc h₀ hx₁) .new) (wkDeriv (wkProj h₀ hx₁) q₁)
 
-/-- Agda: `＝⊢` (MLTT/Admissible.agda). -/
 theorem eqDeriv {Γ Γ' : Cx} {J : Jg} (q : Γ ⊢ J) (q' : ⊢ Γ' ＝ Γ) : Γ' ⊢ J := by
   have h := sbDeriv (eqIdSb q') q
   rwa [sbUnitJg] at h
 
-/-- Agda: `⨟＝⊢` (MLTT/Admissible.agda).  The last premise is a helper hypothesis. -/
+/-- The last premise is a helper hypothesis. -/
 theorem snocEqDeriv {Γ : Cx} {x : Atom} {A A' : Ty0} {l : Lvl} {J : Jg}
     (q : Γ ⊢ A' ＝ A ⦂ l) (q' : (Γ ⨟ x ∶ A ⦂ l) ⊢ J) (h : Γ ⊢ A' ⦂ l) :
     (Γ ⨟ x ∶ A' ⦂ l) ⊢ J := by
@@ -56,7 +53,6 @@ theorem snocEqDeriv {Γ : Cx} {x : Atom} {A A' : Ty0} {l : Lvl} {J : Jg}
 
 /-! ## Substitution properties of concretion -/
 
-/-- Agda: `concTm` (MLTT/Admissible.agda). -/
 theorem concTm {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (B : Ty 1) (b : Tm 1)
     (x : Atom) (p : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ∶ B[x] ⦂ l') (q : Γ ⊢ a ∶ A ⦂ l)
     (hx : x # (B, b)) : Γ ⊢ b[a] ∶ B[a] ⦂ l' := by
@@ -66,14 +62,13 @@ theorem concTm {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (B : Ty 1) (b : Tm 1)
   exact castTm (ssb_conc x a b hxb) (ssb_conc x a B hxB)
     (sbDeriv (ssbUpdate q hxΓ hA) p)
 
-/-- Agda: `concTm∞` (MLTT/Admissible.agda). -/
 theorem concTmInf {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (B : Ty 1) (b : Tm 1)
     (S : Fset) (q₀ : ∀ x, x # S → (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ∶ B[x] ⦂ l')
     (q₁ : Γ ⊢ a ∶ A ⦂ l) : Γ ⊢ b[a] ∶ B[a] ⦂ l' := by
   obtain ⟨x, hx⟩ := fresh (S, (B, b))
   exact concTm B b x (q₀ x (notMem_union_left hx)) q₁ (notMem_union_right hx)
 
-/-- Agda: `conc＝Ty` (MLTT/Admissible.agda).  The last three premises are helpers. -/
+/-- The last three premises are helpers. -/
 theorem concEqTy {l l' : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} (B B' : Ty 1) (x : Atom)
     (q₀ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ＝ B'[x] ⦂ l') (q₁ : Γ ⊢ a ＝ a' ∶ A ⦂ l)
     (q₂ : x # (B, B')) (h₀ : Γ ⊢ a ∶ A ⦂ l) (h₁ : Γ ⊢ a' ∶ A ⦂ l)
@@ -89,7 +84,7 @@ theorem concEqTy {l l' : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} (B B' : Ty 1) (x 
       (sbDeriv (ssbUpdate h₁ hxΓ hA) q₀)
   exact .trans qa qb
 
-/-- Agda: `conc＝Ty∞` (MLTT/Admissible.agda).  The last three premises are helpers. -/
+/-- The last three premises are helpers. -/
 theorem concEqTyInf {l l' : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} (B B' : Ty 1)
     (S : Fset) (q₀ : ∀ x, x # S → (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ＝ B'[x] ⦂ l')
     (q₁ : Γ ⊢ a ＝ a' ∶ A ⦂ l) (h₀ : Γ ⊢ a ∶ A ⦂ l) (h₁ : Γ ⊢ a' ∶ A ⦂ l)
@@ -98,7 +93,7 @@ theorem concEqTyInf {l l' : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} (B B' : Ty 1)
   have hxS : x # S := notMem_union_left hx
   exact concEqTy B B' x (q₀ x hxS) q₁ (notMem_union_right hx) h₀ h₁ (h₂ x hxS)
 
-/-- Agda: `conc＝Ty²` (MLTT/Admissible.agda).  The last six premises are helpers. -/
+/-- The last six premises are helpers. -/
 theorem concEqTy₂ {l l' l'' : Lvl} {Γ : Cx} {A B : Ty0} {a a' b b' : Tm0}
     (C C' : Ty 2) (x y : Atom)
     (q₀ : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ C[x][y] ＝ C'[x][y] ⦂ l'')
@@ -125,7 +120,7 @@ theorem concEqTy₂ {l l' l'' : Lvl} {Γ : Cx} {A B : Ty0} {a a' b b' : Tm0}
       (sbDeriv (ssbUpdate₂ h₁ q₂ h₃ hyΓx) q₀)
   exact .trans qa qb
 
-/-- Agda: `conc＝Ty²∞` (MLTT/Admissible.agda).  The last seven premises are helpers. -/
+/-- The last seven premises are helpers. -/
 theorem concEqTy₂Inf {l l' l'' : Lvl} {Γ : Cx} {A : Ty0} {a a' b b' : Tm0} (B : Ty 1)
     (C C' : Ty 2) (S : Fset)
     (q₀ : ∀ x y, x # y # S →
@@ -345,23 +340,19 @@ private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
         e (sbDeriv s (q₁ x y hfr))
   | piEta _ q₀ q₁ _ _ _ _ _ _ => exact ⟨q₀, q₁⟩
 
-/-- Agda: `⊢ty₁` (MLTT/Admissible.agda). -/
 theorem derivTy₁ {l : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0}
     (q : Γ ⊢ a ＝ a' ∶ A ⦂ l) : Γ ⊢ a ∶ A ⦂ l := (tyBoth q).1
 
-/-- Agda: `⊢ty₂` (MLTT/Admissible.agda). -/
 theorem derivTy₂ {l : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0}
     (q : Γ ⊢ a ＝ a' ∶ A ⦂ l) : Γ ⊢ a' ∶ A ⦂ l := (tyBoth q).2
 
 /-! ## Reflexivity inversion for substitutions -/
 
-/-- Agda: `⊢sb₁` (MLTT/Admissible.agda). -/
 theorem sbTy₁ {Γ Γ' : Cx} {σ σ' : Sb sig} (p : Γ ⊢ˢ σ ＝ σ' ∶ Γ') : Γ ⊢ˢ σ ∶ Γ' := by
   induction p with
   | nil q => exact .nil q
   | snoc _ q₁ q₂ q₃ ih => exact .snoc ih q₁ (derivTy₁ q₂) q₃
 
-/-- Agda: `⊢sb₂` (MLTT/Admissible.agda). -/
 theorem sbTy₂ {Γ Γ' : Cx} {σ σ' : Sb sig} (p : Γ ⊢ˢ σ ＝ σ' ∶ Γ') : Γ ⊢ˢ σ' ∶ Γ' := by
   induction p with
   | nil q => exact .nil q
@@ -370,7 +361,6 @@ theorem sbTy₂ {Γ Γ' : Cx} {σ σ' : Sb sig} (p : Γ ⊢ˢ σ ＝ σ' ∶ Γ'
 
 /-! ## Congruence property of substitution -/
 
-/-- Agda: `congSbTm` (MLTT/Admissible.agda). -/
 theorem congSbTm {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {A : Ty0} {a a' : Tm0}
     (q : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q' : Γ ⊢ a ＝ a' ∶ A ⦂ l) :
     Γ' ⊢ σ * a ＝ σ' * a' ∶ σ * A ⦂ l :=
@@ -378,18 +368,15 @@ theorem congSbTm {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {A : Ty0} {a a' : Tm0
 
 /-! ## Substitution properties of concretion, continued -/
 
-/-- Agda: `concTy` (MLTT/Admissible.agda). -/
 theorem concTy {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (B : Ty 1) (x : Atom)
     (q₀ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ⦂ l') (q₁ : Γ ⊢ a ∶ A ⦂ l) (q₂ : x # B) :
     Γ ⊢ B[a] ⦂ l' :=
   concTm (𝐔 l') B x q₀ q₁ (NotMem.union (freshU x l') q₂)
 
-/-- Agda: `concTy∞` (MLTT/Admissible.agda). -/
 theorem concTyInf {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (B : Ty 1) (S : Fset)
     (q₀ : ∀ x, x # S → (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ⦂ l') (q₁ : Γ ⊢ a ∶ A ⦂ l) :
     Γ ⊢ B[a] ⦂ l' := concTmInf (𝐔 l') B S q₀ q₁
 
-/-- Agda: `concTy²` (MLTT/Admissible.agda). -/
 theorem concTy₂ {l l' l'' : Lvl} {Γ : Cx} {A B : Ty0} {a b : Tm0} (C : Ty 2)
     (x y : Atom) (q₀ : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ C[x][y] ⦂ l'')
     (q₁ : Γ ⊢ a ∶ A ⦂ l) (q₂ : Γ ⊢ b ∶ (x ≔ a) * B ⦂ l') (q₃ : x # C) (q₄ : y # C) :
@@ -401,7 +388,6 @@ theorem concTy₂ {l l' l'' : Lvl} {Γ : Cx} {A B : Ty0} {a b : Tm0} (C : Ty 2)
 
 /-! ## Well-formed contexts contain well-formed types -/
 
-/-- Agda: `ok→ty` (MLTT/Admissible.agda). -/
 theorem okVarTy {l : Lvl} {Γ : Cx} {A : Ty0} {x : Atom} (p : Ok Γ)
     (q : (x, A, l) isIn Γ) : Γ ⊢ A ⦂ l := by
   revert p q
@@ -477,7 +463,6 @@ private theorem tyOfTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyOfTmGoal Γ J :=
   | natBetaS => trivial
   | piEta => trivial
 
-/-- Agda: `⊢∶ty` (MLTT/Admissible.agda). -/
 theorem derivTyOfTm {l : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (q : Γ ⊢ a ∶ A ⦂ l) :
     Γ ⊢ A ⦂ l := tyOfTmAux q
 
@@ -485,7 +470,6 @@ theorem derivTyOfTm {l : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (q : Γ ⊢ a ∶ A 
 
 Reflexivity (`cxRefl`) was proved above. -/
 
-/-- Agda: `CxSymm` (MLTT/Admissible.agda). -/
 theorem cxSymm {Γ Γ' : Cx} (p : ⊢ Γ ＝ Γ') : ⊢ Γ' ＝ Γ := by
   induction p with
   | nil => exact .nil
@@ -493,7 +477,6 @@ theorem cxSymm {Γ Γ' : Cx} (p : ⊢ Γ ＝ Γ') : ⊢ Γ' ＝ Γ := by
       exact .snoc ih (eqDeriv (.symm q₁) ih)
         (NotMem.union (notMem_union_right q₂) (notMem_union_left q₂)) h₁ h₀
 
-/-- Agda: `CxTrans` (MLTT/Admissible.agda). -/
 theorem cxTrans {Γ Γ' Γ'' : Cx} (p : ⊢ Γ ＝ Γ') (p' : ⊢ Γ' ＝ Γ'') : ⊢ Γ ＝ Γ'' := by
   revert Γ''
   induction p with

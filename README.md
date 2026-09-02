@@ -1,25 +1,17 @@
 # lean-wsln
 
-A Lean 4 port of Andrew Pitts' Agda library **WSLN** — *Well-Scoped Locally Nameless*
-syntax, generic over a Plotkin-style binding signature — together with its adequacy
-proof, a Martin-Löf type theory development, decidability of βη-conversion for
-Gödel's System T by normalization by evaluation, and the λ-/π-calculus examples.
+A Lean 4 formalization of Andrew M. Pitts' *Well-Scoped Locally Nameless* syntax —
+generic over a Plotkin-style binding signature — together with its adequacy proof, a
+Martin-Löf type theory development, decidability of βη-conversion for Gödel's
+System T by normalization by evaluation, and the λ-/π-calculus examples.
 
 Everything is checked by Lean **4.33.1** using **Lean core only**: no Mathlib, no
 Batteries, no external dependencies.
 
 ## Provenance
 
-This is a port, not new mathematics. All statements and proof structure follow the
-Agda originals; each Lean declaration carries an `Agda:` traceability comment naming
-its counterpart. The port covers the complete upstream index (`README.agda`):
-Prelude, WSLN, Adequacy, Lambda, PiCalc, MLTT and GST.
-
-- **Agda library** — [amp12/WSLN](https://github.com/amp12/WSLN),
-  browsable at <https://amp12.github.io/WSLN/#githubcomamp12wsln>
-  (checked with Agda 2.8.0 under `--safe --without-K`).
-- **Paper** — Andrew M. Pitts, *Well-Scoped Locally Nameless Syntax*,
-  [arXiv:2605.08990](https://arxiv.org/abs/2605.08990).
+The development follows Andrew M. Pitts, *Well-Scoped Locally Nameless Syntax*,
+[arXiv:2605.08990](https://arxiv.org/abs/2605.08990).
 
 > When using interactive theorem provers based on dependent type theory to define and
 > reason about languages involving binding constructs, we advocate the use of a
@@ -32,24 +24,7 @@ lake build
 ```
 
 Builds five libraries (`WSLN`, `Adequacy`, `MLTT`, `GST`, `Examples`) in 56 jobs. A
-cold build takes a couple of minutes; `MLTT.Substitution` dominates by a wide margin,
-and `sbDeriv` alone raises `maxHeartbeats` to `400000` in a scoped `set_option ... in`.
-
-The build is self-checking. `MLTT/Uniqueness.lean` ends with `#print axioms` for the
-seven headline metatheorems, `Adequacy/Translation.lean` does the same for
-`bijection`, and `GST/DecidableConv.lean` for the six System T results (`svTy`,
-`sound`, `NF1`, `NF2`, `tyDec`, `convDec`). Every one of these fourteen commands is
-pinned with `#guard_msgs`, so the expected report `[propext, Quot.sound]` is enforced
-by the compiler: an added axiom, or a `sorryAx` leaking in from an unfinished proof,
-fails `lake build` with a message mismatch rather than printing an info line nobody
-reads. There is no `sorry`, `admit`, or `native_decide` anywhere in the source.
-
-The reference Agda sources cited throughout the docstrings as `agda-code/agda/...`
-are not vendored here. To follow along:
-
-```sh
-git clone https://github.com/amp12/WSLN agda-code
-```
+cold build takes a couple of minutes; `MLTT.Substitution` dominates by a wide margin.
 
 ## Layout
 
@@ -66,18 +41,18 @@ its parts in dependency order.
 
 ### `WSLN/`
 
-| Module | Agda source | Contents |
-| --- | --- | --- |
-| `Prelude` | `Prelude/*` | The few prelude items with no ergonomic Lean-core counterpart |
-| `Index` | `WSLN/Index` | Scopes as `Nat`, de Bruijn indices as `Fin n`, scoped sets and weakening |
-| `Atom` | `WSLN/Atom` | `Atom := Nat`, the inductive `Fset` of finite atom sets, membership |
-| `Fresh` | `WSLN/Fresh` | Finite support, freshness `x # a`, and the `fresh` operation |
-| `Sig` | `WSLN/Sig/Sig` | `Sig`: a type of operators plus an arity `Op → List Nat` |
-| `Term` | `WSLN/Sig/Term` | `Trm Sg n` and `Arg Sg n ms`, with decidable equality |
-| `Substitution` | `WSLN/Sig/Substitution` | `Sb Sg := Atom → Trm Sg 0`, `Rn := Atom → Atom`, the action `σ * t` |
-| `Concretion` | `WSLN/Sig/Concretion` | `opn`, and concretion `t[u]` / `t[x]` via `GetElem` |
-| `Abstraction` | `WSLN/Sig/Abstraction` | `cls`, and abstraction `x ． t` |
-| `Size` | `WSLN/Sig/Size` | `Trm.size`, for recursion on locally closed terms |
+| Module | Contents |
+| --- | --- |
+| `Prelude` | The few prelude items with no ergonomic Lean-core counterpart |
+| `Index` | Scopes as `Nat`, de Bruijn indices as `Fin n`, scoped sets and weakening |
+| `Atom` | `Atom := Nat`, the inductive `Fset` of finite atom sets, membership |
+| `Fresh` | Finite support, freshness `x # a`, and the `fresh` operation |
+| `Sig` | `Sig`: a type of operators plus an arity `Op → List Nat` |
+| `Term` | `Trm Sg n` and `Arg Sg n ms`, with decidable equality |
+| `Substitution` | `Sb Sg := Atom → Trm Sg 0`, `Rn := Atom → Atom`, the action `σ * t` |
+| `Concretion` | `opn`, and concretion `t[u]` / `t[x]` via `GetElem` |
+| `Abstraction` | `cls`, and abstraction `x ． t` |
+| `Size` | `Trm.size`, for recursion on locally closed terms |
 
 The central family is
 
@@ -186,8 +161,8 @@ typing derivation by hand and then runs `tyDec`, `convDec` and `nf` on closed te
 
 ## Notation
 
-Scoped notation mirrors the Agda source, so proofs read the same in both languages.
-Open the namespace (`open WSLN`, `open MLTT`, …) to bring it into scope.
+Scoped notation follows the paper. Open the namespace (`open WSLN`, `open MLTT`, …)
+to bring it into scope.
 
 | Lean | Meaning |
 | --- | --- |
@@ -202,52 +177,7 @@ Open the namespace (`open WSLN`, `open MLTT`, …) to bring it into scope.
 | `Γ ⊢ a ∶ A`, `Γ ⊢ a ＝ a' ∶ A` | Typing and βη-conversion in System T |
 | `Γ ⨟ x ∶ A ∣ h`, `◇` | System T context extension (with its freshness proof) |
 
-## Port notes
-
-The port is faithful to the Agda statements but idiomatic where Lean is stronger.
-
-- **Proof irrelevance.** Agda's `isProp`/`isSet`/`hedberg` machinery, the inductive
-  disequalities `_≠i_` / `_≠𝔸_`, and their irrelevance lemmas are all deleted: Lean's
-  `Prop` is proof-irrelevant by definitional equality.
-- **Signatures are explicit.** Agda passes `⦃ Σ : Sig ⦄` as an instance argument; the
-  port takes an explicit `Sg`, so the λ-calculus, π-calculus and MLTT signatures
-  coexist in one build without instance-coherence problems.
-- **Pattern synonyms.** Agda's pattern synonyms become `@[match_pattern] def`s with
-  ASCII names plus bold-unicode notation, so `Pi' l l' A B` and `𝚷 l l' A B` are
-  interchangeable and both can be matched on.
-- **Mutual induction.** Lean's `induction` tactic does not handle mutual inductives,
-  so inductions over `Deriv` go through `Deriv.rec` with `motive_1 := fun _ _ => True`
-  for the `Ok` half.
-- **The equation trick.** `opn`/`cls` take the scope equation (`m = n + 1`) as an
-  explicit argument rather than matching on it, because the recursive call under a
-  binder of depth `k` needs `k + m = (k + n) + 1`.
-- **Scope casts.** Core `Arg Sg n ms` stores a `Trm Sg (n + m)`, so at `n = 0` an
-  arity-`m` argument has type `Trm Sg (0 + m)`, which does not reduce for a variable
-  `m`. `WSLN.Trm.castScope` is the single transport used for this (defined in
-  `Adequacy/Translation.lean`, where it is needed), with a small simp set of
-  interaction laws; there is deliberately no second convention.
-- **No standard library.** Lean 4.33.1 core has no `Function.update`, no
-  `Fin.succAbove`/`Fin.predAbove`, and its `Vector` is `Array`-backed, so the port
-  keeps its own `updateFn`, `insert`/`remove`, and structural `Vec`.
-- **Naming.** Agda names that are already alphabetic keep their camelCase spelling
-  (`sbOpn`, `opnCls`, `alphaEquiv`), so a reader can grep the Agda source for them.
-  Agda names that are symbolic (`sb[]`, `#cls`, `∪⊆`, `⟦rn⟧`, `size[]≤`) have no
-  spelling to keep, so they become descriptive Lean-core-style snake_case
-  (`sb_conc`, `fresh_cls`, `union_subset_union`, `toWS_rn`, `size_conc_le`); the
-  `Agda:` docstring on each declaration records the original symbol.
-- **Induction-recursion.** Agda declares System T's `Cx` and `dom` by
-  induction-recursion, so that `_⨟_∶_` can require `x ∉ dom Γ`. Lean has no
-  induction-recursion, so `GST/Context.lean` makes the domain an *index*:
-  `Cx : Fset → Type`, with `dom Γ` the index and Agda's instance-implicit freshness
-  premise the explicit argument of `Γ ⨟ x ∶ A ∣ h`. Statement shapes are unchanged.
-- **`Type`-valued judgements.** System T's typing and conversion judgements are
-  eliminated into data — the semantics interprets a *derivation*, and `convTy₁`
-  builds a typing derivation from a conversion — so they live in `Type`, as in Agda,
-  and the deciders return `WSLN.Dec` (Agda's `Sort`-polymorphic `Dec`) rather than
-  core's `Prop`-valued `Decidable`.
-
 ## License
 
-The Lean port follows the license of the upstream Agda library; see
-[amp12/WSLN](https://github.com/amp12/WSLN) for the original terms and for the
-authoritative source of every statement proved here.
+This work is released under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+(public domain).

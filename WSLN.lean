@@ -14,6 +14,4 @@ import WSLN.Size
 
 Lean 4 port of Andrew Pitts' Agda library, `agda-code/agda/WSLN.agda` and the
 modules it re-exports.
-
-Agda: `WSLN` (WSLN.agda).
 -/

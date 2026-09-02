@@ -19,7 +19,6 @@ open WSLN
 
 /-! ## The glueing relation -/
 
-/-- Agda: `⟦_⊢_∶_⟧≈_` (GST/LogicalRelation.agda). -/
 def Glue : {S : Fset} → (Γ : Cx S) → Tm0 → (A : Ty) → Psh.El (𝓓 A) Γ → Type
   | _, Γ, a, 𝐍𝐚𝐭, 𝓪 => Γ ⊢ a ＝ 𝓪.nt ∶ 𝐍𝐚𝐭
   | _, Γ, b, A ⇒ B, 𝓯 =>
@@ -32,7 +31,6 @@ def Glue : {S : Fset} → (Γ : Cx S) → Tm0 → (A : Ty) → Psh.El (𝓓 A) �
 def castGlue {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} {𝓪 : Psh.El (𝓓 A) Γ}
     (e : a = a') (r : Glue Γ a A 𝓪) : Glue Γ a' A 𝓪 := e ▸ r
 
-/-- Agda: `⟦_⊢ˢ_∶_⟧≈_` (GST/LogicalRelation.agda). -/
 def GlueSb : {S S' : Fset} → (Γ' : Cx S') → Sb sig → (Γ : Cx S) →
     Psh.El (𝓔 Γ) Γ' → Type
   | _, _, _, _, .nil, _ => PUnit
@@ -40,13 +38,11 @@ def GlueSb : {S S' : Fset} → (Γ' : Cx S') → Sb sig → (Γ : Cx S) →
 
 /-! ## Escape -/
 
-/-- Agda: `⟦esc⟧` (GST/LogicalRelation.agda). -/
 def glueEsc : {A : Ty} → {S : Fset} → {Γ : Cx S} → {a : Tm0} →
     {𝓪 : Psh.El (𝓓 A) Γ} → Glue Γ a A 𝓪 → Γ ⊢ a ∶ A
   | 𝐍𝐚𝐭, _, _, _, _, r => convTy₁ r
   | _ ⇒ _, _, _, _, _, r => r.1
 
-/-- Agda: `⟦escˢ⟧` (GST/LogicalRelation.agda). -/
 def glueEscSb : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {σ : Sb sig} →
     {𝓼 : Psh.El (𝓔 Γ) Γ'} → GlueSb Γ' σ Γ 𝓼 → Γ' ⊢ˢ σ ∶ Γ
   | _, _, .nil, _, _, _, _ => .nil
@@ -54,7 +50,6 @@ def glueEscSb : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {σ : Sb sig
 
 /-! ## Congruence -/
 
-/-- Agda: `⟦cong⟧` (GST/LogicalRelation.agda). -/
 def glueCong : (A : Ty) → {S : Fset} → {Γ : Cx S} → {a a' : Tm0} →
     (𝓪 𝓪' : Psh.El (𝓓 A) Γ) → Glue Γ a A 𝓪 → (Γ ⊢ a' ＝ a ∶ A) →
     ((𝓓 A).obj Γ ∋ 𝓪 ~ 𝓪') → Glue Γ a' A 𝓪'
@@ -64,7 +59,6 @@ def glueCong : (A : Ty) → {S : Fset} → {Γ : Cx S} → {a a' : Tm0} →
         glueCong B (𝓯.hom.map (p, 𝓪)) (𝓯'.hom.map (p, 𝓪)) (q₀.2 p 𝓪 r)
           (.app (rnConv p.pf q₁) (.refl (glueEsc r))) (q₂ (p, 𝓪))⟩
 
-/-- Agda: `⟦congˢ⟧` (GST/LogicalRelation.agda). -/
 def glueCongSb : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {σ σ' : Sb sig} →
     (𝓼 𝓼' : Psh.El (𝓔 Γ) Γ') → GlueSb Γ' σ Γ 𝓼 → (Γ' ⊢ˢ σ' ＝ σ ∶ Γ) →
     ((𝓔 Γ).obj Γ' ∋ 𝓼 ~ 𝓼') → GlueSb Γ' σ' Γ 𝓼'
@@ -76,7 +70,6 @@ def glueCongSb : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {σ σ' : S
 
 mutual
 
-/-- Agda: `⟦↓⟧` (GST/LogicalRelation.agda). -/
 def glueReify : {A : Ty} → {S : Fset} → {Γ : Cx S} → {a : Tm0} →
     {𝓪 : Psh.El (𝓓 A) Γ} → Glue Γ a A 𝓪 → Γ ⊢ a ＝ reifyTm A 𝓪 ∶ A
   | 𝐍𝐚𝐭, _, _, _, _, r => r
@@ -88,7 +81,6 @@ def glueReify : {A : Ty} → {S : Fset} → {Γ : Cx S} → {a : Tm0} →
               (r.2 (RnHom.proj A (Fset.new_notMem S))
                 (reflectEl (.var .new)) (glueReflect (.var .new))))))
 
-/-- Agda: `⟦↑⟧` (GST/LogicalRelation.agda). -/
 def glueReflect : {A : Ty} → {S : Fset} → {Γ : Cx S} → {a : Tm0} →
     (q : Γ ⊢ᵘ a ∶ A) → Glue Γ a A (reflectEl q)
   | 𝐍𝐚𝐭, _, _, _, q => .refl (neDeriv q)
@@ -103,7 +95,6 @@ end
 
 /-! ## Naturality -/
 
-/-- Agda: `⟦ntl⟧` (GST/LogicalRelation.agda). -/
 def glueNtl : {A : Ty} → {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {a : Tm0} →
     {𝓪 : Psh.El (𝓓 A) Γ} → Glue Γ a A 𝓪 → (p : RnHom Γ' Γ) →
     Glue Γ' (p.rn * a) A (((𝓓 A).act p).map 𝓪)
@@ -115,7 +106,6 @@ def glueNtl : {A : Ty} → {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {
             (.refl (.app (rnDeriv p'.pf (rnDeriv p.pf q.1)) (glueEsc r))))
           (((𝓓 B).obj _).rfl' _)⟩
 
-/-- Agda: `⟦ntlˢ⟧` (GST/LogicalRelation.agda). -/
 def glueNtlSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {σ : Sb sig} → {𝓼 : Psh.El (𝓔 Γ) Γ'} → GlueSb Γ' σ Γ 𝓼 → (p : RnHom Γ'' Γ') →
     GlueSb Γ'' ((Sb.ofRn p.rn : Sb sig) ∘ˢ σ) Γ (((𝓔 Γ).act p).map 𝓼)
@@ -124,14 +114,12 @@ def glueNtlSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : 
 
 /-! ## The fundamental property -/
 
-/-- Agda: `FPVar` (GST/LogicalRelation.agda). -/
 def FPVar : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {σ : Sb sig} → {A : Ty} →
     {x : Atom} → {𝓼 : Psh.El (𝓔 Γ) Γ'} → (q : (x, A) isIn Γ) → GlueSb Γ' σ Γ 𝓼 →
     Glue Γ' (σ x) A ((val q).hom.map 𝓼)
   | _, _, _, _, _, _, _, _, .new, r => r.2
   | _, _, _, _, _, _, _, _, .old q, r => FPVar q r.1
 
-/-- Agda: `FPNrec` (GST/LogicalRelation.agda). -/
 def FPNrec {C : Ty} {S : Fset} {Γ : Cx S} {c₀ cs a : Tm0} (𝓬₀ : Psh.El (𝓓 C) Γ)
     (𝓬s : Psh.El (𝓓 (𝐍𝐚𝐭 ⇒ C ⇒ C)) Γ) (r₀ : Glue Γ c₀ C 𝓬₀)
     (r₁ : Glue Γ cs (𝐍𝐚𝐭 ⇒ C ⇒ C) 𝓬s) :
@@ -159,7 +147,6 @@ def FPNrec {C : Ty} {S : Fset} {Γ : Cx S} {c₀ cs a : Tm0} (𝓬₀ : Psh.El (
         (.nrec (glueReify r₀) (glueReify (A := 𝐍𝐚𝐭 ⇒ C ⇒ C) r₁) q₂)
         (((𝓓 C).obj Γ).rfl' _)
 
-/-- Agda: `FP` (GST/LogicalRelation.agda). -/
 def FP : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a : Tm0} → (q : Γ ⊢ a ∶ A) →
     {S' : Fset} → {Γ' : Cx S'} → {σ : Sb sig} → {𝓼 : Psh.El (𝓔 Γ) Γ'} →
     GlueSb Γ' σ Γ 𝓼 → Glue Γ' (σ * a) A (sem₀ q 𝓼)
@@ -196,7 +183,6 @@ def FP : {S : Fset} → {Γ : Cx S} → {A : Ty} → {a : Tm0} → (q : Γ ⊢ a
   | _, _, _, _, .nrec q₀ q₁ q₂, _, _, _, 𝓼, r =>
       FPNrec (sem₀ q₀ 𝓼) (sem₀ q₁ 𝓼) (FP q₀ r) (FP q₁ r) (sem₀ q₂ 𝓼).pf (FP q₂ r)
 
-/-- Agda: `FPˢ` (GST/LogicalRelation.agda). -/
 def FPSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     {σ σ' : Sb sig} → {𝓼 : Psh.El (𝓔 Γ') Γ''} → (q : Γ' ⊢ˢ σ ∶ Γ) →
     GlueSb Γ'' σ' Γ' 𝓼 → GlueSb Γ'' (σ' ∘ˢ σ) Γ (semSb₀ q 𝓼)
@@ -204,7 +190,6 @@ def FPSb : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S'
   | _, _, _, .snoc _ _ _ _, _, _, _, _, _, .snoc q₀ q₁, r =>
       ⟨FPSb q₀ r, FP q₁ r⟩
 
-/-- Agda: `FPˢ₀` (GST/LogicalRelation.agda). -/
 def FPSb₀ : {S : Fset} → (Γ : Cx S) → GlueSb Γ (Sb.id : Sb sig) Γ (env₀ Γ)
   | _, .nil => ⟨⟩
   | _, .snoc Γ _ A h => ⟨glueNtlSb (FPSb₀ Γ) (RnHom.proj A h), glueReflect (.var .new)⟩

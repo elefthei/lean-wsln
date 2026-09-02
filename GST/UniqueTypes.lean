@@ -13,7 +13,6 @@ namespace GST
 
 open WSLN
 
-/-- Agda: `svVr` (GST/UniqueTypes.agda). -/
 theorem svVr : {S : Fset} → {Γ : Cx S} → {A B : Ty} → {x : Atom} →
     (x, A) isIn Γ → (x, B) isIn Γ → A = B
   | _, _, _, _, _, .new, .new => rfl
@@ -23,7 +22,6 @@ theorem svVr : {S : Fset} → {Γ : Cx S} → {A B : Ty} → {x : Atom} →
       absurd q.dom_mem (Fset.not_mem_of_notMem (by assumption))
   | _, _, _, _, _, .old p, .old q => svVr p q
 
-/-- Agda: `svTy` (GST/UniqueTypes.agda). -/
 theorem svTy : {S : Fset} → {Γ : Cx S} → {A B : Ty} → {a : Tm0} →
     (Γ ⊢ a ∶ A) → (Γ ⊢ a ∶ B) → A = B
   | _, _, _, _, _, .var q₁, .var q₂ => svVr q₁ q₂

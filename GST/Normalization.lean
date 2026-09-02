@@ -17,25 +17,20 @@ namespace GST
 
 open WSLN
 
-/-- Agda: `nf` (GST/Normalization.agda). -/
 def nf {A : Ty} {a : Tm0} {S : Fset} (Γ : Cx S) (q : Γ ⊢ a ∶ A) : Tm0 :=
   reifyTm A (sem₀ q (env₀ Γ))
 
-/-- Agda: `⊢ⁿnf` (GST/Normalization.agda). -/
 def nfNf {A : Ty} {a : Tm0} {S : Fset} (Γ : Cx S) (q : Γ ⊢ a ∶ A) : Γ ⊢ⁿ nf Γ q ∶ A :=
   reifyNf (sem₀ q (env₀ Γ))
 
-/-- Agda: `NF1` (GST/Normalization.agda). -/
 def NF1 {A : Ty} {a : Tm0} {S : Fset} (Γ : Cx S) (q : Γ ⊢ a ∶ A) :
     Γ ⊢ a ＝ nf Γ q ∶ A :=
   castEq (sbUnit a) rfl (glueReify (FP q (FPSb₀ Γ)))
 
-/-- Agda: `NF1'` (GST/Normalization.agda). -/
 def NF1' {A : Ty} {a a' : Tm0} {S : Fset} (Γ : Cx S) (q : Γ ⊢ a ∶ A) (q' : Γ ⊢ a' ∶ A)
     (e : nf Γ q = nf Γ q') : Γ ⊢ a ＝ a' ∶ A :=
   .trans (castEq rfl e (NF1 Γ q)) (.symm (NF1 Γ q'))
 
-/-- Agda: `NF2` (GST/Normalization.agda). -/
 theorem NF2 {A : Ty} {a a' : Tm0} {S : Fset} (Γ : Cx S) (q : Γ ⊢ a ∶ A)
     (q' : Γ ⊢ a' ∶ A) (q'' : Γ ⊢ a ＝ a' ∶ A) : nf Γ q = nf Γ q' :=
   (reify A).hom.resp (sound q q' q'' (env₀ Γ))

@@ -5,11 +5,11 @@ import MLTT.Weakening
 
 Port of `agda-code/agda/MLTT/Substitution.agda`.
 
-`sbDeriv` (Agda `sbJg`) and `eqSbTm` (Agda `＝sbTm`) are two independent exhaustive
-inductions over the thirty constructors of `Deriv`, generalised over the target
-context and the substitution(s).  Following `MLTT/Weakening.lean` the generalised
-variables are `revert`ed and the induction goes through the joint `Ok`/`Deriv`
-recursor with `motive_1 := fun _ _ => True`.
+`sbDeriv` and `eqSbTm` are two independent exhaustive inductions over the thirty
+constructors of `Deriv`, generalised over the target context and the substitution(s).
+Following `MLTT/Weakening.lean` the generalised variables are `revert`ed and the
+induction goes through the joint `Ok`/`Deriv` recursor with
+`motive_1 := fun _ _ => True`.
 
 Agda's `＝sbTm` only has clauses for the *typing* constructors, because its statement
 fixes the judgement to be of the form `a ∶ A ⦂ l`.  Lean's `Deriv.rec` insists on all
@@ -49,7 +49,6 @@ private theorem sbZero {n : Nat} (σ : Sb sig) : σ * (𝐳𝐞𝐫𝐨 : Tm n) 
 
 /-! ## Weakening substitutions -/
 
-/-- Agda: `▷Sb` (MLTT/Substitution.agda). -/
 theorem wkSb {l : Lvl} {Γ Γ' : Cx} {σ : Sb sig} {A : Ty0} (x : Atom)
     (q : Γ' ⊢ A ⦂ l) (q' : Γ' ⊢ˢ σ ∶ Γ) (q'' : x # Γ') :
     (Γ' ⨟ x ∶ A ⦂ l) ⊢ˢ σ ∶ Γ := by
@@ -57,7 +56,6 @@ theorem wkSb {l : Lvl} {Γ Γ' : Cx} {σ : Sb sig} {A : Ty0} (x : Atom)
   | nil hΓ' => exact .nil (.snoc q q'' hΓ')
   | snoc _ q₁ q₂ q₃ ih => exact .snoc (ih q q'') q₁ (wkDeriv (wkProj q q'') q₂) q₃
 
-/-- Agda: `▷＝Sb` (MLTT/Substitution.agda). -/
 theorem wkEqSb {l : Lvl} {Γ Γ' : Cx} {σ σ' : Sb sig} {A : Ty0} (x : Atom)
     (q : Γ' ⊢ A ⦂ l) (q' : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q'' : x # Γ') :
     (Γ' ⨟ x ∶ A ⦂ l) ⊢ˢ σ ＝ σ' ∶ Γ := by
@@ -67,7 +65,6 @@ theorem wkEqSb {l : Lvl} {Γ Γ' : Cx} {σ σ' : Sb sig} {A : Ty0} (x : Atom)
 
 /-! ## Identity substitution is well-typed -/
 
-/-- Agda: `⊢idˢ` (MLTT/Substitution.agda). -/
 theorem idSbTyping {Γ : Cx} (p : Ok Γ) : Γ ⊢ˢ Sb.id ∶ Γ := by
   revert p
   induction Γ with
@@ -82,7 +79,6 @@ theorem idSbTyping {Γ : Cx} (p : Ok Γ) : Γ ⊢ˢ Sb.id ∶ Γ := by
 
 /-! ## Extensionality properties of well-typed substitutions -/
 
-/-- Agda: `sbExt` (MLTT/Substitution.agda). -/
 theorem sbExt {σ σ' : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ∶ Γ)
     (e : ∀ x, x ∈ dom Γ → σ x = σ' x) : Γ' ⊢ˢ σ' ∶ Γ := by
   revert e
@@ -96,7 +92,6 @@ theorem sbExt {σ σ' : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ∶ Γ)
       refine .snoc (ih fun y r => e y (.unionL r)) q₁ ?_ q₃
       exact castTm (e x (.unionR .single)) eA q₂
 
-/-- Agda: `sb＝Ext` (MLTT/Substitution.agda). -/
 theorem sbEqExt {σ' τ' σ τ : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ＝ τ ∶ Γ)
     (e : ∀ x, x ∈ dom Γ → σ x = σ' x) (e' : ∀ x, x ∈ dom Γ → τ x = τ' x) :
     Γ' ⊢ˢ σ' ＝ τ' ∶ Γ := by
@@ -114,7 +109,6 @@ theorem sbEqExt {σ' τ' σ τ : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ＝ τ 
 
 /-! ## Lifting substitutions -/
 
-/-- Agda: `liftSb` (MLTT/Substitution.agda). -/
 theorem liftSb {l : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {A : Ty0} {x x' : Atom}
     (p : Γ' ⊢ˢ σ ∶ Γ) (q : Γ ⊢ A ⦂ l) (hx : x # Γ) (hx' : x' # Γ')
     (h : Γ' ⊢ σ * A ⦂ l) :
@@ -126,7 +120,6 @@ theorem liftSb {l : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {A : Ty0} {x x' : Atom}
   rw [updateFresh σ x (𝐯x') A hxA, Sb.update_eq]
   exact .var (okSnoc h hx') .new
 
-/-- Agda: `liftSb²` (MLTT/Substitution.agda). -/
 theorem liftSb₂ {l l' : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {A A' B B' : Ty0}
     {x y x' y' : Atom} (q₀ : Γ' ⊢ˢ σ ∶ Γ) (q₁ : Γ ⊢ A ⦂ l)
     (q₂ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B ⦂ l') (q₃ : x' # Γ') (q₄ : y # (Γ, x))
@@ -139,7 +132,6 @@ theorem liftSb₂ {l l' : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {A A' B B' : Ty0}
 
 /-! ## Types of variables under substitution -/
 
-/-- Agda: `sbVar` (MLTT/Substitution.agda). -/
 theorem sbVar {l : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {x : Atom} {A : Ty0}
     (p : Γ' ⊢ˢ σ ∶ Γ) (q : (x, A, l) isIn Γ) : Γ' ⊢ σ x ∶ σ * A ⦂ l := by
   revert q
@@ -151,7 +143,6 @@ theorem sbVar {l : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {x : Atom} {A : Ty0}
       | new => exact q₂
       | old q' => exact ih q'
 
-/-- Agda: `sbVar＝` (MLTT/Substitution.agda). -/
 theorem sbVarEq {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {x : Atom} {A : Ty0}
     (p : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q : (x, A, l) isIn Γ) :
     Γ' ⊢ σ x ＝ σ' x ∶ σ * A ⦂ l := by
@@ -164,7 +155,6 @@ theorem sbVarEq {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {x : Atom} {A : Ty0}
       | new => exact q₂
       | old q' => exact ih q'
 
-/-- Agda: `sbDom` (MLTT/Substitution.agda). -/
 theorem sbDom {σ : Sb sig} {Γ Γ' : Cx} {x : Atom} (p : Γ' ⊢ˢ σ ∶ Γ)
     (q : x ∈ dom Γ) : supp (σ x) ⊆ dom Γ' := by
   obtain ⟨A, l, q'⟩ := dom_isIn q
@@ -173,7 +163,6 @@ theorem sbDom {σ : Sb sig} {Γ Γ' : Cx} {x : Atom} (p : Γ' ⊢ˢ σ ∶ Γ)
 /-! ## Substitution preserves provable judgements -/
 
 set_option maxHeartbeats 400000 in
-/-- Agda: `sbJg` (MLTT/Substitution.agda). -/
 theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q : Γ ⊢ J) :
     Δ ⊢ σ * J := by
   revert σ Δ
@@ -767,7 +756,6 @@ theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q 
 
 /-! ## Conversion for substitutions is reflexive -/
 
-/-- Agda: `sb＝Refl` (MLTT/Substitution.agda). -/
 theorem sbEqRefl {σ : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ∶ Γ) : Γ' ⊢ˢ σ ＝ σ ∶ Γ := by
   induction p with
   | nil q => exact .nil q
@@ -775,7 +763,6 @@ theorem sbEqRefl {σ : Sb sig} {Γ Γ' : Cx} (p : Γ' ⊢ˢ σ ∶ Γ) : Γ' ⊢
 
 /-! ## Properties of substitution update -/
 
-/-- Agda: `sbUpdate` (MLTT/Substitution.agda). -/
 theorem sbUpdate {l : Lvl} {Γ Γ' : Cx} {σ : Sb sig} {A : Ty0} {a : Tm0} {x : Atom}
     (p : Γ' ⊢ˢ σ ∶ Γ) (q : Γ' ⊢ a ∶ σ * A ⦂ l) (hx : x # Γ) (h : Γ ⊢ A ⦂ l) :
     Γ' ⊢ˢ (σ ∘/ x ≔ a) ∶ (Γ ⨟ x ∶ A ⦂ l) := by
@@ -783,7 +770,6 @@ theorem sbUpdate {l : Lvl} {Γ Γ' : Cx} {σ : Sb sig} {A : Ty0} {a : Tm0} {x : 
   exact castTm (Sb.update_eq σ x a).symm
     (updateFresh σ x a A (notMem_union_left (derivFresh h hx))).symm q
 
-/-- Agda: `sb＝Update` (MLTT/Substitution.agda). -/
 theorem sbEqUpdate {l : Lvl} {Γ Γ' : Cx} {σ σ' : Sb sig} {A : Ty0} {a a' : Tm0}
     {x : Atom} (p : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q : Γ' ⊢ a ＝ a' ∶ σ * A ⦂ l) (hx : x # Γ)
     (h : Γ ⊢ A ⦂ l) :
@@ -793,14 +779,12 @@ theorem sbEqUpdate {l : Lvl} {Γ Γ' : Cx} {σ σ' : Sb sig} {A : Ty0} {a a' : T
   exact castEq (Sb.update_eq σ x a).symm (Sb.update_eq σ' x a').symm
     (updateFresh σ x a A (notMem_union_left (derivFresh h hx))).symm q
 
-/-- Agda: `ssbUpdate` (MLTT/Substitution.agda). -/
 theorem ssbUpdate {l : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} {x : Atom}
     (q : Γ ⊢ a ∶ A ⦂ l) (hx : x # Γ) (h : Γ ⊢ A ⦂ l) :
     Γ ⊢ˢ (x ≔ a) ∶ (Γ ⨟ x ∶ A ⦂ l) := by
   refine sbUpdate (σ := Sb.id) (idSbTyping (derivOk q)) ?_ hx h
   exact castTm rfl (sbUnit A).symm q
 
-/-- Agda: `ssb＝Update` (MLTT/Substitution.agda). -/
 theorem ssbEqUpdate {l : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} {x : Atom}
     (q : Γ ⊢ a ＝ a' ∶ A ⦂ l) (hx : x # Γ) (h : Γ ⊢ A ⦂ l) :
     Γ ⊢ˢ (x ≔ a) ＝ (x ≔ a') ∶ (Γ ⨟ x ∶ A ⦂ l) := by
@@ -808,7 +792,6 @@ theorem ssbEqUpdate {l : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0} {x : Atom}
     (sbEqRefl (idSbTyping (derivOk q))) ?_ hx h
   exact castEq rfl rfl (sbUnit A).symm q
 
-/-- Agda: `ssbUpdate²` (MLTT/Substitution.agda). -/
 theorem ssbUpdate₂ {l l' : Lvl} {Γ : Cx} {x y : Atom} {a b : Tm0} {A B : Ty0}
     (q₀ : Γ ⊢ a ∶ A ⦂ l) (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B ⦂ l')
     (q₂ : Γ ⊢ b ∶ (x ≔ a) * B ⦂ l') (q₃ : y # (Γ, x)) :
@@ -816,7 +799,6 @@ theorem ssbUpdate₂ {l l' : Lvl} {Γ : Cx} {x y : Atom} {a b : Tm0} {A B : Ty0}
   obtain ⟨hx, hA, _⟩ := snocOkInv (derivOk q₁)
   exact sbUpdate (ssbUpdate q₀ hx hA) q₂ q₃ q₁
 
-/-- Agda: `ssb＝Update²` (MLTT/Substitution.agda). -/
 theorem ssbEqUpdate₂ {l l' : Lvl} {Γ : Cx} {x y : Atom} {a a' b b' : Tm0}
     {A B : Ty0} (q₀ : Γ ⊢ a ＝ a' ∶ A ⦂ l) (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B ⦂ l')
     (q₂ : Γ ⊢ b ＝ b' ∶ (x ≔ a) * B ⦂ l') (q₃ : y # (Γ, x)) :
@@ -827,13 +809,11 @@ theorem ssbEqUpdate₂ {l l' : Lvl} {Γ : Cx} {x y : Atom} {a a' b b' : Tm0}
 
 /-! ## Lifting substitutions, again -/
 
-/-- Agda: `liftSb⁻` (MLTT/Substitution.agda). -/
 theorem liftSbInv {l : Lvl} {σ : Sb sig} {Γ Γ' : Cx} {A : Ty0} {x x' : Atom}
     (q₀ : Γ' ⊢ˢ σ ∶ Γ) (q₁ : Γ ⊢ A ⦂ l) (q₂ : x # Γ) (q₃ : x' # Γ') :
     (Γ' ⨟ x' ∶ σ * A ⦂ l) ⊢ˢ (σ ∘/ x ≔ 𝐯x') ∶ (Γ ⨟ x ∶ A ⦂ l) :=
   liftSb q₀ q₁ q₂ q₃ (sbDeriv q₀ q₁)
 
-/-- Agda: `lift＝Sb` (MLTT/Substitution.agda). -/
 theorem liftEqSb {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {A : Ty0} {x x' : Atom}
     (p : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q : Γ ⊢ A ⦂ l) (hx : x # Γ) (hx' : x' # Γ')
     (h : Γ' ⊢ˢ σ ∶ Γ) :
@@ -847,7 +827,6 @@ theorem liftEqSb {l : Lvl} {σ σ' : Sb sig} {Γ Γ' : Cx} {A : Ty0} {x x' : Ato
   rw [updateFresh σ x (𝐯x') A hxA, Sb.update_eq, Sb.update_eq]
   exact .refl (.var (okSnoc hσA hx') .new)
 
-/-- Agda: `lift＝Sb²` (MLTT/Substitution.agda). -/
 theorem liftEqSb₂ {l l' : Lvl} {x y x' y' : Atom} {σ σ' : Sb sig} {Γ Γ' : Cx}
     {A A' B B' : Ty0} (q₀ : Γ' ⊢ˢ σ ＝ σ' ∶ Γ) (q₁ : Γ ⊢ A ⦂ l)
     (q₂ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B ⦂ l') (q₃ : x' # Γ') (q₄ : y # (Γ, x))
@@ -1101,18 +1080,15 @@ private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {�
   | natBetaS => intro _ _ _ _ _; trivial
   | piEta => intro _ _ _ _ _; trivial
 
-/-- Agda: `＝sbTm` (MLTT/Substitution.agda). -/
 theorem eqSbTm {l : Lvl} {σ σ' : Sb sig} {Δ Γ : Cx} {A : Ty0} {a : Tm0}
     (p : Δ ⊢ˢ σ ＝ σ' ∶ Γ) (q : Γ ⊢ a ∶ A ⦂ l) (h : Δ ⊢ˢ σ ∶ Γ) :
     Δ ⊢ σ * a ＝ σ' * a ∶ σ * A ⦂ l := eqSbTmAux q p h
 
 /-! ## Renaming provable judgements is a special case of substitution -/
 
-/-- Agda: `rnJg` (MLTT/Substitution.agda). -/
 theorem rnDeriv {ρ : Rn} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ʳ ρ ∶ Γ) (q : Γ ⊢ J) :
     Δ ⊢ ρ * J := sbDeriv p q
 
-/-- Agda: `rn⨟` (MLTT/Substitution.agda). -/
 theorem rnSnoc {Γ : Cx} {x x' : Atom} {A : Ty0} {l : Lvl} {J : Jg}
     (q : (Γ ⨟ x ∶ A ⦂ l) ⊢ J) (hx' : x' # Γ) :
     (Γ ⨟ x' ∶ A ⦂ l) ⊢ (x ≔ 𝐯x') * J := by
@@ -1121,7 +1097,6 @@ theorem rnSnoc {Γ : Cx} {x x' : Atom} {A : Ty0} {l : Lvl} {J : Jg}
   rw [sbUnit] at pl
   exact sbDeriv pl q
 
-/-- Agda: `rn⨟²` (MLTT/Substitution.agda). -/
 theorem rnSnoc₂ {Γ : Cx} {x x' y y' : Atom} {A B : Ty0} {l l' : Lvl} {J : Jg}
     (q : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ J) (hx' : x' # Γ) (hy' : y' # (x', Γ)) :
     (Γ ⨟ x' ∶ A ⦂ l ⨟ y' ∶ (x ≔ 𝐯x') * B ⦂ l') ⊢ ((x ≔ 𝐯x') ∘/ y ≔ 𝐯y') * J := by

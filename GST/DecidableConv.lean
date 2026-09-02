@@ -54,7 +54,6 @@ def decOfSynth {S : Fset} {Γ : Cx S} {a : Tm0} (A : Ty) :
   | .yes ⟨A', p⟩ =>
       if e : A = A' then .yes (castTy e.symm p) else .no fun p' => e (svTy p' p)
 
-/-- Agda: `cond≤Tm∃Ty?` (GST/DecidableConv.agda). -/
 def synthLe : (s : Nat) → {S : Fset} → (Γ : Cx S) → (a : Tm0) → a.size ≤ s →
     Dec (Σ A : Ty, Γ ⊢ a ∶ A)
   | _, _, _, .var i, _ => i.elim0
@@ -123,22 +122,18 @@ def synthLe : (s : Nat) → {S : Fset} → (Γ : Cx S) → (a : Tm0) → a.size 
               | ⟨_, .nrec _ _ p⟩ => hn p
           | .yes p₂ => .yes ⟨C, .nrec p₀ p₁ p₂⟩
 
-/-- Agda: `cond≤TmTy?` (GST/DecidableConv.agda). -/
 def tyDecLe (s : Nat) {S : Fset} (Γ : Cx S) (a : Tm0) (h : a.size ≤ s) (A : Ty) :
     Dec (Γ ⊢ a ∶ A) := decOfSynth A (synthLe s Γ a h)
 
-/-- Agda: `⊢∶?` (GST/DecidableConv.agda). -/
 def tyDec {S : Fset} (Γ : Cx S) (A : Ty) (a : Tm0) : Dec (Γ ⊢ a ∶ A) :=
   tyDecLe a.size Γ a (Nat.le_refl _) A
 
 /-! ## Decidability of the conversion relation -/
 
-/-- Agda: `condEq?` (GST/DecidableConv.agda). -/
 def convDecOfTy {S : Fset} {Γ : Cx S} {A : Ty} {a a' : Tm0} (q : Γ ⊢ a ∶ A)
     (q' : Γ ⊢ a' ∶ A) : Dec (Γ ⊢ a ＝ a' ∶ A) :=
   Dec.ofIff (NF1' Γ q q') (NF2 Γ q q') (Dec.ofDecidable inferInstance)
 
-/-- Agda: `⊢＝?` (GST/DecidableConv.agda). -/
 def convDec {S : Fset} (Γ : Cx S) (A : Ty) (a a' : Tm0) : Dec (Γ ⊢ a ＝ a' ∶ A) :=
   condDec (fun q => ⟨convTy₁ q, convTy₂ q⟩)
     (Dec.and (tyDec Γ A a) (tyDec Γ A a')) (fun p => convDecOfTy p.1 p.2)

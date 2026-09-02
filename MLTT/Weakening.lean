@@ -19,7 +19,6 @@ open Fset
 
 /-! ## Identity weakening -/
 
-/-- Agda: `▷id` (MLTT/Weakening.agda). -/
 theorem wkId {Γ : Cx} (p : Ok Γ) : Γ ▷ Γ := by
   revert p
   induction Γ with
@@ -29,14 +28,13 @@ theorem wkId {Γ : Cx} (p : Ok Γ) : Γ ▷ Γ := by
       cases p with
       | snoc q₀ q₁ hh => exact .snoc (ih hh) q₀ q₁ q₀
 
-/-- Agda: `proj` (MLTT/Weakening.agda), renamed: `Weakens.proj` already has that name. -/
+/-- Weakening by one fresh context entry (`Weakens.proj` already has the shorter name). -/
 theorem wkProj {l : Lvl} {Γ : Cx} {A : Ty0} {x : Atom} (q : Γ ⊢ A ⦂ l) (q' : x # Γ) :
     (Γ ⨟ x ∶ A ⦂ l) ▷ Γ :=
   .proj (wkId (derivOk q)) q q'
 
 /-! ## Types of variables under weakening -/
 
-/-- Agda: `▷Var` (MLTT/Weakening.agda). -/
 theorem wkVar {l : Lvl} {Δ Γ : Cx} {x : Atom} {A : Ty0} (p : Δ ▷ Γ)
     (q : (x, A, l) isIn Γ) : (x, A, l) isIn Δ := by
   revert q
@@ -51,7 +49,6 @@ theorem wkVar {l : Lvl} {Δ Γ : Cx} {x : Atom} {A : Ty0} (p : Δ ▷ Γ)
 
 /-! ## Weakening preserves provable judgements -/
 
-/-- Agda: `▷Jg` (MLTT/Weakening.agda). -/
 theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J := by
   revert Δ
   induction q using Deriv.rec (motive_1 := fun _ _ => True) with
@@ -264,7 +261,6 @@ theorem wkDeriv {Δ Γ : Cx} {J : Jg} (p : Δ ▷ Γ) (q : Γ ⊢ J) : Δ ⊢ J 
           (.snoc p h (notMem_union_right hx) (ih₃ p)))
         (ih₃ p)
 
-/-- Agda: `▷⨟Jg` (MLTT/Weakening.agda). -/
 theorem wkSnocDeriv {Δ Γ : Cx} {A : Ty0} {x : Atom} {l : Lvl} {J : Jg}
     (q : (Γ ⨟ x ∶ A ⦂ l) ⊢ J) (p : Δ ▷ Γ) (q' : x # Δ) : (Δ ⨟ x ∶ A ⦂ l) ⊢ J := by
   obtain ⟨_, hA, _⟩ := snocOkInv (derivOk q)
@@ -272,7 +268,6 @@ theorem wkSnocDeriv {Δ Γ : Cx} {A : Ty0} {x : Atom} {l : Lvl} {J : Jg}
 
 /-! ## Admissible rule for context weakening -/
 
-/-- Agda: `▷⨟⁻` (MLTT/Weakening.agda). -/
 theorem wkSnoc {l : Lvl} {Δ Γ : Cx} {A : Ty0} {x : Atom} (p : Δ ▷ Γ) (q : Γ ⊢ A ⦂ l)
     (q' : x # Δ) : (Δ ⨟ x ∶ A ⦂ l) ▷ (Γ ⨟ x ∶ A ⦂ l) :=
   .snoc p q q' (wkDeriv p q)

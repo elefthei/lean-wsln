@@ -30,15 +30,14 @@ open WSLN
 
 /-! ## The category `ℝ` of renamings -/
 
-/-- Agda: `ℝ[_⟶_]` (GST/Presheaf.agda). -/
 structure RnHom {S' S : Fset} (Γ' : Cx S') (Γ : Cx S) : Type where
-  /-- Agda: `rn`. The underlying renaming. -/
+  /-- The underlying renaming. -/
   rn : Rn
-  /-- Agda: `pf`. The proof that it is well typed. -/
+  /-- The proof that it is well typed. -/
   pf : Γ' ⊢ʳ rn ∶ Γ
 
-/-- Agda: `_→ᵣ_` (GST/Presheaf.agda).  The setoid of morphisms: two renamings are
-identified when they agree on the domain of the source context. -/
+/-- The setoid of morphisms: two renamings are identified when they agree on the domain of the
+source context. -/
 def rnHomSetd {S' S : Fset} (Γ' : Cx S') (Γ : Cx S) : Setd where
   El := RnHom Γ' Γ
   rel p p' := rnSetd (dom Γ) ∋ p.rn ~ p'.rn
@@ -48,13 +47,11 @@ def rnHomSetd {S' S : Fset} (Γ' : Cx S') (Γ : Cx S) : Setd where
 
 @[inherit_doc rnHomSetd] scoped infix:60 " →ᵣ " => GST.rnHomSetd
 
-/-- Agda: `idr` (GST/Presheaf.agda). -/
 def RnHom.id {S : Fset} (Γ : Cx S) : RnHom Γ Γ where
   rn := Rn.id
   pf := rnTypingId Γ
 
-/-- Agda: `_∘ᵣ_` (GST/Presheaf.agda).  Note that the underlying renamings compose in
-the opposite order. -/
+/-- Note that the underlying renamings compose in the opposite order. -/
 def RnHom.comp {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''}
     (p : RnHom Γ' Γ) (q : RnHom Γ'' Γ') : RnHom Γ'' Γ where
   rn := Rn.comp q.rn p.rn
@@ -62,19 +59,16 @@ def RnHom.comp {S S' S'' : Fset} {Γ : Cx S} {Γ' : Cx S'} {Γ'' : Cx S''}
 
 @[inherit_doc RnHom.comp] scoped infixr:65 " ∘ᵣ " => GST.RnHom.comp
 
-/-- Agda: `proj` (GST/Presheaf.agda). -/
 def RnHom.proj {S : Fset} {Γ : Cx S} {x : Atom} (A : Ty) (h : x ∉ᶠ S) :
     RnHom (Γ ⨟ x ∶ A ∣ h) Γ where
   rn := Rn.id
   pf := wkRn h (rnTypingId Γ)
 
-/-- Agda: `wkrn` (GST/Presheaf.agda). -/
 def wkRnHom {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} {x : Atom} (p : RnHom Γ' Γ) (A : Ty)
     (h : x ∉ᶠ S') : RnHom (Γ' ⨟ x ∶ A ∣ h) Γ where
   rn := p.rn
   pf := wkRn h p.pf
 
-/-- Agda: `_⋉[_]_` (GST/Presheaf.agda). -/
 def liftRnHom {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} (p : RnHom Γ' Γ) (x x' : Atom)
     (A : Ty) (hx : x ∉ᶠ S) (hx' : x' ∉ᶠ S') :
     RnHom (Γ' ⨟ x' ∶ A ∣ hx') (Γ ⨟ x ∶ A ∣ hx) where
@@ -83,17 +77,14 @@ def liftRnHom {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} (p : RnHom Γ' Γ) (x x' :
 
 /-! ## Presheaves on `ℝ` -/
 
-/-- Agda: `ℝ^` (GST/Presheaf.agda). -/
 structure Psh : Type 1 where
-  /-- Agda: `_⊙_`. The setoid of elements at a context. -/
+  /-- The setoid of elements at a context. -/
   obj : {S : Fset} → Cx S → Setd
-  /-- Agda: `⊙cong`. The contravariant action on morphisms. -/
+  /-- The contravariant action on morphisms. -/
   cong : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} →
     Setd[ (Γ' →ᵣ Γ) ⟶ (obj Γ ⇨ obj Γ') ]
-  /-- Agda: `⊙unit`. -/
   unit : {S : Fset} → (Γ : Cx S) →
     (obj Γ ⇨ obj Γ) ∋ cong.map (RnHom.id Γ) ~ Setd.Hom.id (obj Γ)
-  /-- Agda: `⊙assoc`. -/
   assoc : {S S' S'' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → {Γ'' : Cx S''} →
     (p : RnHom Γ' Γ) → (q : RnHom Γ'' Γ') →
     (obj Γ ⇨ obj Γ'') ∋ cong.map (p ∘ᵣ q) ~ (cong.map q).comp (cong.map p)
@@ -102,31 +93,27 @@ structure Psh : Type 1 where
 `∣ A ⊙ Γ ∣`. -/
 abbrev Psh.El (A : Psh) {S : Fset} (Γ : Cx S) : Type := (A.obj Γ).El
 
-/-- Agda: `_⊙′_` (GST/Presheaf.agda). -/
 def Psh.act (A : Psh) {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} (p : RnHom Γ' Γ) :
     Setd[ A.obj Γ ⟶ A.obj Γ' ] := A.cong.map p
 
 /-! ## Natural transformations -/
 
-/-- Agda: `ℝ^[_⟶_]` (GST/Presheaf.agda). -/
 structure Psh.Hom (A B : Psh) : Type where
-  /-- Agda: `hom`. The family of maps. -/
+  /-- The family of maps. -/
   hom : {S : Fset} → {Γ : Cx S} → Setd[ A.obj Γ ⟶ B.obj Γ ]
-  /-- Agda: `ntl`. Naturality. -/
+  /-- Naturality. -/
   ntl : {S S' : Fset} → {Γ : Cx S} → {Γ' : Cx S'} → (p : RnHom Γ' Γ) →
     (A.obj Γ ⇨ B.obj Γ') ∋ hom.comp (A.act p) ~ (B.act p).comp hom
 
-/-- Agda: `id^` (GST/Presheaf.agda). -/
 def Psh.Hom.id (A : Psh) : Psh.Hom A A where
   hom := Setd.Hom.id (A.obj _)
   ntl _ x := (A.obj _).rfl' ((A.act _).map x)
 
-/-- Agda: `comp^` (GST/Presheaf.agda). -/
 def Psh.Hom.comp {A B C : Psh} (g : Psh.Hom B C) (f : Psh.Hom A B) : Psh.Hom A C where
   hom := g.hom.comp f.hom
   ntl p x := (C.obj _).trans' (g.hom.resp (f.ntl p x)) (g.ntl p (f.hom.map x))
 
-/-- Agda: `_⟶^_` (GST/Presheaf.agda).  The setoid of natural transformations.
+/-- The setoid of natural transformations.
 
 As in Agda, the context of the compared elements is implicit in `rel`, so the proofs
 below bind it with `fun {_ _} x => …`. -/
@@ -142,21 +129,19 @@ def pshHomSetd (A B : Psh) : Setd where
 
 /-! ## Terminal presheaf -/
 
-/-- Agda: `1^` (GST/Presheaf.agda). -/
 def Psh.one : Psh where
   obj _ := Setd.one
   cong := { map := fun _ => Setd.Hom.id Setd.one, resp := fun _ _ => trivial }
   unit _ _ := trivial
   assoc _ _ _ := trivial
 
-/-- Agda: `!^` (GST/Presheaf.agda). -/
 def Psh.bang {A : Psh} : Psh.Hom A Psh.one where
   hom := { map := fun _ => (), resp := fun _ => trivial }
   ntl _ _ := trivial
 
 /-! ## Presheaf product -/
 
-/-- Agda: `_×^_` (GST/Presheaf.agda). -/
+/-- Product of presheaves. -/
 def Psh.prod (A B : Psh) : Psh where
   obj Γ := A.obj Γ ⊗ B.obj Γ
   cong := fun {_ _} {_} {_} =>
@@ -169,29 +154,25 @@ def Psh.prod (A B : Psh) : Psh where
 
 @[inherit_doc Psh.prod] scoped infixl:70 " ×^ " => GST.Psh.prod
 
-/-- Agda: `fst^` (GST/Presheaf.agda). -/
 def Psh.fst {A B : Psh} : Psh.Hom (A ×^ B) A where
   hom := Setd.fst
   ntl p x := (A.obj _).rfl' ((A.act p).map x.1)
 
-/-- Agda: `snd^` (GST/Presheaf.agda). -/
 def Psh.snd {A B : Psh} : Psh.Hom (A ×^ B) B where
   hom := Setd.snd
   ntl p x := (B.obj _).rfl' ((B.act p).map x.2)
 
-/-- Agda: `pair^` (GST/Presheaf.agda). -/
 def Psh.pair {A B C : Psh} (φ : Psh.Hom C A) (ψ : Psh.Hom C B) : Psh.Hom C (A ×^ B) where
   hom := Setd.pair φ.hom ψ.hom
   ntl p x := ⟨φ.ntl p x, ψ.ntl p x⟩
 
-/-- Agda: `_×^′_` (GST/Presheaf.agda). -/
 def Psh.prodMap {A A' B B' : Psh} (φ : Psh.Hom A A') (ψ : Psh.Hom B B') :
     Psh.Hom (A ×^ B) (A' ×^ B') :=
   Psh.pair (φ.comp Psh.fst) (ψ.comp Psh.snd)
 
 /-! ## Representable presheaf -/
 
-/-- Agda: `よ` (GST/Presheaf.agda).  The Yoneda embedding. -/
+/-- The Yoneda embedding. -/
 def yon {S : Fset} (Γ : Cx S) : Psh where
   obj Γ' := Γ' →ᵣ Γ
   cong := fun {_ _} {_} {_} =>
@@ -202,7 +183,6 @@ def yon {S : Fset} (Γ : Cx S) : Psh where
   unit _ _ _ _ := rfl
   assoc _ _ _ _ _ := rfl
 
-/-- Agda: `よ′` (GST/Presheaf.agda). -/
 def yonMap {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} (p : RnHom Γ' Γ) :
     Psh.Hom (yon Γ') (yon Γ) where
   hom := { map := fun q => p ∘ᵣ q, resp := fun e x r => e (p.rn x) (rnDom p.pf r) }
@@ -210,8 +190,8 @@ def yonMap {S S' : Fset} {Γ : Cx S} {Γ' : Cx S'} (p : RnHom Γ' Γ) :
 
 /-! ## Presheaf exponential -/
 
-/-- Agda: `_→^_` (GST/Presheaf.agda).  Exactly as in Agda, the elements of the
-exponential at `Γ` are the natural transformations `yon Γ ×^ A ⟶^ B`. -/
+/-- Exactly as in Agda, the elements of the exponential at `Γ` are the natural transformations
+`yon Γ ×^ A ⟶^ B`. -/
 def Psh.exp (A B : Psh) : Psh where
   obj Γ := yon Γ ×^ A ⟶^ B
   cong := fun {_ _} {_} {_} =>
@@ -226,7 +206,6 @@ def Psh.exp (A B : Psh) : Psh where
 
 @[inherit_doc Psh.exp] scoped infixr:60 " →^ " => GST.Psh.exp
 
-/-- Agda: `ev^` (GST/Presheaf.agda). -/
 def Psh.ev {A B : Psh} : Psh.Hom ((A →^ B) ×^ A) B where
   hom := fun {_} {Γ} =>
     { map := fun x => x.1.hom.map (RnHom.id Γ, x.2)
@@ -240,7 +219,6 @@ def Psh.ev {A B : Psh} : Psh.Hom ((A →^ B) ×^ A) B where
       B.obj Γ' ∋ _ ~ (B.act p).map (x.1.hom.map (RnHom.id Γ, x.2)) :=
         x.1.ntl p (RnHom.id Γ, x.2)
 
-/-- Agda: `cur^` (GST/Presheaf.agda). -/
 def Psh.cur {A B C : Psh} (φ : Psh.Hom (C ×^ A) B) : Psh.Hom C (A →^ B) where
   hom := fun {_} {_} =>
     { map := fun c =>

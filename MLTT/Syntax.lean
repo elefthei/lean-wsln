@@ -17,38 +17,35 @@ open WSLN
 
 /-! ## Universe levels -/
 
-/-- Agda: `Lvl` (MLTT/Syntax.agda). -/
 abbrev Lvl := Nat
 
 /-! ## Signature for types and terms -/
 
-/-- Agda: `OpMLTT` (MLTT/Syntax.agda). -/
 inductive Op where
-  /-- Agda: `′Univ′`. Universe type. -/
+  /-- Universe type. -/
   | univ (l : Lvl) : Op
-  /-- Agda: `′Pi′`. Dependent function type. -/
+  /-- Dependent function type. -/
   | pi (l l' : Lvl) : Op
-  /-- Agda: `′lam′`. Function abstraction. -/
+  /-- Function abstraction. -/
   | lam : Op
-  /-- Agda: `′app′`. Function application. -/
+  /-- Function application. -/
   | app : Op
-  /-- Agda: `′Id′`. Identity type. -/
+  /-- Identity type. -/
   | id : Op
-  /-- Agda: `′refl′`. Reflexivity proof. -/
+  /-- Reflexivity proof. -/
   | refl : Op
-  /-- Agda: `′J′`. Identity elimination. -/
+  /-- Identity elimination. -/
   | j : Op
-  /-- Agda: `′Nat′`. Natural number type. -/
+  /-- Natural number type. -/
   | nat : Op
-  /-- Agda: `′zero′`. Zero. -/
+  /-- Zero. -/
   | zero : Op
-  /-- Agda: `′succ′`. Successor. -/
+  /-- Successor. -/
   | succ : Op
-  /-- Agda: `′natrec′`. Natural number elimination. -/
+  /-- Natural number elimination. -/
   | natrec : Op
   deriving DecidableEq
 
-/-- Agda: `arMLTT` (MLTT/Syntax.agda). -/
 def ar : Op → List Nat
   | .univ _ => []
   | .pi _ _ => [0, 1]
@@ -62,67 +59,63 @@ def ar : Op → List Nat
   | .succ => [0]
   | .natrec => [1, 0, 2, 0]
 
-/-- Agda: `MLTT : Sig` (MLTT/Syntax.agda). -/
 def sig : Sig := ⟨Op, ar⟩
 
 instance : DecidableEq sig.Op := inferInstanceAs (DecidableEq Op)
 
 /-! ## Terms of Martin-Löf type theory -/
 
-/-- Agda: `Tm[_]` (MLTT/Syntax.agda). -/
 abbrev Tm (n : Nat) := WSLN.Trm sig n
 
-/-- Agda: `Tm` (MLTT/Syntax.agda). -/
 abbrev Tm0 := Tm 0
 
-/-- Agda: `Ty[_]` (MLTT/Syntax.agda). Types are particular kinds of term. -/
+/-- Types are particular kinds of term. -/
 abbrev Ty (n : Nat) := Tm n
 
-/-- Agda: `Ty` (MLTT/Syntax.agda). -/
 abbrev Ty0 := Ty 0
 
 /-! ## Notation -/
 
-/-- Agda: `pattern 𝐯 x = 𝐚 x` (MLTT/Syntax.agda). -/
+/-- The variable pattern: `𝐯 x` is the atom `x` as a term. -/
 @[match_pattern] def vr {n : Nat} (x : Atom) : Tm n := .atom x
 
-/-- Agda: `pattern 𝐔 l` (MLTT/Syntax.agda). -/
+/-- The universe pattern `𝐔 l`. -/
 @[match_pattern] def U {n : Nat} (l : Lvl) : Ty n := .op (.univ l) .nil
 
-/-- Agda: `pattern 𝚷 l l' A B` (MLTT/Syntax.agda). -/
+/-- The Π-type pattern `𝚷 l l' A B`. -/
 @[match_pattern] def Pi' {n : Nat} (l l' : Lvl) (A : Ty n) (B : Ty (n + 1)) : Ty n :=
   .op (.pi l l') (.cons A (.cons B .nil))
 
-/-- Agda: `pattern 𝛌 A f` (MLTT/Syntax.agda). -/
+/-- The abstraction pattern `𝛌 A f`. -/
 @[match_pattern] def lam {n : Nat} (A : Ty n) (f : Tm (n + 1)) : Tm n :=
   .op .lam (.cons A (.cons f .nil))
 
-/-- Agda: `pattern _∙[_,_]_ b A B a` (MLTT/Syntax.agda). -/
+/-- The application pattern `b ∙[ A, B ] a`. -/
 @[match_pattern] def app {n : Nat} (b : Tm n) (A : Ty n) (B : Ty (n + 1)) (a : Tm n) :
     Tm n := .op .app (.cons b (.cons A (.cons B (.cons a .nil))))
 
-/-- Agda: `pattern 𝐈𝐝 A a a'` (MLTT/Syntax.agda).  Named `Id'` so that it does not
-shadow core's `Id` under `open MLTT`, matching `Nat'`/`Pi'`/`refl'`. -/
+/-- Named `Id'` so that it does not shadow core's `Id` under `open MLTT`, matching
+`Nat'`/`Pi'`/`refl'`. -/
 @[match_pattern] def Id' {n : Nat} (A : Ty n) (a a' : Tm n) : Ty n :=
   .op .id (.cons A (.cons a (.cons a' .nil)))
 
-/-- Agda: `pattern 𝐫𝐞𝐟𝐥 a` (MLTT/Syntax.agda). -/
+/-- The reflexivity pattern `𝐫𝐞𝐟𝐥 a`. -/
 @[match_pattern] def refl' {n : Nat} (a : Tm n) : Tm n := .op .refl (.cons a .nil)
 
-/-- Agda: `pattern 𝐉 C a b c e` (MLTT/Syntax.agda). -/
+/-- The identity eliminator pattern `𝐉 C a b c e`. -/
 @[match_pattern] def J {n : Nat} (C : Ty (n + 2)) (a b c e : Tm n) : Tm n :=
   .op .j (.cons C (.cons a (.cons b (.cons c (.cons e .nil)))))
 
-/-- Agda: `pattern 𝐍𝐚𝐭` (MLTT/Syntax.agda). -/
+/-- The naturals pattern `𝐍𝐚𝐭`. -/
 @[match_pattern] def Nat' {n : Nat} : Ty n := .op .nat .nil
 
-/-- Agda: `pattern 𝐳𝐞𝐫𝐨` (MLTT/Syntax.agda). -/
+/-- The zero pattern `𝐳𝐞𝐫𝐨`. -/
 @[match_pattern] def zero' {n : Nat} : Tm n := .op .zero .nil
 
-/-- Agda: `pattern 𝐬𝐮𝐜𝐜 a` (MLTT/Syntax.agda). -/
+/-- The successor pattern `𝐬𝐮𝐜𝐜 a`. -/
 @[match_pattern] def succ' {n : Nat} (a : Tm n) : Tm n := .op .succ (.cons a .nil)
 
-/-- Agda: `pattern 𝐧𝐫𝐞𝐜 C c₀ cs a` (MLTT/Syntax.agda). -/
+/-- The recursor pattern `𝐧𝐫𝐞𝐜 C c₀ cs a`. -/
 @[match_pattern] def nrec {n : Nat} (C : Ty (n + 1)) (c₀ : Tm n) (cs : Tm (n + 2))
     (a : Tm n) : Tm n := .op .natrec (.cons C (.cons c₀ (.cons cs (.cons a .nil))))
 
@@ -162,23 +155,22 @@ theorem sbAtom (σ : Sb sig) (x : Atom) : σ * (𝐯x : Tm0) = σ x := by simp [
 
 /-! ## Contexts -/
 
-/-- Agda: `Cx` (MLTT/Syntax.agda). -/
 inductive Cx : Type where
-  /-- Agda: `◇`. -/
+  /-- The empty context. -/
   | nil : Cx
-  /-- Agda: `_⨟_∶_⦂_`. -/
+  /-- Context extension `Γ ⨟ x ∶ A ⦂ l`. -/
   | snoc (Γ : Cx) (x : Atom) (A : Ty0) (l : Lvl) : Cx
 
 @[inherit_doc Cx.nil] scoped notation "◇" => MLTT.Cx.nil
 @[inherit_doc Cx.snoc]
 scoped notation:40 Γ:40 " ⨟ " x:41 " ∶ " A:41 " ⦂ " l:41 => MLTT.Cx.snoc Γ x A l
 
-/-- Agda: `dom` (MLTT/Syntax.agda). The domain of a context. -/
+/-- The domain of a context. -/
 def dom : Cx → Fset
   | .nil => ∅
   | .snoc Γ x _ _ => dom Γ ∪ ｛ x ｝
 
-/-- Agda: `FiniteSupportCx` (MLTT/Syntax.agda). Freshness for contexts. -/
+/-- Freshness for contexts. -/
 instance instFiniteSupportCx : FiniteSupport Cx := ⟨dom⟩
 
 @[simp] theorem supp_cx (Γ : Cx) : supp Γ = dom Γ := rfl
@@ -188,7 +180,6 @@ instance instFiniteSupportCx : FiniteSupport Cx := ⟨dom⟩
 @[simp] theorem dom_snoc (Γ : Cx) (x : Atom) (A : Ty0) (l : Lvl) :
     dom (Γ ⨟ x ∶ A ⦂ l) = dom Γ ∪ ｛ x ｝ := rfl
 
-/-- Agda: `cx⁻¹` (MLTT/Syntax.agda). -/
 theorem snoc_inj {Γ Γ' : Cx} {x x' : Atom} {A A' : Ty0} {l l' : Lvl}
     (e : (Γ ⨟ x ∶ A ⦂ l) = (Γ' ⨟ x' ∶ A' ⦂ l')) :
     Γ = Γ' ∧ x = x' ∧ A = A' ∧ l = l' := by
@@ -196,29 +187,25 @@ theorem snoc_inj {Γ Γ' : Cx} {x x' : Atom} {A A' : Ty0} {l l' : Lvl}
 
 /-! ## Membership of contexts -/
 
-/-- Agda: `_isIn_` (MLTT/Syntax.agda). -/
+/-- Context membership: the triple `(x, A, l)` occurs in `Γ`. -/
 inductive IsIn : (Atom × Ty0 × Lvl) → Cx → Prop where
-  /-- Agda: `isInNew`. -/
   | new {Γ : Cx} {x : Atom} {A : Ty0} {l : Lvl} : IsIn (x, A, l) (Γ ⨟ x ∶ A ⦂ l)
-  /-- Agda: `isInOld`. -/
   | old {xAl : Atom × Ty0 × Lvl} {Γ : Cx} {x' : Atom} {A' : Ty0} {l' : Lvl}
       (p : IsIn xAl Γ) : IsIn xAl (Γ ⨟ x' ∶ A' ⦂ l')
 
 @[inherit_doc IsIn] scoped infix:40 " isIn " => MLTT.IsIn
 
-/-- Agda: `isIn→dom` (MLTT/Syntax.agda), stated on the raw triple so that
-`induction` applies. -/
+/-- Membership implies domain membership, stated on the raw triple so that `induction`
+applies. -/
 theorem IsIn.dom_mem {Γ : Cx} {xAl : Atom × Ty0 × Lvl} (h : IsIn xAl Γ) :
     xAl.1 ∈ dom Γ := by
   induction h with
   | new => exact .unionR .single
   | old _ ih => exact .unionL ih
 
-/-- Agda: `isIn→dom` (MLTT/Syntax.agda). -/
 theorem isIn_dom {Γ : Cx} {x : Atom} {A : Ty0} {l : Lvl} (h : (x, A, l) isIn Γ) :
     x ∈ dom Γ := h.dom_mem
 
-/-- Agda: `dom→isIn` (MLTT/Syntax.agda). -/
 theorem dom_isIn {Γ : Cx} {x : Atom} (h : x ∈ dom Γ) :
     ∃ (A : Ty0) (l : Lvl), (x, A, l) isIn Γ := by
   induction Γ with

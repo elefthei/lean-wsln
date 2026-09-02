@@ -49,7 +49,6 @@ private theorem suppConcFresh₂ {D : Fset} (c : Tm 2) (x y : Atom)
 
 /-! ## Provable judgements are well-scoped -/
 
-/-- Agda: `⊢supp` (MLTT/WellScoped.agda). -/
 theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
   induction p using Deriv.rec
     (motive_1 := fun Γ _ =>
@@ -381,7 +380,6 @@ theorem derivSupp {Γ : Cx} {J : Jg} (p : Γ ⊢ J) : supp J ⊆ dom Γ := by
         (union_subset (subL ih₁)
           (union_subset (subL ih₃) (union_subset hB empty_subset)))
 
-/-- Agda: `Oksupp` (MLTT/WellScoped.agda). -/
 theorem okSupp {Γ : Cx} {x : Atom} {A : Ty0} {l : Lvl} (p : Ok Γ)
     (q : (x, A, l) isIn Γ) : supp A ⊆ dom Γ := by
   revert p q
@@ -397,42 +395,35 @@ theorem okSupp {Γ : Cx} {x : Atom} {A : Ty0} {l : Lvl} (p : Ok Γ)
           cases p with
           | snoc _ _ hh => exact subset_trans (ih hh q') subset_union_left
 
-/-- Agda: `⊢supp¹` (MLTT/WellScoped.agda). -/
 theorem derivSupp₁ {Γ : Cx} {A B : Ty0} {l l' : Lvl} (b : Tm 1) (x : Atom)
     (p : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ∶ B ⦂ l') (q : x # b) : supp b ⊆ dom Γ :=
   suppConcFresh b x (subL (derivSupp p)) q
 
-/-- Agda: `⊢supp²` (MLTT/WellScoped.agda). -/
 theorem derivSupp₂ {Γ : Cx} {A B C : Ty0} {l l' l'' : Lvl} (c : Tm 2) (x y : Atom)
     (p : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ c[x][y] ∶ C ⦂ l'') (q : x # c) (q' : y # c) :
     supp c ⊆ dom Γ :=
   suppConcFresh₂ c x y (subL (derivSupp p)) q q'
 
-/-- Agda: `⊢supp＝¹₁` (MLTT/WellScoped.agda). -/
 theorem derivSuppEq₁₁ {Γ : Cx} {A B : Ty0} {b' : Tm0} {l l' : Lvl} (b : Tm 1)
     (x : Atom) (p : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ＝ b' ∶ B ⦂ l') (q : x # b) :
     supp b ⊆ dom Γ :=
   suppConcFresh b x (subL (derivSupp p)) q
 
-/-- Agda: `⊢supp＝¹₂` (MLTT/WellScoped.agda). -/
 theorem derivSuppEq₁₂ {Γ : Cx} {A B : Ty0} {b' : Tm0} {l l' : Lvl} (b : Tm 1)
     (x : Atom) (p : (Γ ⨟ x ∶ A ⦂ l) ⊢ b' ＝ b[x] ∶ B ⦂ l') (q : x # b) :
     supp b ⊆ dom Γ :=
   suppConcFresh b x (subL (subR (derivSupp p))) q
 
-/-- Agda: `⊢supp＝¹₃` (MLTT/WellScoped.agda). -/
 theorem derivSuppEq₁₃ {Γ : Cx} {A : Ty0} {b b' : Tm0} {l l' : Lvl} (B : Tm 1)
     (x : Atom) (p : (Γ ⨟ x ∶ A ⦂ l) ⊢ b ＝ b' ∶ B[x] ⦂ l') (q : x # B) :
     supp B ⊆ dom Γ :=
   suppConcFresh B x (subR (subR (derivSupp p))) q
 
-/-- Agda: `⊢supp＝²₁` (MLTT/WellScoped.agda). -/
 theorem derivSuppEq₂₁ {Γ : Cx} {A B C : Ty0} {c' : Tm0} {l l' l'' : Lvl} (c : Tm 2)
     (x y : Atom) (p : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ c[x][y] ＝ c' ∶ C ⦂ l'')
     (q : x # c) (q' : y # c) : supp c ⊆ dom Γ :=
   suppConcFresh₂ c x y (subL (derivSupp p)) q q'
 
-/-- Agda: `⊢supp＝²₂` (MLTT/WellScoped.agda). -/
 theorem derivSuppEq₂₂ {Γ : Cx} {A B C : Ty0} {c' : Tm0} {l l' l'' : Lvl} (c : Tm 2)
     (x y : Atom) (p : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ B ⦂ l') ⊢ c' ＝ c[x][y] ∶ C ⦂ l'')
     (q : x # c) (q' : y # c) : supp c ⊆ dom Γ :=
@@ -440,13 +431,11 @@ theorem derivSuppEq₂₂ {Γ : Cx} {A B C : Ty0} {c' : Tm0} {l l' l'' : Lvl} (c
 
 /-! ## Freshness property of provable judgements -/
 
-/-- Agda: `⊢#` (MLTT/WellScoped.agda). -/
 theorem derivFresh {Γ : Cx} {J : Jg} {x : Atom} (p : Γ ⊢ J) (q : x # Γ) : x # J :=
   subset_notMem (derivSupp p) q
 
 /-! ## Convertible contexts have extensionally equal domains -/
 
-/-- Agda: `dom＝` (MLTT/WellScoped.agda). -/
 theorem domEq {Γ Γ' : Cx} (p : ⊢ Γ ＝ Γ') : dom Γ ⊆ dom Γ' := by
   induction p with
   | nil => exact subset_refl

@@ -22,7 +22,6 @@ open Fset
 
 /-! ## Variables have a unique type and level -/
 
-/-- Agda: `svVr` (MLTT/Uniqueness.agda). -/
 theorem svVr {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {x x' : Atom} (p : Ok Γ)
     (q : (x, A, l) isIn Γ) (q' : (x', A', l') isIn Γ) (e : x = x') :
     (l = l') ∧ (A = A') := by
@@ -295,7 +294,6 @@ private theorem svTyAux {Γ : Cx} {J : Jg} (d : Γ ⊢ J) : svTyGoal Γ J := by
   | natBetaS => trivial
   | piEta => trivial
 
-/-- Agda: `svTy` (MLTT/Uniqueness.agda). -/
 theorem svTy {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {a : Tm0} (q : Γ ⊢ a ∶ A ⦂ l)
     (q' : Γ ⊢ a ∶ A' ⦂ l') : (l = l') ∧ (Γ ⊢ A ＝ A' ⦂ l) := svTyAux q A' l' q'
 

@@ -20,44 +20,39 @@ open WSLN
 
 mutual
 
-/-- Agda: `Ok` (MLTT/Cofinite.agda). Well-formed contexts. -/
+/-- Well-formed contexts. -/
 inductive Ok : Cx → Prop where
-  /-- Agda: `ok◇`. -/
   | nil : Ok ◇
-  /-- Agda: `ok⨟`.  The final `Ok Γ` is a helper hypothesis. -/
+  /-- The final `Ok Γ` is a helper hypothesis. -/
   | snoc {l : Lvl} {Γ : Cx} {A : Ty0} {x : Atom}
       (q₀ : Deriv Γ (A ⦂ l)) (q₁ : x # Γ) (h : Ok Γ) : Ok (Γ ⨟ x ∶ A ⦂ l)
 
-/-- Agda: `_⊢_` (MLTT/Cofinite.agda). -/
+/-- Derivability of a judgement: `Γ ⊢ J`. -/
 inductive Deriv : Cx → Jg → Prop where
   -- Well-formed terms: `Γ ⊢ a ∶ A ⦂ l`
 
-  /-- Agda: `⊢conv`. -/
   | conv {Γ : Cx} {l : Lvl} {a : Tm0} {A A' : Ty0}
       (q₀ : Deriv Γ (a ∶ A ⦂ l)) (q₁ : Deriv Γ (A ＝ A' ⦂ l)) :
       Deriv Γ (a ∶ A' ⦂ l)
 
-  /-- Agda: `⊢𝐯`. -/
   | var {Γ : Cx} {l : Lvl} {A : Ty0} {x : Atom}
       (q₀ : Ok Γ) (q₁ : (x, A, l) isIn Γ) : Deriv Γ (𝐯x ∶ A ⦂ l)
 
-  /-- Agda: `⊢𝐔`. -/
   | univ {Γ : Cx} {l : Lvl} (q : Ok Γ) : Deriv Γ (𝐔 l ⦂ (l + 1))
 
-  /-- Agda: `⊢𝚷`. -/
   | pi {Γ : Cx} {l l' : Lvl} {A : Ty0} {B : Ty 1} (S : Fset)
       (q₀ : Deriv Γ (A ⦂ l))
       (q₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ⦂ l')) :
       Deriv Γ (𝚷 l l' A B ⦂ max l l')
 
-  /-- Agda: `⊢𝛌`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | lam {Γ : Cx} {l l' : Lvl} {A : Ty0} {B : Ty 1} {b : Tm 1} (S : Fset)
       (q₀ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (b[x] ∶ B[x] ⦂ l'))
       (h₀ : Deriv Γ (A ⦂ l))
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ⦂ l')) :
       Deriv Γ (𝛌 A b ∶ 𝚷 l l' A B ⦂ max l l')
 
-  /-- Agda: `⊢∙`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | app {Γ : Cx} {l l' : Lvl} {A : Ty0} {B : Ty 1} {a b : Tm0} (S : Fset)
       (q₀ : Deriv Γ (b ∶ 𝚷 l l' A B ⦂ max l l'))
       (q₁ : Deriv Γ (a ∶ A ⦂ l))
@@ -65,17 +60,17 @@ inductive Deriv : Cx → Jg → Prop where
       (h : Deriv Γ (A ⦂ l)) :
       Deriv Γ (b ∙[ A, B ] a ∶ B[a] ⦂ l')
 
-  /-- Agda: `⊢𝐈𝐝`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | idF {Γ : Cx} {l : Lvl} {A a b : Tm0}
       (q₀ : Deriv Γ (a ∶ A ⦂ l)) (q₁ : Deriv Γ (b ∶ A ⦂ l)) (h : Deriv Γ (A ⦂ l)) :
       Deriv Γ (𝐈𝐝 A a b ⦂ l)
 
-  /-- Agda: `⊢𝐫𝐞𝐟𝐥`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | reflI {Γ : Cx} {l : Lvl} {A : Ty0} {a : Tm0}
       (q : Deriv Γ (a ∶ A ⦂ l)) (h : Deriv Γ (A ⦂ l)) :
       Deriv Γ (𝐫𝐞𝐟𝐥 a ∶ 𝐈𝐝 A a a ⦂ l)
 
-  /-- Agda: `⊢𝐉`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | j {Γ : Cx} {l l' : Lvl} {A : Ty0} {C : Ty 2} {a b c e : Tm0} (S : Fset)
       (q₀ : ∀ x y, x # y # S →
         Deriv (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ 𝐈𝐝 A a (𝐯x) ⦂ l) (C[x][y] ⦂ l'))
@@ -87,17 +82,14 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (𝐈𝐝 A a (𝐯x) ⦂ l)) :
       Deriv Γ (𝐉 C a b c e ∶ C[b][e] ⦂ l')
 
-  /-- Agda: `⊢𝐍𝐚𝐭`. -/
   | nat {Γ : Cx} (q : Ok Γ) : Deriv Γ (𝐍𝐚𝐭 ⦂ 0)
 
-  /-- Agda: `⊢𝐳𝐞𝐫𝐨`. -/
   | zero {Γ : Cx} (q : Ok Γ) : Deriv Γ (𝐳𝐞𝐫𝐨 ∶ 𝐍𝐚𝐭 ⦂ 0)
 
-  /-- Agda: `⊢𝐬𝐮𝐜𝐜`. -/
   | succ {Γ : Cx} {a : Tm0} (q : Deriv Γ (a ∶ 𝐍𝐚𝐭 ⦂ 0)) :
       Deriv Γ (𝐬𝐮𝐜𝐜 a ∶ 𝐍𝐚𝐭 ⦂ 0)
 
-  /-- Agda: `⊢𝐧𝐫𝐞𝐜`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | nrec {Γ : Cx} {l : Lvl} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} (S : Fset)
       (q₀ : Deriv Γ (c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l))
       (q₁ : ∀ x y, x # y # S →
@@ -108,32 +100,28 @@ inductive Deriv : Cx → Jg → Prop where
 
   -- Term conversion: `Γ ⊢ a ＝ a' ∶ A ⦂ l`
 
-  /-- Agda: `Refl`. -/
   | refl {Γ : Cx} {l : Lvl} {A : Ty0} {a : Tm0} (q : Deriv Γ (a ∶ A ⦂ l)) :
       Deriv Γ (a ＝ a ∶ A ⦂ l)
 
-  /-- Agda: `Symm`. -/
   | symm {Γ : Cx} {l : Lvl} {A : Ty0} {a a' : Tm0} (q : Deriv Γ (a ＝ a' ∶ A ⦂ l)) :
       Deriv Γ (a' ＝ a ∶ A ⦂ l)
 
-  /-- Agda: `Trans`. -/
   | trans {Γ : Cx} {l : Lvl} {A : Ty0} {a a' a'' : Tm0}
       (q₀ : Deriv Γ (a ＝ a' ∶ A ⦂ l)) (q₁ : Deriv Γ (a' ＝ a'' ∶ A ⦂ l)) :
       Deriv Γ (a ＝ a'' ∶ A ⦂ l)
 
-  /-- Agda: `＝conv`. -/
   | eqConv {Γ : Cx} {l : Lvl} {A A' : Ty0} {a a' : Tm0}
       (q₀ : Deriv Γ (a ＝ a' ∶ A ⦂ l)) (q₁ : Deriv Γ (A ＝ A' ⦂ l)) :
       Deriv Γ (a ＝ a' ∶ A' ⦂ l)
 
-  /-- Agda: `𝚷Cong`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | piCong {Γ : Cx} {l l' : Lvl} {A A' : Ty0} {B B' : Ty 1} (S : Fset)
       (q₀ : Deriv Γ (A ＝ A' ⦂ l))
       (q₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ＝ B'[x] ⦂ l'))
       (h : Deriv Γ (A ⦂ l)) :
       Deriv Γ (𝚷 l l' A B ＝ 𝚷 l l' A' B' ⦂ max l l')
 
-  /-- Agda: `𝛌Cong`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | lamCong {Γ : Cx} {l l' : Lvl} {A A' : Ty0} {B : Ty 1} {b b' : Tm 1} (S : Fset)
       (q₀ : Deriv Γ (A ＝ A' ⦂ l))
       (q₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (b[x] ＝ b'[x] ∶ B[x] ⦂ l'))
@@ -141,7 +129,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ⦂ l')) :
       Deriv Γ (𝛌 A b ＝ 𝛌 A' b' ∶ 𝚷 l l' A B ⦂ max l l')
 
-  /-- Agda: `∙Cong`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | appCong {Γ : Cx} {l l' : Lvl} {A A' : Ty0} {B B' : Ty 1} {a a' b b' : Tm0}
       (S : Fset)
       (q₀ : Deriv Γ (A ＝ A' ⦂ l))
@@ -152,19 +140,18 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ⦂ l')) :
       Deriv Γ (b ∙[ A, B ] a ＝ b' ∙[ A', B' ] a' ∶ B[a] ⦂ l')
 
-  /-- Agda: `𝐈𝐝Cong`. -/
   | idCong {Γ : Cx} {l : Lvl} {A A' : Ty0} {a a' b b' : Tm0}
       (q₀ : Deriv Γ (A ＝ A' ⦂ l))
       (q₁ : Deriv Γ (a ＝ a' ∶ A ⦂ l))
       (q₂ : Deriv Γ (b ＝ b' ∶ A ⦂ l)) :
       Deriv Γ (𝐈𝐝 A a b ＝ 𝐈𝐝 A' a' b' ⦂ l)
 
-  /-- Agda: `𝐫𝐞𝐟𝐥Cong`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | reflCong {Γ : Cx} {l : Lvl} {A : Ty0} {a a' : Tm0}
       (q : Deriv Γ (a ＝ a' ∶ A ⦂ l)) (h : Deriv Γ (A ⦂ l)) :
       Deriv Γ (𝐫𝐞𝐟𝐥 a ＝ 𝐫𝐞𝐟𝐥 a' ∶ 𝐈𝐝 A a a ⦂ l)
 
-  /-- Agda: `𝐉Cong`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | jCong {Γ : Cx} {l l' : Lvl} {A : Ty0} {C C' : Ty 2}
       {a a' b b' c c' e e' : Tm0} (S : Fset)
       (q₀ : ∀ x y, x # y # S →
@@ -177,11 +164,10 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (𝐈𝐝 A a (𝐯x) ⦂ l)) :
       Deriv Γ (𝐉 C a b c e ＝ 𝐉 C' a' b' c' e' ∶ C[b][e] ⦂ l')
 
-  /-- Agda: `𝐬𝐮𝐜𝐜Cong`. -/
   | succCong {Γ : Cx} {a a' : Tm0} (q : Deriv Γ (a ＝ a' ∶ 𝐍𝐚𝐭 ⦂ 0)) :
       Deriv Γ (𝐬𝐮𝐜𝐜 a ＝ 𝐬𝐮𝐜𝐜 a' ∶ 𝐍𝐚𝐭 ⦂ 0)
 
-  /-- Agda: `𝐧𝐫𝐞𝐜Cong`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | nrecCong {Γ : Cx} {l : Lvl} {C C' : Ty 1} {c₀ c₀' a a' : Tm0} {cs cs' : Tm 2}
       (S : Fset)
       (q₀ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0) (C[x] ＝ C'[x] ⦂ l))
@@ -193,7 +179,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h : ∀ x, x # S → Deriv (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0) (C[x] ⦂ l)) :
       Deriv Γ (𝐧𝐫𝐞𝐜 C c₀ cs a ＝ 𝐧𝐫𝐞𝐜 C' c₀' cs' a' ∶ C[a] ⦂ l)
 
-  /-- Agda: `𝚷Beta`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | piBeta {Γ : Cx} {l l' : Lvl} {A : Ty0} {a : Tm0} {B : Ty 1} {b : Tm 1} (S : Fset)
       (q₀ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (b[x] ∶ B[x] ⦂ l'))
       (q₁ : Deriv Γ (a ∶ A ⦂ l))
@@ -201,7 +187,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (B[x] ⦂ l')) :
       Deriv Γ (𝛌 A b ∙[ A, B ] a ＝ b[a] ∶ B[a] ⦂ l')
 
-  /-- Agda: `𝐈𝐝Beta`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | idBeta {Γ : Cx} {l l' : Lvl} {A : Ty0} {C : Ty 2} {a c : Tm0} (S : Fset)
       (q₀ : ∀ x y, x # y # S →
         Deriv (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ 𝐈𝐝 A a (𝐯x) ⦂ l) (C[x][y] ⦂ l'))
@@ -211,7 +197,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h₁ : ∀ x, x # S → Deriv (Γ ⨟ x ∶ A ⦂ l) (𝐈𝐝 A a (𝐯x) ⦂ l)) :
       Deriv Γ (𝐉 C a a c (𝐫𝐞𝐟𝐥 a) ＝ c ∶ C[a][𝐫𝐞𝐟𝐥 a] ⦂ l')
 
-  /-- Agda: `𝐍𝐚𝐭Beta₀`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | natBeta₀ {Γ : Cx} {l : Lvl} {C : Ty 1} {c₀ : Tm0} {cs : Tm 2} (S : Fset)
       (q₀ : Deriv Γ (c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l))
       (q₁ : ∀ x y, x # y # S →
@@ -219,7 +205,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h : ∀ x, x # S → Deriv (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0) (C[x] ⦂ l)) :
       Deriv Γ (𝐧𝐫𝐞𝐜 C c₀ cs 𝐳𝐞𝐫𝐨 ＝ c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l)
 
-  /-- Agda: `𝐍𝐚𝐭Beta₊`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | natBetaS {Γ : Cx} {l : Lvl} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} (S : Fset)
       (q₀ : Deriv Γ (c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l))
       (q₁ : ∀ x y, x # y # S →
@@ -228,7 +214,7 @@ inductive Deriv : Cx → Jg → Prop where
       (h : ∀ x, x # S → Deriv (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0) (C[x] ⦂ l)) :
       Deriv Γ (𝐧𝐫𝐞𝐜 C c₀ cs (𝐬𝐮𝐜𝐜 a) ＝ cs[a][𝐧𝐫𝐞𝐜 C c₀ cs a] ∶ C[𝐬𝐮𝐜𝐜 a] ⦂ l)
 
-  /-- Agda: `𝚷Eta`.  The last premise is a helper hypothesis. -/
+  /-- The last premise is a helper hypothesis. -/
   | piEta {Γ : Cx} {l l' : Lvl} {A : Ty0} {B : Ty 1} {b b' : Tm0} (S : Fset)
       (q₀ : Deriv Γ (b ∶ 𝚷 l l' A B ⦂ max l l'))
       (q₁ : Deriv Γ (b' ∶ 𝚷 l l' A B ⦂ max l l'))
@@ -270,11 +256,10 @@ theorem castEq {Γ : Cx} {l : Lvl} {a a' b b' : Tm0} {A A' : Ty0}
 
 /-! ## Context conversion -/
 
-/-- Agda: `⊢_＝_` (MLTT/Cofinite.agda). -/
+/-- Context conversion: pointwise convertible contexts. -/
 inductive CxEq : Cx → Cx → Prop where
-  /-- Agda: `＝◇`. -/
   | nil : CxEq ◇ ◇
-  /-- Agda: `＝⨟`.  The last two premises are helper hypotheses. -/
+  /-- The last two premises are helper hypotheses. -/
   | snoc {l : Lvl} {Γ Γ' : Cx} {A A' : Ty0} {x : Atom}
       (q₀ : CxEq Γ Γ') (q₁ : Γ ⊢ A ＝ A' ⦂ l) (q₂ : x # (Γ, Γ'))
       (h₀ : Γ ⊢ A ⦂ l) (h₁ : Γ' ⊢ A' ⦂ l) :
@@ -284,15 +269,13 @@ inductive CxEq : Cx → Cx → Prop where
 
 /-! ## Context weakening -/
 
-/-- Agda: `_▷_` (MLTT/Cofinite.agda). -/
+/-- Context weakening: `Δ ▷ Γ` when `Δ` extends `Γ`. -/
 inductive Weakens : Cx → Cx → Prop where
-  /-- Agda: `▷◇`. -/
   | nil : Weakens ◇ ◇
-  /-- Agda: `▷proj`. -/
   | proj {l : Lvl} {Δ Γ : Cx} {A : Ty0} {x : Atom}
       (q₀ : Weakens Δ Γ) (q₁ : Δ ⊢ A ⦂ l) (q₂ : x # Δ) :
       Weakens (Δ ⨟ x ∶ A ⦂ l) Γ
-  /-- Agda: `▷⨟`.  The final premise is a helper hypothesis. -/
+  /-- The final premise is a helper hypothesis. -/
   | snoc {l : Lvl} {Δ Γ : Cx} {A : Ty0} {x : Atom}
       (q₀ : Weakens Δ Γ) (q₁ : Γ ⊢ A ⦂ l) (q₂ : x # Δ) (h : Δ ⊢ A ⦂ l) :
       Weakens (Δ ⨟ x ∶ A ⦂ l) (Γ ⨟ x ∶ A ⦂ l)
@@ -301,11 +284,9 @@ inductive Weakens : Cx → Cx → Prop where
 
 /-! ## Well-typed substitutions -/
 
-/-- Agda: `_⊢ˢ_∶_` (MLTT/Cofinite.agda). -/
+/-- Typed substitutions: `Γ' ⊢ˢ σ ∶ Γ`. -/
 inductive SbTyping : Cx → Sb sig → Cx → Prop where
-  /-- Agda: `◇ˢ`. -/
   | nil {Γ' : Cx} {σ : Sb sig} (q : Ok Γ') : SbTyping Γ' σ ◇
-  /-- Agda: `⨟ˢ`. -/
   | snoc {l : Lvl} {Γ Γ' : Cx} {σ : Sb sig} {A : Ty0} {x : Atom}
       (q₀ : SbTyping Γ' σ Γ) (q₁ : Γ ⊢ A ⦂ l) (q₂ : Γ' ⊢ σ x ∶ σ * A ⦂ l)
       (q₃ : x # Γ) :
@@ -316,7 +297,7 @@ scoped notation:25 Γ':26 " ⊢ˢ " σ:41 " ∶ " Γ:41 => MLTT.SbTyping Γ' σ 
 
 /-! ## Well-typed renamings -/
 
-/-- Agda: `_⊢ʳ_∶_` (MLTT/Cofinite.agda). -/
+/-- Typed renamings: `Δ ⊢ʳ ρ ∶ Γ`. -/
 def RnTyping (Δ : Cx) (ρ : Rn) (Γ : Cx) : Prop := SbTyping Δ (Sb.ofRn ρ) Γ
 
 @[inherit_doc RnTyping]
@@ -324,11 +305,9 @@ scoped notation:25 Δ:26 " ⊢ʳ " ρ:41 " ∶ " Γ:41 => MLTT.RnTyping Δ ρ Γ
 
 /-! ## Convertible well-typed substitutions -/
 
-/-- Agda: `_⊢ˢ_＝_∶_` (MLTT/Cofinite.agda). -/
+/-- Convertible typed substitutions: `Γ' ⊢ˢ σ ＝ σ' ∶ Γ`. -/
 inductive SbEqTyping : Cx → Sb sig → Sb sig → Cx → Prop where
-  /-- Agda: `＝◇ˢ`. -/
   | nil {Γ' : Cx} {σ σ' : Sb sig} (q : Ok Γ') : SbEqTyping Γ' σ σ' ◇
-  /-- Agda: `＝⨟ˢ`. -/
   | snoc {l : Lvl} {Γ Γ' : Cx} {σ σ' : Sb sig} {A : Ty0} {x : Atom}
       (q₀ : SbEqTyping Γ' σ σ' Γ) (q₁ : Γ ⊢ A ⦂ l)
       (q₂ : Γ' ⊢ σ x ＝ σ' x ∶ σ * A ⦂ l) (q₃ : x # Γ) :

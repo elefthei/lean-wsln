@@ -23,6 +23,4 @@ import GST.DecidableConv
 Lean 4 port of `agda-code/agda/GST.agda` and the modules it re-exports: decidability
 of βη-conversion for Gödel's System T in the well-scoped locally nameless
 representation, proved by normalization by evaluation.
-
-Agda: `GST` (GST.agda).
 -/

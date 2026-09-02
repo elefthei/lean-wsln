@@ -28,12 +28,10 @@ private theorem castCxSnoc {Γ : Cx} {x : Atom} {l : Lvl} {A A' : Ty0} {J : Jg}
 
 /-! ## Type formation and typing -/
 
-/-- Agda: `⊢𝚷⁻` (MLTT/ExistsFresh.agda). -/
 theorem piEF {Γ : Cx} {l l' : Lvl} {A : Ty0} {B : Ty 1} {x : Atom} (q₀ : Γ ⊢ A ⦂ l)
     (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ⦂ l') (q₂ : x # B) : Γ ⊢ 𝚷 l l' A B ⦂ max l l' :=
   .pi (dom Γ) q₀ fun y hy => castIsTy (ssb_conc x (𝐯y) B q₂) (rnSnoc q₁ hy)
 
-/-- Agda: `⊢𝛌⁻` (MLTT/ExistsFresh.agda). -/
 theorem lamEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {b : Tm 1} {x : Atom}
     (q : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ∶ B[x] ⦂ l') (hx : x # (B, b)) :
     Γ ⊢ 𝛌 A b ∶ 𝚷 l l' A B ⦂ max l l' := by
@@ -45,7 +43,6 @@ theorem lamEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {b : Tm 1} {x : Atom}
     hA
     (fun y hy => castIsTy (ssb_conc x (𝐯y) B hxB) (rnSnoc (derivTyOfTm q) hy))
 
-/-- Agda: `⊢∙⁻` (MLTT/ExistsFresh.agda). -/
 theorem appEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {a b : Tm0} {x : Atom}
     (q₀ : Γ ⊢ b ∶ 𝚷 l l' A B ⦂ max l l') (q₁ : Γ ⊢ a ∶ A ⦂ l)
     (q₂ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ⦂ l') (q₃ : x # B) :
@@ -53,15 +50,12 @@ theorem appEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {a b : Tm0} {x : Atom}
   .app (dom Γ) q₀ q₁
     (fun y hy => castIsTy (ssb_conc x (𝐯y) B q₃) (rnSnoc q₂ hy)) (derivTyOfTm q₁)
 
-/-- Agda: `⊢𝐈𝐝⁻` (MLTT/ExistsFresh.agda). -/
 theorem idFEF {l : Lvl} {Γ : Cx} {A a b : Tm0} (q₀ : Γ ⊢ a ∶ A ⦂ l)
     (q₁ : Γ ⊢ b ∶ A ⦂ l) : Γ ⊢ 𝐈𝐝 A a b ⦂ l := .idF q₀ q₁ (derivTyOfTm q₀)
 
-/-- Agda: `⊢𝐫𝐞𝐟𝐥⁻` (MLTT/ExistsFresh.agda). -/
 theorem reflIEF {l : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} (q : Γ ⊢ a ∶ A ⦂ l) :
     Γ ⊢ 𝐫𝐞𝐟𝐥 a ∶ 𝐈𝐝 A a a ⦂ l := .reflI q (derivTyOfTm q)
 
-/-- Agda: `⊢𝐉⁻` (MLTT/ExistsFresh.agda). -/
 theorem jEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a b c e : Tm0} {x y : Atom}
     (q₀ : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ 𝐈𝐝 A a (𝐯x) ⦂ l) ⊢ C[x][y] ⦂ l')
     (q₁ : Γ ⊢ a ∶ A ⦂ l) (q₂ : Γ ⊢ b ∶ A ⦂ l)
@@ -82,7 +76,6 @@ theorem jEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a b c e : Tm0} {x y : A
     (castIsTy (ssb_conc₂ x y (𝐯x') (𝐯y') C q₅ (NotMem.union q₆ hyx))
       (rnSnoc₂ q₀ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
 
-/-- Agda: `⊢𝐧𝐫𝐞𝐜⁻` (MLTT/ExistsFresh.agda). -/
 theorem nrecEF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} {x y : Atom}
     (q₀ : Γ ⊢ c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l)
     (q₁ : (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0 ⨟ y ∶ C[x] ⦂ l) ⊢ cs[x][y] ∶ C[(𝐬𝐮𝐜𝐜 (𝐯x) : Tm0)] ⦂ l)
@@ -111,7 +104,6 @@ theorem nrecEF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} {x y : 
 
 /-! ## Congruence rules -/
 
-/-- Agda: `𝚷Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem piCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B B' : Ty 1} {x : Atom}
     (q₀ : Γ ⊢ A ＝ A' ⦂ l) (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ＝ B'[x] ⦂ l')
     (q₂ : x # (B, B')) : Γ ⊢ 𝚷 l l' A B ＝ 𝚷 l l' A' B' ⦂ max l l' := by
@@ -122,7 +114,6 @@ theorem piCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B B' : Ty 1} {x : Atom}
       (rnSnoc q₁ hx'))
     (derivTy₁ q₀)
 
-/-- Agda: `𝛌Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem lamCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B : Ty 1} {b b' : Tm 1}
     {x : Atom} (q₀ : Γ ⊢ A ＝ A' ⦂ l)
     (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ＝ b'[x] ∶ B[x] ⦂ l') (q₂ : x # (B, b, b')) :
@@ -137,7 +128,6 @@ theorem lamCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B : Ty 1} {b b' : Tm 1}
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') B hxB)
       (rnSnoc (derivTyOfTm (derivTy₁ q₁)) hx'))
 
-/-- Agda: `∙Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem appCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B B' : Ty 1} {a a' b b' : Tm0}
     {x : Atom} (q₀ : Γ ⊢ A ＝ A' ⦂ l)
     (q₁ : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ＝ B'[x] ⦂ l')
@@ -151,12 +141,10 @@ theorem appCongEF {l l' : Lvl} {Γ : Cx} {A A' : Ty0} {B B' : Ty 1} {a a' b b' :
     q₂ q₃ (derivTy₁ q₀)
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') B hxB) (rnSnoc (derivTy₁ q₁) hx'))
 
-/-- Agda: `𝐫𝐞𝐟𝐥Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem reflCongEF {l : Lvl} {Γ : Cx} {A : Ty0} {a a' : Tm0}
     (q : Γ ⊢ a ＝ a' ∶ A ⦂ l) : Γ ⊢ 𝐫𝐞𝐟𝐥 a ＝ 𝐫𝐞𝐟𝐥 a' ∶ 𝐈𝐝 A a a ⦂ l :=
   .reflCong q (derivTyOfTm (derivTy₁ q))
 
-/-- Agda: `𝐉Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem jCongEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C C' : Ty 2}
     {a a' b b' c c' e e' : Tm0} {x y : Atom}
     (q₀ : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ 𝐈𝐝 A a (𝐯x) ⦂ l) ⊢ C[x][y] ＝ C'[x][y] ⦂ l')
@@ -184,7 +172,6 @@ theorem jCongEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C C' : Ty 2}
       (ssb_conc₂ x y (𝐯x') (𝐯y') C' hxC' (NotMem.union hyC' hyx))
       (rnSnoc₂ q₀ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
 
-/-- Agda: `𝐧𝐫𝐞𝐜Cong⁻` (MLTT/ExistsFresh.agda). -/
 theorem nrecCongEF {l : Lvl} {Γ : Cx} {C C' : Ty 1} {c₀ c₀' a a' : Tm0}
     {cs cs' : Tm 2} {x y : Atom}
     (q₀ : (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0) ⊢ C[x] ＝ C'[x] ⦂ l)
@@ -226,7 +213,6 @@ theorem nrecCongEF {l : Lvl} {Γ : Cx} {C C' : Ty 1} {c₀ c₀' a a' : Tm0}
 
 /-! ## Computation rules -/
 
-/-- Agda: `𝚷Beta⁻` (MLTT/ExistsFresh.agda). -/
 theorem piBetaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} {B : Ty 1} {b : Tm 1}
     {x : Atom} (q₀ : (Γ ⨟ x ∶ A ⦂ l) ⊢ b[x] ∶ B[x] ⦂ l') (q₁ : Γ ⊢ a ∶ A ⦂ l)
     (q₂ : x # (B, b)) : Γ ⊢ 𝛌 A b ∙[ A, B ] a ＝ b[a] ∶ B[a] ⦂ l' := by
@@ -239,7 +225,6 @@ theorem piBetaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {a : Tm0} {B : Ty 1} {b : Tm 1
     (fun x' hx' => castIsTy (ssb_conc x (𝐯x') B hxB)
       (rnSnoc (derivTyOfTm q₀) hx'))
 
-/-- Agda: `𝐈𝐝Beta⁻` (MLTT/ExistsFresh.agda). -/
 theorem idBetaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a c : Tm0} {x y : Atom}
     (q₀ : (Γ ⨟ x ∶ A ⦂ l ⨟ y ∶ 𝐈𝐝 A a (𝐯x) ⦂ l) ⊢ C[x][y] ⦂ l')
     (q₁ : Γ ⊢ a ∶ A ⦂ l) (q₂ : Γ ⊢ c ∶ C[a][(𝐫𝐞𝐟𝐥 a : Tm0)] ⦂ l') (q₃ : x # C)
@@ -260,7 +245,6 @@ theorem idBetaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {C : Ty 2} {a c : Tm0} {x y : 
     (castIsTy (ssb_conc₂ x y (𝐯x') (𝐯y') C q₃ (NotMem.union q₄ hyx))
       (rnSnoc₂ q₀ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
 
-/-- Agda: `𝐍𝐚𝐭Beta₀⁻` (MLTT/ExistsFresh.agda). -/
 theorem natBeta₀EF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ : Tm0} {cs : Tm 2} {x y : Atom}
     (q₀ : Γ ⊢ c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l)
     (q₁ : (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0 ⨟ y ∶ C[x] ⦂ l) ⊢ cs[x][y] ∶ C[(𝐬𝐮𝐜𝐜 (𝐯x) : Tm0)] ⦂ l)
@@ -287,7 +271,6 @@ theorem natBeta₀EF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ : Tm0} {cs : Tm 2} {x 
       (eqC (𝐯x') (𝐯y'))
       (rnSnoc₂ q₁ hx'Γ (NotMem.union (fresh_symm hx'y') hy'Γ)))
 
-/-- Agda: `𝐍𝐚𝐭Beta₊⁻` (MLTT/ExistsFresh.agda). -/
 theorem natBetaSEF {l : Lvl} {Γ : Cx} {C : Ty 1} {c₀ a : Tm0} {cs : Tm 2} {x y : Atom}
     (q₀ : Γ ⊢ c₀ ∶ C[(𝐳𝐞𝐫𝐨 : Tm0)] ⦂ l)
     (q₁ : (Γ ⨟ x ∶ 𝐍𝐚𝐭 ⦂ 0 ⨟ y ∶ C[x] ⦂ l) ⊢ cs[x][y] ∶ C[(𝐬𝐮𝐜𝐜 (𝐯x) : Tm0)] ⦂ l)
@@ -371,12 +354,10 @@ private theorem piInvAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : piInvGoal Γ J := b
   | natBetaS => trivial
   | piEta => trivial
 
-/-- Agda: `𝚷⁻¹` (MLTT/ExistsFresh.agda). -/
 theorem piInv {l l' l'' : Lvl} {Γ : Cx} {A C : Ty0} {B : Ty 1} {x : Atom}
     (q : Γ ⊢ 𝚷 l l' A B ∶ C ⦂ l'') (q' : x # Γ) : (Γ ⨟ x ∶ A ⦂ l) ⊢ B[x] ⦂ l' :=
   piInvAux q x q'
 
-/-- Agda: `𝚷Eta⁻` (MLTT/ExistsFresh.agda). -/
 theorem piEtaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {b : Tm0} {x : Atom}
     (q : Γ ⊢ b ∶ 𝚷 l l' A B ⦂ max l l') (q' : x # Γ) :
     Γ ⊢ b ＝ 𝛌 A (x ． (b ∙[ A, B ] 𝐯x)) ∶ 𝚷 l l' A B ⦂ max l l' := by
@@ -420,7 +401,6 @@ theorem piEtaEF {l l' : Lvl} {Γ : Cx} {A : Ty0} {B : Ty 1} {b : Tm0} {x : Atom}
 
 /-! ## Context conversion without the helper hypotheses -/
 
-/-- Agda: `＝⨟⁻` (MLTT/ExistsFresh.agda). -/
 theorem cxEqSnocEF {l : Lvl} {Γ Γ' : Cx} {A A' : Ty0} {x : Atom} (q₀ : ⊢ Γ ＝ Γ')
     (q₁ : Γ ⊢ A ＝ A' ⦂ l) (q₂ : x # (Γ, Γ')) :
     ⊢ (Γ ⨟ x ∶ A ⦂ l) ＝ (Γ' ⨟ x ∶ A' ⦂ l) :=

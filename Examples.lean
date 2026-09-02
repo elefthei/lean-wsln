@@ -9,6 +9,4 @@ import Examples.GST
 Lean 4 port of the WSLN example developments `agda-code/agda/Lambda.agda` and
 `agda-code/agda/PiCalc.agda`, plus concrete instantiations of the adequacy theorems
 and of the System T decision procedures.
-
-Agda: `Lambda` (Lambda.agda), `PiCalc` (PiCalc.agda).
 -/

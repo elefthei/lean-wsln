@@ -5,12 +5,11 @@ import GST.TypeSemantics
 
 Port of `agda-code/agda/GST/ReifyReflect.agda`.
 
-`reify A` (Agda `↓ A`) and `reflect A` (Agda `↑ A`) are defined by mutual structural
-recursion on the type `A`.  Agda's parameterised module `reify` (which names the
-fresh atom `x`, the reflected variable `𝔁`, the applied value `𝓫` and its reification
-`↓𝓫`) has no Lean counterpart — a `where` block would leave the mutual recursion — so
-those abbreviations are inlined, and the naturality proof reintroduces them as local
-`let`s.
+`reify A` and `reflect A` are defined by mutual structural recursion on the type `A`.
+Agda's parameterised module `reify` (which names the fresh atom `x`, the reflected
+variable `𝔁`, the applied value `𝓫` and its reification `↓𝓫`) has no Lean counterpart
+— a `where` block would leave the mutual recursion — so those abbreviations are
+inlined, and the naturality proof reintroduces them as local `let`s.
 
 The fresh atom is Agda's `new (supp Γ)`, here `Fset.new (dom Γ)`.
 -/
@@ -23,7 +22,6 @@ open WSLN
 
 mutual
 
-/-- Agda: `↓` (GST/ReifyReflect.agda). -/
 def reify : (A : Ty) → Psh.Hom (𝓓 A) (Norm A)
   | 𝐍𝐚𝐭 => Psh.Hom.id (Norm 𝐍𝐚𝐭)
   | A ⇒ B =>
@@ -91,7 +89,6 @@ def reify : (A : Ty) → Psh.Hom (𝓓 A) (Norm A)
             (φ.hom.map (RnHom.proj A hx, 𝔁))).pf) hy)
           (.single fun ee => hne ee.symm)) }
 
-/-- Agda: `↑` (GST/ReifyReflect.agda). -/
 def reflect : (A : Ty) → Psh.Hom (Neut A) (𝓓 A)
   | 𝐍𝐚𝐭 => neuHom
   | A ⇒ B =>
@@ -134,21 +131,17 @@ end
 
 /-! ## Abbreviations -/
 
-/-- Agda: `↓₀` (GST/ReifyReflect.agda). -/
 def reifyTm (A : Ty) {S : Fset} {Γ : Cx S} (𝓪 : Psh.El (𝓓 A) Γ) : Tm0 :=
   ((reify A).hom.map 𝓪).nt
 
-/-- Agda: `↓₀⊢` (GST/ReifyReflect.agda). -/
 def reifyNf {A : Ty} {S : Fset} {Γ : Cx S} (𝓪 : Psh.El (𝓓 A) Γ) :
     Γ ⊢ⁿ reifyTm A 𝓪 ∶ A := ((reify A).hom.map 𝓪).pf
 
-/-- Agda: `↑₀` (GST/ReifyReflect.agda). -/
 def reflectEl {A : Ty} {a : Tm0} {S : Fset} {Γ : Cx S} (q : Γ ⊢ᵘ a ∶ A) :
     Psh.El (𝓓 A) Γ := (reflect A).hom.map ⟨a, q⟩
 
 /-! ## Initial environment -/
 
-/-- Agda: `𝓼₀` (GST/ReifyReflect.agda). -/
 def env₀ : {S : Fset} → (Γ : Cx S) → Psh.El (𝓔 Γ) Γ
   | _, .nil => ()
   | _, .snoc Γ _ A h =>

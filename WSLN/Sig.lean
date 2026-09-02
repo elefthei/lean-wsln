@@ -13,11 +13,11 @@ build without instance-coherence problems.
 
 namespace WSLN
 
-/-- Agda: `Sig` (WSLN/Sig/Sig.agda). Plotkin's binding signatures. -/
+/-- Plotkin's binding signatures. -/
 structure Sig where
-  /-- Agda: `Op`. The operators of the signature. -/
+  /-- The operators of the signature. -/
   Op : Type
-  /-- Agda: `ar`. The arity of an operator: one binding depth per argument. -/
+  /-- The arity of an operator: one binding depth per argument. -/
   ar : Op → List Nat
 
 end WSLN

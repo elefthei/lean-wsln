@@ -14,13 +14,11 @@ namespace WSLN
 
 mutual
 
-/-- Agda: `sizeTrm` (WSLN/Sig/Size.agda). -/
 def Trm.size {Sg : Sig} {n : Nat} : Trm Sg n → Nat
   | .var _ => 0
   | .atom _ => 0
   | .op _ ts => Arg.size ts + 1
 
-/-- Agda: `sizeArg` (WSLN/Sig/Size.agda). -/
 def Arg.size {Sg : Sig} {n : Nat} {ms : List Nat} : Arg Sg n ms → Nat
   | .nil => 0
   | .cons t ts => max (Trm.size t) (Arg.size ts)
@@ -46,7 +44,6 @@ end
 
 mutual
 
-/-- Agda: `size‿` (WSLN/Sig/Size.agda). -/
 @[simp] theorem Trm.size_weaken {Sg : Sig} {m n : Nat} (t : Trm Sg m) (h : m ≤ n) :
     (t.weaken n h).size = t.size := by
   match t with
@@ -54,7 +51,6 @@ mutual
   | .atom x => rfl
   | .op o ts => simpa using Arg.size_weaken ts h
 
-/-- Agda: `size‿'` (WSLN/Sig/Size.agda). -/
 @[simp] theorem Arg.size_weaken {Sg : Sig} {m n : Nat} {ms : List Nat}
     (ts : Arg Sg m ms) (h : m ≤ n) : (ts.weaken n h).size = ts.size := by
   match ts with
@@ -69,7 +65,6 @@ end
 
 mutual
 
-/-- Agda: `sizeOpn` (WSLN/Sig/Size.agda). -/
 theorem sizeOpn {Sg : Sig} {m n : Nat} (i : Fin m) (x : Atom) (t : Trm Sg m)
     (e : m = n + 1) : (opn i (Trm.atom x) t e).size = t.size := by
   match t with
@@ -80,7 +75,6 @@ theorem sizeOpn {Sg : Sig} {m n : Nat} (i : Fin m) (x : Atom) (t : Trm Sg m)
   | .atom y => simp
   | .op o ts => simpa using sizeOpnArg i x ts e
 
-/-- Agda: `sizeOpn'` (WSLN/Sig/Size.agda). -/
 theorem sizeOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (x : Atom)
     (ts : Arg Sg m ms) (e : m = n + 1) : (opnArg i (Trm.atom x) ts e).size = ts.size := by
   match ts with
@@ -91,11 +85,9 @@ theorem sizeOpnArg {Sg : Sig} {m n : Nat} {ms : List Nat} (i : Fin m) (x : Atom)
 
 end
 
-/-- Agda: `size[]` (WSLN/Sig/Size.agda). -/
 @[simp] theorem size_conc {Sg : Sig} {n : Nat} (t : Trm Sg (n + 1)) (x : Atom) :
     (t[x]).size = t.size := sizeOpn _ x t rfl
 
-/-- Agda: `size[]≤` (WSLN/Sig/Size.agda). -/
 theorem size_conc_le {Sg : Sig} {s n : Nat} (t : Trm Sg (n + 1)) (x : Atom)
     (h : t.size ≤ s) : (t[x]).size ≤ s := by rw [size_conc]; exact h
 
@@ -103,7 +95,6 @@ theorem size_conc_le {Sg : Sig} {s n : Nat} (t : Trm Sg (n + 1)) (x : Atom)
 
 mutual
 
-/-- Agda: `sizeCls` (WSLN/Sig/Size.agda). -/
 theorem sizeCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
     (e : n = m + 1) : (cls x i t e).size = t.size := by
   match t with
@@ -114,7 +105,6 @@ theorem sizeCls {Sg : Sig} {m n : Nat} (x : Atom) (i : Fin n) (t : Trm Sg m)
       · rw [cls_atom_ne i e h]; simp
   | .op o ts => simpa using sizeClsArg x i ts e
 
-/-- Agda: `sizeCls'` (WSLN/Sig/Size.agda). -/
 theorem sizeClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
     (ts : Arg Sg m ms) (e : n = m + 1) : (clsArg x i ts e).size = ts.size := by
   match ts with
@@ -125,11 +115,9 @@ theorem sizeClsArg {Sg : Sig} {m n : Nat} {ms : List Nat} (x : Atom) (i : Fin n)
 
 end
 
-/-- Agda: `sizeAbs` (WSLN/Sig/Size.agda). -/
 @[simp] theorem size_abs {Sg : Sig} {n : Nat} (x : Atom) (t : Trm Sg n) :
     (x ． t).size = t.size := sizeCls x _ t rfl
 
-/-- Agda: `sizeAbs≤` (WSLN/Sig/Size.agda). -/
 theorem size_abs_le {Sg : Sig} {s n : Nat} (x : Atom) (t : Trm Sg n) (h : t.size ≤ s) :
     (x ． t).size ≤ s := by rw [size_abs]; exact h
 
@@ -137,7 +125,6 @@ theorem size_abs_le {Sg : Sig} {s n : Nat} (x : Atom) (t : Trm Sg n) (h : t.size
 
 mutual
 
-/-- Agda: `sizeRn` (WSLN/Sig/Size.agda). -/
 @[simp] theorem Trm.size_rn {Sg : Sig} {n : Nat} (t : Trm Sg n) (ρ : Rn) :
     (ρ * t).size = t.size := by
   match t with
@@ -145,7 +132,6 @@ mutual
   | .atom x => simp [Sb.ofRn]
   | .op o ts => simpa using Arg.size_rn ts ρ
 
-/-- Agda: `sizeRn'` (WSLN/Sig/Size.agda). -/
 @[simp] theorem Arg.size_rn {Sg : Sig} {n : Nat} {ms : List Nat} (ts : Arg Sg n ms)
     (ρ : Rn) : (ρ * ts).size = ts.size := by
   match ts with
