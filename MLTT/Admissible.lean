@@ -169,7 +169,6 @@ private def tyBothGoal (Γ : Cx) : Jg → Prop
   | .ty _ _ _ => True
   | .eq a a' A l => (Γ ⊢ a ∶ A ⦂ l) ∧ (Γ ⊢ a' ∶ A ⦂ l)
 
-set_option maxHeartbeats 1000000 in
 /-- The induction behind `derivTy₁`/`derivTy₂`; see `tyBothGoal`. -/
 private theorem tyBoth {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyBothGoal Γ J := by
   induction q using Deriv.rec (motive_1 := fun _ _ => True) with
@@ -427,7 +426,6 @@ private def tyOfTmGoal (Γ : Cx) : Jg → Prop
   | .ty _ A l => Γ ⊢ A ⦂ l
   | .eq _ _ _ _ => True
 
-set_option maxHeartbeats 1000000 in
 /-- The induction behind `derivTyOfTm`; see `tyOfTmGoal`. -/
 private theorem tyOfTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : tyOfTmGoal Γ J := by
   induction q using Deriv.rec (motive_1 := fun _ _ => True) with

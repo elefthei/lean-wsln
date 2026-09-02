@@ -172,7 +172,7 @@ theorem sbDom {σ : Sb sig} {Γ Γ' : Cx} {x : Atom} (p : Γ' ⊢ˢ σ ∶ Γ)
 
 /-! ## Substitution preserves provable judgements -/
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 400000 in
 /-- Agda: `sbJg` (MLTT/Substitution.agda). -/
 theorem sbDeriv {σ : Sb sig} {Δ Γ : Cx} {J : Jg} (p : Δ ⊢ˢ σ ∶ Γ) (q : Γ ⊢ J) :
     Δ ⊢ σ * J := by
@@ -869,7 +869,6 @@ private def eqSbTmGoal (Δ : Cx) (σ σ' : Sb sig) : Jg → Prop
   | .ty a A l => Δ ⊢ σ * a ＝ σ' * a ∶ σ * A ⦂ l
   | .eq _ _ _ _ => True
 
-set_option maxHeartbeats 1000000 in
 /-- The induction behind `eqSbTm`; see `eqSbTmGoal`. -/
 private theorem eqSbTmAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) {σ σ' : Sb sig} {Δ : Cx}
     (p : Δ ⊢ˢ σ ＝ σ' ∶ Γ) (h : Δ ⊢ˢ σ ∶ Γ) : eqSbTmGoal Δ σ σ' J := by

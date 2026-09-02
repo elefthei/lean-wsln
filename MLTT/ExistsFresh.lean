@@ -331,7 +331,6 @@ private def piInvGoal (Γ : Cx) : Jg → Prop
   | .ty a _ _ => piInvTm Γ a
   | .eq _ _ _ _ => True
 
-set_option maxHeartbeats 1000000 in
 /-- The induction behind `piInv`; see `piInvGoal`. -/
 private theorem piInvAux {Γ : Cx} {J : Jg} (q : Γ ⊢ J) : piInvGoal Γ J := by
   induction q using Deriv.rec (motive_1 := fun _ _ => True) with

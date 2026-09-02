@@ -32,8 +32,8 @@ lake build
 ```
 
 Builds five libraries (`WSLN`, `Adequacy`, `MLTT`, `GST`, `Examples`) in 56 jobs. A
-cold build takes a few minutes; `MLTT.Substitution` and `MLTT.Admissible` dominate,
-and seven proofs raise `maxHeartbeats` to `1000000` in a scoped `set_option ... in`.
+cold build takes a couple of minutes; `MLTT.Substitution` dominates by a wide margin,
+and `sbDeriv` alone raises `maxHeartbeats` to `400000` in a scoped `set_option ... in`.
 
 The build is self-checking. `MLTT/Uniqueness.lean` ends with `#print axioms` for the
 seven headline metatheorems, `Adequacy/Translation.lean` does the same for

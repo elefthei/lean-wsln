@@ -128,7 +128,6 @@ private def rootGoal (Γ : Cx) : Jg → Prop
 private theorem rootIntro {Γ : Cx} {a A : Tm0} {l : Lvl} (r : Root Γ (a ∶ A ⦂ l)) :
     rootGoal Γ (a ∶ A ⦂ l) := ⟨A, r, .refl (derivTyOfTm (rootDeriv r))⟩
 
-set_option maxHeartbeats 1000000 in
 /-- Every typing derivation is a non-conversion rule followed by a conversion of the
 type.  This is the right-hand `⊢conv` peeling of Agda's `svTy`. -/
 private theorem toRoot {Γ : Cx} {J : Jg} (d : Γ ⊢ J) : rootGoal Γ J := by
@@ -178,7 +177,6 @@ private def svTyGoal (Γ : Cx) : Jg → Prop
       ∀ (A' : Ty0) (l' : Lvl), (Γ ⊢ a ∶ A' ⦂ l') → (l = l') ∧ (Γ ⊢ A ＝ A' ⦂ l)
   | .eq _ _ _ _ => True
 
-set_option maxHeartbeats 1000000 in
 /-- The induction behind `svTy`; see `svTyGoal`. -/
 private theorem svTyAux {Γ : Cx} {J : Jg} (d : Γ ⊢ J) : svTyGoal Γ J := by
   induction d using Deriv.rec (motive_1 := fun _ _ => True) with
